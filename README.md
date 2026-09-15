@@ -1,132 +1,108 @@
 # swift-telegram-client
 
-[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FUInt8Co%2Fswift-telegram-client%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/UInt8Co/swift-telegram-client)
-[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FUInt8Co%2Fswift-telegram-client%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/UInt8Co/swift-telegram-client)
+[![CI](https://github.com/UInt8Co/swift-telegram-client/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/UInt8Co/swift-telegram-client/actions/workflows/ci.yml)
+[![Platforms](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FUInt8Co%2Fswift-telegram-client%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/UInt8Co/swift-telegram-client)
+[![Swift versions](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2FUInt8Co%2Fswift-telegram-client%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/UInt8Co/swift-telegram-client)
 
-A [Telegram](https://core.telegram.org/api) client in Swift: the whole current
-API layer as generated types, and the client that knows what to do with them —
-logging in, following datacenter migrations, reading updates, moving files.
+A Swift library for Telegram user and bot accounts, with typed `async` APIs,
+phone and QR login, session reuse, update helpers, and media transfer.
+Uses Telegram's MTProto API, not the HTTP Bot API.
+
+**[API documentation][documentation]** · [DocC overview][overview] · [Telegram method reference][methods]
+
+## Installation
+
+Requires Swift 6.3 or later. Apple minimum deployment targets are macOS 15,
+iOS 18, tvOS 18, watchOS 11, and Mac Catalyst 18.
+
+Add the package to your `Package.swift` dependencies. Use `main` until a tagged
+release is available:
 
 ```swift
-.package(url: "https://github.com/UInt8Co/swift-telegram-client", from: "1.0.0")
+.package(url: "https://github.com/UInt8Co/swift-telegram-client", branch: "main")
 ```
 
-The API reference is published by the [Swift Package
-Index](https://swiftpackageindex.com/UInt8Co/swift-telegram-client/documentation/telegramclient).
+Add both products to your target's dependencies:
 
-## What this is
+```swift
+.product(name: "TelegramClient", package: "swift-telegram-client"),
+.product(name: "TelegramSchema", package: "swift-telegram-client"),
+```
 
-[swift-mtproto](https://github.com/UInt8Co/swift-mtproto) and
-[swift-nio-mtproto](https://github.com/UInt8Co/swift-nio-mtproto) implement the
-*protocol*: TL serialization, the crypto, the transport, the encrypted session.
-They know nothing about users, chats or messages. This package is the layer
-above — it knows Telegram.
+`TelegramClient` provides connections and helpers; `TelegramSchema` provides the
+Telegram API types and methods.
+
+## Quick start
+
+Get an `api_id` and `api_hash` from [my.telegram.org](https://my.telegram.org/apps).
+Both user and bot logins require these application credentials. Replace the
+placeholders below and run from an async context:
 
 ```swift
 import TelegramClient
+import TelegramSchema
 
 let connection = try await TelegramConnection.connect(
-  app: TelegramApp(apiID: 12345, apiHash: "…"),
-  authorization: .botToken("123456:ABC…"))
+  app: TelegramApp(apiID: 12345, apiHash: "YOUR_API_HASH"),
+  authorization: .botToken("YOUR_BOT_TOKEN"))
 
-let me = try await connection.api.users.getUsers(id: [.inputUserSelf(TL.InputUserSelf())])
-try await connection.api.messages.sendMessage(peer: peer, message: "hello", randomId: .random())
+do {
+  let me = try await connection.api.users.getUsers(
+    id: [.inputUserSelf(TL.InputUserSelf())])
+  print(me)
+} catch {
+  await connection.disconnect()
+  throw error
+}
 await connection.disconnect()
 ```
 
-No addresses are named because none are needed: `TelegramService.production`
-carries Telegram's own bootstrap set, and everything after the first
-`help.getConfig` uses the datacenter list Telegram publishes.
+`connect` uses Telegram's production service and handles login-time datacenter
+migration; no server addresses are needed. Keep the connection open for as long
+as your app needs it, then call `disconnect()`.
 
-| Module | What it is |
+Call methods through `connection.api`, grouped by namespace, such as
+`api.users.getUsers` and `api.messages.sendMessage`. The [Telegram method
+reference][methods] documents parameters and which methods bots can use.
+
+## Authentication and sessions
+
+Choose an `authorization:` value when connecting:
+
+| Account or login method | Authorization |
 |---|---|
-| `TelegramSchema` | The current API layer, generated: every type, every RPC, and a `TLClient` exposing each one as an `async` function grouped by namespace |
-| `TelegramClient` | Connections, logging in, datacenter migration and pooling, update differences, peer resolution, file transfer, and the rules for `FLOOD_WAIT`/`*_MIGRATE` |
+| Bot | `.botToken("YOUR_BOT_TOKEN")` |
+| User, by phone code | `.user(TelegramPhoneLogin(...))` |
+| User, by QR code | `.user(TelegramQRLogin(...))` |
+| Previously saved session only | `.storedSessionOnly` |
 
-## Logging in
+Phone login accepts your app's code-entry callback; QR login accepts a callback
+that displays `TelegramQRLogin.loginURL(token:)` as a QR code. Both accept a
+`password` callback for two-step verification. See the [login APIs][documentation]
+for callback signatures and options.
 
-Four ways, all through the same `authorization:` argument.
+The default session store is in-memory. To keep logins across restarts, implement
+`TelegramSessionStore` and pass it as `sessionStore:` with a stable, distinct
+`sessionScope:` for each account. Reuse the store and scope when reconnecting,
+and protect saved session keys as credentials. `.storedSessionOnly` fails rather
+than logging in again when no valid saved session is available.
 
-```swift
-// A bot.
-.botToken("123456:ABC…")
+## Updates, peers, and media
 
-// A user, by phone code — and by password when the account has one.
-.user(TelegramPhoneLogin(
-  phoneNumber: "+15550100",
-  code: { sent in await ask("Code sent by \(sent.type):") },
-  password: { prompt in await ask("Password (hint: \(prompt.hint ?? "none")):") }))
+Pass `onPushedUpdates:` to `connect` to receive live updates. The callback does
+not recover missed updates automatically: use `UpdateCursor` and
+`DifferenceDecoder` with `updates.getDifference`, plus the channel-difference
+helpers for channels and supergroups.
 
-// A user, by QR code scanned from an already–signed-in device.
-.user(TelegramQRLogin(present: { token in
-  show(qr: TelegramQRLogin.loginURL(token: token))
-}))
-
-// Whatever was authorized last time, and nothing else.
-.storedSessionOnly
-```
-
-Pass a `sessionStore:` and the negotiated session is kept, so the next run
-resumes instead of logging in again — which matters, because logging in is what
-earns an application a flood wait. `InMemoryTelegramSessionStore` is the default;
-conform `TelegramSessionStore` to keep sessions anywhere you like.
-
-Two-step verification is [SRP-6a](https://core.telegram.org/api/srp). Both halves
-of it live in swift-mtproto — `TelegramSRP` computes the proof, `SRP` verifies it
-— so `checkPassword` is only the RPC around them.
-
-## Migration, pooling and files
-
-A login authorizes on exactly one datacenter, and everything else answers it
-`USER_MIGRATE_X`. `TelegramConnection` follows those. Files are the awkward case:
-`upload.getFile` answers `FILE_MIGRATE_X`, and the datacenter that holds the file
-will not accept the original credential at all — so `TelegramClientPool` opens
-that connection the only way it can be opened, by having the home connection
-export an authorization for it.
-
-```swift
-let pool = TelegramClientPool(
-  main: connection, app: app, datacenters: datacenters, sessionStore: store)
-let transfer = MediaTransfer(source: pool, destination: connection.api)
-let media = try await transfer.transfer(sourceMedia, destination: channel)
-```
-
-## Beyond Telegram's schema
-
-`TLClient.invoke` is generic over `TLFunction`, so a schema of your own rides the
-same connection. Generate it on top of this one and the two share a single `TL`
-namespace:
-
-```sh
-mtproto-gen-swift --schema-url my-schema.json --output Sources/MySchema \
-  --mode types --root-namespace-module TelegramSchema
-```
-
-```swift
-import MySchema  // re-exports TelegramSchema
-
-try await connection.api.invoke(TL.My.Method(…))
-```
-
-Use `--mode types` rather than `--mode client`: the `TLClient` facade is this
-package's, and one is enough. Point `TelegramService` at your own addresses, key
-and layer to talk to a server that is not Telegram at all.
-
-## Regenerating the schema
-
-`Sources/TelegramSchema` is generated and committed; `Schemas/api.json` is the
-pinned schema it came from, so a plain run reproduces the tree exactly.
-
-```sh
-Scripts/generate-schema.sh                      # from the pinned schema
-Scripts/generate-schema.sh --fetch --layer 230  # re-pin from Telegram's published schema
-Scripts/generate-schema.sh --from-mtcute ../mtcute
-```
-
-The last form needs [Deno](https://deno.com); the others do not. Regenerating
-rewrites `Package.swift`'s generated-target region, so a new TL namespace needs
-no manifest edit.
+The [API documentation][documentation] covers peer resolution with `PeerResolver`,
+additional datacenter connections with `TelegramClientPool`, photo and document
+transfer with `MediaTransfer`, and flood-wait handling with `MTProtoDirective`.
+The [DocC topic index][overview] is also available in this repository.
 
 ## License
 
 MIT. See [LICENSE](LICENSE).
+
+[documentation]: https://swiftpackageindex.com/UInt8Co/swift-telegram-client/documentation/telegramclient
+[overview]: Sources/TelegramClient/TelegramClient.docc/TelegramClient.md
+[methods]: https://core.telegram.org/methods
