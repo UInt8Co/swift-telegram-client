@@ -1,0 +1,80 @@
+# Builds the package and runs its tests.
+#
+# `paths-ignore` is the whole of the change filtering: prose is the only thing
+# in this repository that cannot affect a build. Everything else is source,
+# Sources/TelegramSchema included — it is generated, but it is generated *and
+# committed*, so a regeneration arrives as an ordinary source change and is
+# built and tested like one.
+name: CI
+
+on:
+  # Pushes are filtered to main so that a branch with a pull request open is
+  # not built twice for the same commit.
+  push:
+    branches: [main]
+    paths-ignore: ['**/*.md', 'LICENSE']
+  pull_request:
+    paths-ignore: ['**/*.md', 'LICENSE']
+  workflow_dispatch:
+
+# A newer run on the same ref makes in-flight runs obsolete.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Build and test
+    runs-on: ubuntu-latest
+    # The toolchain the package's swift-tools-version asks for, pinned rather
+    # than floating: a compiler bump is a decision, not a surprise.
+    container: swift:6.3
+    steps:
+      - name: Check out
+        uses: actions/checkout@v6
+
+      # Restored, not `actions/cache`, so the matching save below can run on a
+      # red build too — see the note there. The key carries the run id so each
+      # run stores its own (immutable) entry, and the restore-keys walk back to
+      # the most recent build tree: the same dependencies first, then any.
+      - name: Restore the build
+        id: cache
+        uses: actions/cache/restore@v5
+        with:
+          path: |
+            .build
+            ~/.cache/org.swift.swiftpm
+          key: spm-${{ runner.os }}-swift6.3-${{ hashFiles('Package.resolved') }}-${{ github.run_id }}
+          restore-keys: |
+            spm-${{ runner.os }}-swift6.3-${{ hashFiles('Package.resolved') }}-
+            spm-${{ runner.os }}-swift6.3-
+
+      # Resolution is its own step so a dependency that cannot be fetched fails
+      # as that, rather than as a compile error somewhere in the schema.
+      - name: Resolve dependencies
+        run: swift package resolve
+
+      # Building the tests builds the library targets they link, so `swift test`
+      # below only runs them. Split so a compile failure and a test failure are
+      # different steps.
+      - name: Build
+        run: swift build --build-tests
+
+      - name: Test
+        run: swift test --skip-build
+
+      # actions/cache's own post step is `post-if: success()`, so a red run would
+      # throw away everything it just compiled and the next push would start
+      # cold. A failed build's object files are as good as a passing one's, and
+      # pushing a fix is exactly when that matters, so this stores them anyway.
+      - name: Save the build
+        if: ${{ always() && steps.cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@v5
+        with:
+          path: |
+            .build
+            ~/.cache/org.swift.swiftpm
+          key: ${{ steps.cache.outputs.cache-primary-key }}

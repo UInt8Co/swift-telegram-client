@@ -1,0 +1,89 @@
+# Manually-triggered workflow that re-pins the Telegram API layer from mtcute and
+# regenerates Sources/TelegramSchema from it (Scripts/generate-schema.sh
+# --from-mtcute), then pushes the result to main.
+#
+# mtcute is the source because it commits the packed TL schema
+# (packages/core/src/tl/api-schema.json) with the layer number *in* it, so a ref
+# picks a layer exactly — which is what matters when this package has to speak
+# the same layer as another client. Telegram's own published JSON carries no
+# layer number, which is why `--fetch` needs one passed by hand and is left to
+# a local run.
+#
+# Leave `mtcute-ref` empty to take mtcute's default branch — the latest layer it
+# has packed. Give a commit, tag or branch to pin a specific one.
+name: Regenerate Telegram schema
+
+on:
+  workflow_dispatch:
+    inputs:
+      mtcute-ref:
+        description: mtcute commit, tag or branch to take the schema from (empty = its default branch)
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+
+jobs:
+  regenerate:
+    name: Regenerate from mtcute
+    runs-on: ubuntu-latest
+    container: swift:6.3
+    steps:
+      - name: Check out main
+        uses: actions/checkout@v6
+        with:
+          ref: main
+
+      # Only the packed schema is read, so this is a plain checkout: none of
+      # mtcute's own toolchain or codegen runs here.
+      - name: Check out mtcute
+        uses: actions/checkout@v6
+        with:
+          repository: mtcute/mtcute
+          ref: ${{ inputs.mtcute-ref }}
+          path: .mtcute
+
+      # Scripts/convert-tl-schema.ts and Scripts/generate-package-targets.ts are
+      # Deno. $HOME/.deno/bin is where the installer puts it and where the script
+      # looks when deno is not already on PATH; unzip is what the installer
+      # unpacks with, and the Swift image does not ship it.
+      - name: Install Deno
+        run: |
+          set -eu
+          apt-get update
+          apt-get install -y --no-install-recommends curl unzip ca-certificates
+          curl -fsSL https://deno.land/install.sh | DENO_INSTALL="$HOME/.deno" sh -s -- -y
+          echo "$HOME/.deno/bin" >> "$GITHUB_PATH"
+
+      # The generator ships with swift-mtproto and is built from this package's
+      # own checkout of it, so resolution has to have happened before the script
+      # runs. Doing it here also fails a bad pin as itself.
+      - name: Resolve dependencies
+        run: swift package resolve
+
+      - name: Regenerate the schema
+        run: Scripts/generate-schema.sh --from-mtcute .mtcute
+
+      # The regenerated tree is what will be pushed, so it has to compile and the
+      # client on top of it has to still pass. A layer that breaks the hand-written
+      # client is a change for a person to make, not something to land unseen.
+      - name: Build and test the regenerated schema
+        run: swift test
+
+      - name: Commit and push
+        run: |
+          set -eu
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Explicit paths: the mtcute checkout sits in the working tree and is
+          # not part of this repository.
+          git add Schemas Sources/TelegramSchema Package.swift
+          if git diff --cached --quiet; then
+            echo "Schema unchanged; nothing to commit."
+            exit 0
+          fi
+          layer="$(cat Schemas/latest-layer.txt)"
+          git commit -m "chore: regenerate TelegramSchema at layer $layer"
+          git push origin HEAD:main
