@@ -301,13 +301,13 @@ extension TLClient {
     let state = try await invoke(TL.Account.GetPassword())
     guard state.hasPassword, let srpID = state.srpId, let srpB = state.srpB,
       let algo = state.currentAlgo
-    else { throw TelegramSRPError.noPasswordSet }
+    else { throw SRPError.noPasswordSet }
     guard
       case .passwordKdfAlgoSHA256SHA256PBKDF2HMACSHA512iter100000SHA256ModPow(let kdf) = algo
-    else { throw TelegramSRPError.unsupportedPasswordAlgorithm }
-    let proof = try TelegramSRP.proof(
+    else { throw SRPError.unsupportedPasswordAlgorithm }
+    let proof = try SRP.Client.proof(
       for: password,
-      challenge: TelegramSRP.Challenge(
+      challenge: SRP.Client.Challenge(
         group: SRP.Group(pBytes: kdf.p, g: kdf.g), salt1: kdf.salt1, salt2: kdf.salt2,
         srpB: srpB, srpID: srpID))
     return try await invoke(
