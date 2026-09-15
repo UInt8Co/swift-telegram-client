@@ -11,6 +11,9 @@ logging in, following datacenter migrations, reading updates, moving files.
 .package(url: "https://github.com/UInt8Co/swift-telegram-client", from: "1.0.0")
 ```
 
+The API reference is published by the [Swift Package
+Index](https://swiftpackageindex.com/UInt8Co/swift-telegram-client/documentation/telegramclient).
+
 ## What this is
 
 [swift-mtproto](https://github.com/UInt8Co/swift-mtproto) and

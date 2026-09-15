@@ -21,7 +21,7 @@ public enum TelegramAuthorization: Sendable {
   /// Spend a bot token. Only the datacenter that homes the bot accepts it.
   case botToken(String)
   /// Sign a user in interactively — a phone code, or a QR code scanned by an
-  /// already–signed-in device. See ``TelegramLogin``.
+  /// already–signed-in device. See ``TelegramUserLogin``.
   case user(any TelegramUserLogin)
   /// Import an authorization another connection exports for this datacenter.
   /// The closure runs per dial: an exported authorization is spent by the

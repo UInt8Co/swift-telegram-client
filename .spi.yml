@@ -1,0 +1,19 @@
+# Swift Package Index build and documentation settings.
+# Reference: https://swiftpackageindex.com/SwiftPackageIndex/SPIManifest/documentation/spimanifest
+#
+# Both modules are documented in one configuration so that references resolve
+# across them: nearly every signature in TelegramClient is written in terms of a
+# `TL.*` type from TelegramSchema, and a reference into a target that was not
+# built alongside renders as plain text rather than a link.
+#
+# TelegramSchema is the expensive half — a generated layer whose symbol graph
+# runs to a few hundred megabytes. If the index's builder ever stops finishing
+# it, drop it from the list rather than losing the documentation entirely: the
+# hand-written client is the half that is read.
+#
+# Package.swift deliberately carries no swift-docc-plugin dependency; the index
+# injects the plugin itself when a package does not declare one.
+version: 1
+builder:
+  configs:
+    - documentation_targets: [TelegramClient, TelegramSchema]
