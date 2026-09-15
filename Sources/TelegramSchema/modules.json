@@ -1,0 +1,780 @@
+{
+  "modules" : [
+    {
+      "dependencies" : [
+
+      ],
+      "directory" : "Support",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaSupport"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport"
+      ],
+      "directory" : "Types",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaTypes"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsGlobal",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsGlobal"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsAccount",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsAccount"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsAicompose",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsAicompose"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsAuth",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsAuth"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsBots",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsBots"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsChannels",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsChannels"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsChatlists",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsChatlists"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsCommunities",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsCommunities"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsContacts",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsContacts"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsEphemeral",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsEphemeral"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsFolders",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsFolders"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsFragment",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsFragment"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsHelp",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsHelp"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsLangpack",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsLangpack"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsMessages",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsMessages"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsPayments",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsPayments"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsPhone",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsPhone"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsPhotos",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsPhotos"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsPremium",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsPremium"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsSmsjobs",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsSmsjobs"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsStats",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsStats"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsStickers",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsStickers"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsStories",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsStories"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsUpdates",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsUpdates"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsUpload",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsUpload"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsUsers",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsUsers"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "Client",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClient"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsGlobal"
+      ],
+      "directory" : "ClientGlobal",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientGlobal"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsAccount"
+      ],
+      "directory" : "ClientAccount",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientAccount"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsAicompose"
+      ],
+      "directory" : "ClientAicompose",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientAicompose"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsAuth"
+      ],
+      "directory" : "ClientAuth",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientAuth"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsBots"
+      ],
+      "directory" : "ClientBots",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientBots"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsChannels"
+      ],
+      "directory" : "ClientChannels",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientChannels"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsChatlists"
+      ],
+      "directory" : "ClientChatlists",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientChatlists"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsCommunities"
+      ],
+      "directory" : "ClientCommunities",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientCommunities"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsContacts"
+      ],
+      "directory" : "ClientContacts",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientContacts"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsEphemeral"
+      ],
+      "directory" : "ClientEphemeral",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientEphemeral"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsFolders"
+      ],
+      "directory" : "ClientFolders",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientFolders"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsFragment"
+      ],
+      "directory" : "ClientFragment",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientFragment"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsHelp"
+      ],
+      "directory" : "ClientHelp",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientHelp"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsLangpack"
+      ],
+      "directory" : "ClientLangpack",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientLangpack"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsMessages"
+      ],
+      "directory" : "ClientMessages",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientMessages"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsPayments"
+      ],
+      "directory" : "ClientPayments",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientPayments"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsPhone"
+      ],
+      "directory" : "ClientPhone",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientPhone"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsPhotos"
+      ],
+      "directory" : "ClientPhotos",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientPhotos"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsPremium"
+      ],
+      "directory" : "ClientPremium",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientPremium"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsSmsjobs"
+      ],
+      "directory" : "ClientSmsjobs",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientSmsjobs"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsStats"
+      ],
+      "directory" : "ClientStats",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientStats"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsStickers"
+      ],
+      "directory" : "ClientStickers",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientStickers"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsStories"
+      ],
+      "directory" : "ClientStories",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientStories"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsUpdates"
+      ],
+      "directory" : "ClientUpdates",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientUpdates"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsUpload"
+      ],
+      "directory" : "ClientUpload",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientUpload"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsUsers"
+      ],
+      "directory" : "ClientUsers",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientUsers"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaMethodsGlobal",
+        "TelegramSchemaMethodsAccount",
+        "TelegramSchemaMethodsAicompose",
+        "TelegramSchemaMethodsAuth",
+        "TelegramSchemaMethodsBots",
+        "TelegramSchemaMethodsChannels",
+        "TelegramSchemaMethodsChatlists",
+        "TelegramSchemaMethodsCommunities",
+        "TelegramSchemaMethodsContacts",
+        "TelegramSchemaMethodsEphemeral",
+        "TelegramSchemaMethodsFolders",
+        "TelegramSchemaMethodsFragment",
+        "TelegramSchemaMethodsHelp",
+        "TelegramSchemaMethodsLangpack",
+        "TelegramSchemaMethodsMessages",
+        "TelegramSchemaMethodsPayments",
+        "TelegramSchemaMethodsPhone",
+        "TelegramSchemaMethodsPhotos",
+        "TelegramSchemaMethodsPremium",
+        "TelegramSchemaMethodsSmsjobs",
+        "TelegramSchemaMethodsStats",
+        "TelegramSchemaMethodsStickers",
+        "TelegramSchemaMethodsStories",
+        "TelegramSchemaMethodsUpdates",
+        "TelegramSchemaMethodsUpload",
+        "TelegramSchemaMethodsUsers",
+        "TelegramSchemaClient",
+        "TelegramSchemaClientGlobal",
+        "TelegramSchemaClientAccount",
+        "TelegramSchemaClientAicompose",
+        "TelegramSchemaClientAuth",
+        "TelegramSchemaClientBots",
+        "TelegramSchemaClientChannels",
+        "TelegramSchemaClientChatlists",
+        "TelegramSchemaClientCommunities",
+        "TelegramSchemaClientContacts",
+        "TelegramSchemaClientEphemeral",
+        "TelegramSchemaClientFolders",
+        "TelegramSchemaClientFragment",
+        "TelegramSchemaClientHelp",
+        "TelegramSchemaClientLangpack",
+        "TelegramSchemaClientMessages",
+        "TelegramSchemaClientPayments",
+        "TelegramSchemaClientPhone",
+        "TelegramSchemaClientPhotos",
+        "TelegramSchemaClientPremium",
+        "TelegramSchemaClientSmsjobs",
+        "TelegramSchemaClientStats",
+        "TelegramSchemaClientStickers",
+        "TelegramSchemaClientStories",
+        "TelegramSchemaClientUpdates",
+        "TelegramSchemaClientUpload",
+        "TelegramSchemaClientUsers"
+      ],
+      "directory" : "Umbrella",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchema"
+    }
+  ],
+  "umbrella" : "TelegramSchema"
+}
