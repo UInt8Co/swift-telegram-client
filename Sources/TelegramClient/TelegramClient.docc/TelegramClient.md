@@ -91,6 +91,7 @@ layer and none of the machinery above changes.
 ### Peers
 
 - ``PeerResolver``
+- ``PeerCache``
 - ``PeerLookup``
 - ``PeerLocator``
 - ``ChannelReference``

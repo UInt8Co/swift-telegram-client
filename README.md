@@ -99,6 +99,13 @@ additional datacenter connections with `TelegramClientPool`, photo and document
 transfer with `MediaTransfer`, and flood-wait handling with `MTProtoDirective`.
 The [DocC topic index][overview] is also available in this repository.
 
+Keep a `PeerCache(using: connection.api, lookup: .byID)` for each bot connection
+when addressing peers repeatedly by ID (`.inDialogs` supports user dialog lookup).
+Use its `channel(_:)` and `user(_:)` references for subsequent requests: a bot's
+zero-hash lookup can return a full access hash that its writes need. Invalidate a
+rejected reference before retrying, and replace the cache with the connection;
+peer hashes cannot be shared across accounts or login sessions.
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
