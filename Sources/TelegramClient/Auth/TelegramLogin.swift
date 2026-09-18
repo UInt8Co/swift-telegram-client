@@ -21,6 +21,18 @@ public protocol TelegramUserLogin: Sendable {
   func signIn(on api: TLClient, app: TelegramApp) async throws -> TL.User
 }
 
+/// A service-specific login that signs a proof tied to the encrypted transport.
+/// The schema and key custody stay with the application, outside this package.
+public protocol TelegramBoundUserLogin: TelegramUserLogin {
+  func signIn(on api: TLClient, app: TelegramApp, binding: MTProtoSessionBinding) async throws -> TL.User
+}
+
+extension TelegramBoundUserLogin {
+  public func signIn(on api: TLClient, app: TelegramApp) async throws -> TL.User {
+    throw TelegramClientError.missingSessionBinding
+  }
+}
+
 /// A login that has to continue on another datacenter — thrown by a login and
 /// followed by ``TelegramConnection`` exactly like a `*_MIGRATE_X` answer.
 ///

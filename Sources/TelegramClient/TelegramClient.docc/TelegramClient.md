@@ -1,5 +1,11 @@
 # ``TelegramClient``
 
+Service-specific device login can implement `TelegramBoundUserLogin` to receive
+the live MTProto auth-key and session identifiers. The application validates the
+challenge's destination, purpose and profile before signing it with its own key
+backend. This package does not store device private keys or define the service's
+custom TL namespace.
+
 Sign in to Telegram, follow it wherever it sends you, and read what it pushes
 back.
 

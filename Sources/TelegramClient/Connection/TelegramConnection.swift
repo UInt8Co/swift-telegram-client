@@ -246,7 +246,7 @@ public final class TelegramConnection: Sendable {
       if let cached {
         accountID = cached.accountID
       } else {
-        accountID = try await authorize(api, app: app, using: authorization)
+        accountID = try await authorize(api, app: app, using: authorization, binding: await client.sessionBinding())
         if let keys = captured.withLock({ $0 }), let sessionStore, let sessionKey {
           try await sessionStore.save(
             MTProtoStoredSession(
@@ -331,7 +331,7 @@ public final class TelegramConnection: Sendable {
   }
 
   private static func authorize(
-    _ api: TLClient, app: TelegramApp, using mode: TelegramAuthorization
+    _ api: TLClient, app: TelegramApp, using mode: TelegramAuthorization, binding: MTProtoSessionBinding?
   ) async throws -> Int64 {
     switch mode {
     case .botToken(let token):
@@ -351,7 +351,13 @@ public final class TelegramConnection: Sendable {
       else { throw TelegramClientError.unexpectedAccountKind }
       return user.id
     case .user(let login):
-      let user = try await login.signIn(on: api, app: app)
+      let user: TL.User
+      if let bound = login as? any TelegramBoundUserLogin {
+        guard let binding else { throw TelegramClientError.missingSessionBinding }
+        user = try await bound.signIn(on: api, app: app, binding: binding)
+      } else {
+        user = try await login.signIn(on: api, app: app)
+      }
       guard !user.bot else { throw TelegramClientError.unexpectedAccountKind }
       return user.id
     case .storedSessionOnly:

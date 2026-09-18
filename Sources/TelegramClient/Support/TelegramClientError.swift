@@ -9,6 +9,7 @@ public enum TelegramClientError: Error, Equatable, Sendable, CustomStringConvert
   case sessionBelongsToAnotherAccount
   /// A connection was told to resume a stored session and the store had none.
   case noStoredSession
+  case missingSessionBinding
   case datacenterNotAdvertised(Int32)
   case tooManyMigrations(Int32)
   case peerNotFound(String)
@@ -27,6 +28,7 @@ public enum TelegramClientError: Error, Equatable, Sendable, CustomStringConvert
     case .sessionBelongsToAnotherAccount:
       "the resumed session belongs to a different account"
     case .noStoredSession: "no stored session to resume"
+    case .missingSessionBinding: "the login requires a live MTProto channel binding"
     case .datacenterNotAdvertised(let dcID):
       "the request was redirected to datacenter \(dcID), which is not advertised"
     case .tooManyMigrations(let dcID):

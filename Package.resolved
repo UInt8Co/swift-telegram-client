@@ -1,5 +1,5 @@
 {
-  "originHash" : "f4e5f38215607bb9f7e50108759265f3175bfbedb77092623d2f4e7d35c420c8",
+  "originHash" : "fa2812ec0ff50b576de21419503a8dbbde6016ea59c625da765d4699cdd2765c",
   "pins" : [
     {
       "identity" : "swift-argument-parser",
@@ -69,8 +69,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/UInt8Co/swift-nio-mtproto.git",
       "state" : {
-        "revision" : "0bcf6f57e350ad2f642f53fa04e98751f53e05e4",
-        "version" : "1.1.0"
+        "revision" : "d3806c996c263338ad559b5358c239cd29ae5b41"
       }
     },
     {
