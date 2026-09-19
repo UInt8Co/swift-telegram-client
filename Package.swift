@@ -38,6 +38,7 @@ let package = Package(
         "TelegramClient",
         "TelegramSchema",
         .product(name: "MTProtoClientKit", package: "swift-nio-mtproto"),
+        .product(name: "NIOMTProtoEncryption", package: "swift-nio-mtproto"),
         .product(name: "TLCoding", package: "swift-mtproto"),
       ]
     ),

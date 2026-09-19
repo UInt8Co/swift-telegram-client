@@ -30,6 +30,8 @@ public struct CachedTelegramSession: Equatable, Sendable {
 /// key every restart will eventually be told to wait hours. Everything is
 /// `async` so a production store can do I/O; ``InMemoryTelegramSessionStore``
 /// is enough for tests and for a process that is meant to authorize once.
+/// ``FileTelegramSessionStore`` keeps sessions and datacenter lists across
+/// restarts in a private directory.
 ///
 /// Keys are opaque strings the client composes from a caller-chosen scope and
 /// the datacenter id (``TelegramConnection/sessionKey(scope:dcID:)``): a login

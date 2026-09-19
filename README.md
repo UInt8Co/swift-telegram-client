@@ -81,11 +81,27 @@ that displays `TelegramQRLogin.loginURL(token:)` as a QR code. Both accept a
 `password` callback for two-step verification. See the [login APIs][documentation]
 for callback signatures and options.
 
-The default session store is in-memory. To keep logins across restarts, implement
-`TelegramSessionStore` and pass it as `sessionStore:` with a stable, distinct
-`sessionScope:` for each account. Reuse the store and scope when reconnecting,
-and protect saved session keys as credentials. `.storedSessionOnly` fails rather
-than logging in again when no valid saved session is available.
+The default session store is in-memory. To keep logins across restarts, use
+`FileTelegramSessionStore` with a dedicated directory and a stable, distinct
+`sessionScope:` for each account:
+
+```swift
+import Foundation
+
+let sessions = try FileTelegramSessionStore(
+  directory: URL(fileURLWithPath: "data/telegram-session"))
+let connection = try await TelegramConnection.connect(
+  app: TelegramApp(apiID: 12345, apiHash: "YOUR_API_HASH"),
+  authorization: .botToken("YOUR_BOT_TOKEN"),
+  sessionStore: sessions, sessionScope: "my-bot")
+```
+
+The file store atomically saves sessions and datacenter lists, sets directory
+permissions to `0700` and file permissions to `0600`, and preserves account and
+datacenter separation. It does not encrypt files. Reuse one store per directory;
+concurrent processes should use separate directories. You can also implement
+`TelegramSessionStore` for a database or keychain. `.storedSessionOnly` fails
+rather than logging in again when no valid saved session is available.
 
 ## Updates, peers, and media
 

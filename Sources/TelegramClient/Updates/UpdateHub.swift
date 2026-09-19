@@ -11,7 +11,12 @@ public actor UpdateHub {
   private typealias Waiter = (channelID: Int64, continuation: CheckedContinuation<Void, Never>)
   private var waiters: [UInt64: Waiter] = [:]
   private var cancelled: Set<UInt64> = []
+  private var activeWaits: Set<UInt64> = []
   private var nextToken: UInt64 = 0
+
+  // Internal diagnostics also let regression tests detect retained tokens,
+  // rather than merely proving that cancelled continuations return.
+  var retainedWaitTokenCount: Int { waiters.count + cancelled.count + activeWaits.count }
 
   public init() {}
 
@@ -60,6 +65,11 @@ public actor UpdateHub {
     guard self.revision(of: channelID) <= revision else { return }
     let token = nextToken
     nextToken += 1
+    activeWaits.insert(token)
+    defer {
+      activeWaits.remove(token)
+      cancelled.remove(token)
+    }
     await withTaskCancellationHandler {
       await withCheckedContinuation { continuation in
         guard
@@ -81,7 +91,7 @@ public actor UpdateHub {
   private func stopWaiting(_ token: UInt64) {
     if let waiter = waiters.removeValue(forKey: token) {
       waiter.continuation.resume()
-    } else {
+    } else if activeWaits.contains(token) {
       cancelled.insert(token)
     }
   }

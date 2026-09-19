@@ -77,6 +77,7 @@ layer and none of the machinery above changes.
 - ``TelegramSessionStore``
 - ``CachedTelegramSession``
 - ``InMemoryTelegramSessionStore``
+- ``FileTelegramSessionStore``
 
 ### Datacenters
 
