@@ -1,12 +1,24 @@
-import Foundation
 import NIOMTProtoEncryption
 import Testing
 
 @testable import TelegramClient
 
+#if canImport(FoundationEssentials)
+  import FoundationEssentials
+#else
+  import Foundation
+#endif
+
 @Suite struct FileTelegramSessionStoreTests {
   private func directory() -> URL {
     FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+  }
+
+  /// `attributesOfItem` boxes the mode as a `UInt` under FoundationEssentials
+  /// and as a bridged `NSNumber` under the umbrella Foundation.
+  private func permissions(ofItemAtPath path: String) throws -> Int? {
+    let mode = try FileManager.default.attributesOfItem(atPath: path)[.posixPermissions]
+    return mode as? Int ?? (mode as? UInt).map { Int($0) }
   }
 
   @Test("sessions persist account identity, salt, expiry, and namespace separation")
@@ -53,14 +65,13 @@ import Testing
     let session = MTProtoStoredSession(authKey: Data(repeating: 3, count: 256), serverSalt: 0)
     try await store.save(session, accountID: 6, for: key)
     #expect(try await store.session(for: key)?.session == session)
-    let files = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
-    #expect(files.count == 1)
-    let attributes = try FileManager.default.attributesOfItem(atPath: directory.path)
-    #expect((attributes[.posixPermissions] as? NSNumber)?.intValue == 0o700)
-    for file in files {
-      #expect(file.lastPathComponent.utf8.count < 255)
-      let attributes = try FileManager.default.attributesOfItem(atPath: file.path)
-      #expect((attributes[.posixPermissions] as? NSNumber)?.intValue == 0o600)
+    let names = try FileManager.default.contentsOfDirectory(atPath: directory.path)
+    #expect(names.count == 1)
+    #expect(try permissions(ofItemAtPath: directory.path) == 0o700)
+    for name in names {
+      #expect(name.utf8.count < 255)
+      let file = directory.appendingPathComponent(name)
+      #expect(try permissions(ofItemAtPath: file.path) == 0o600)
     }
   }
 
@@ -71,8 +82,8 @@ import Testing
     let store = try FileTelegramSessionStore(directory: directory)
     let session = MTProtoStoredSession(authKey: Data(repeating: 3, count: 256), serverSalt: 0)
     try await store.save(session, accountID: 6, for: "key")
-    let files = try FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
-    let file = try #require(files.first)
+    let names = try FileManager.default.contentsOfDirectory(atPath: directory.path)
+    let file = directory.appendingPathComponent(try #require(names.first))
     try Data("not JSON".utf8).write(to: file)
     await #expect(throws: DecodingError.self) { try await store.session(for: "key") }
   }
