@@ -138,4 +138,34 @@ import Testing
     waiting.cancel()
     await waiting.value
   }
+
+  @Test("already-cancelled waits do not retain late cancellation markers", .timeLimit(.minutes(1)))
+  func alreadyCancelledWaitsDoNotLeakTokens() async throws {
+    let hub = UpdateHub()
+    for _ in 0..<100 {
+      let waiting = Task {
+        withUnsafeCurrentTask { $0?.cancel() }
+        await hub.wait(for: Self.channelID, after: 0)
+      }
+      await waiting.value
+    }
+    // The cancellation handler forwards into the actor in its own Task, which
+    // can arrive after wait() has already returned for a cancelled caller.
+    try await Task.sleep(for: .milliseconds(50))
+    #expect(await hub.retainedWaitTokenCount == 0)
+  }
+
+  @Test("cancellation racing a hint releases all waiter state", .timeLimit(.minutes(1)))
+  func hintAndCancellationDoNotRetainTokens() async throws {
+    let hub = UpdateHub()
+    for _ in 0..<100 {
+      let revision = await hub.revision(of: Self.channelID)
+      let waiting = Task { await hub.wait(for: Self.channelID, after: revision) }
+      await hub.hint(Self.channelID)
+      waiting.cancel()
+      await waiting.value
+    }
+    try await Task.sleep(for: .milliseconds(50))
+    #expect(await hub.retainedWaitTokenCount == 0)
+  }
 }
