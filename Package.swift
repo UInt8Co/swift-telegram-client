@@ -11,7 +11,7 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/UInt8Co/swift-mtproto.git", from: "2.0.0"),
-    .package(url: "https://github.com/UInt8Co/swift-nio-mtproto.git", revision: "d3806c996c263338ad559b5358c239cd29ae5b41"),
+    .package(url: "https://github.com/UInt8Co/swift-nio-mtproto.git", revision: "8e504b829c87039df57df8f70d9c9c0465686f51"),
     .package(url: "https://github.com/apple/swift-crypto.git", from: "4.0.0"),
     .package(url: "https://github.com/apple/swift-nio.git", from: "2.100.0"),
   ],
