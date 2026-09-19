@@ -1,6 +1,11 @@
 import Crypto
-import Foundation
 import NIOMTProtoEncryption
+
+#if canImport(FoundationEssentials)
+  import FoundationEssentials
+#else
+  import Foundation
+#endif
 
 /// Stores authorized sessions and datacenter lists in a private directory.
 ///
@@ -90,7 +95,8 @@ public actor FileTelegramSessionStore: TelegramSessionStore {
   }
 
   private func url(namespace: String, key: String) -> URL {
-    let digest = SHA256.hash(data: Data(key.utf8)).map { String(format: "%02x", $0) }.joined()
+    let digest = SHA256.hash(data: Data(key.utf8))
+      .map { String($0 >> 4, radix: 16) + String($0 & 0xF, radix: 16) }.joined()
     return directory.appendingPathComponent("\(namespace)-\(digest).json")
   }
 }
