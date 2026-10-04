@@ -29,15 +29,15 @@ extension TLClient {
     }
     /// TL: `phone.requestCall#42ff96ed flags:# video:flags.0?true user_id:InputUser random_id:int g_a_hash:bytes protocol:PhoneCallProtocol = phone.PhoneCall`
     public func requestCall(video: Bool = false, userId: TL.InputUserType, randomId: Int32, gAHash: Data, `protocol`: TL.PhoneCallProtocol) async throws -> TL.Phone.PhoneCall {
-      try await client.invoke(TL.Phone.RequestCall(video: video, userId: userId, randomId: randomId, gAHash: gAHash, `protocol`: `protocol`))
+      try await client.invoke(TL.Phone.RequestCall(video: video, userId: userId, randomId: randomId, gAHash: gAHash, protocol: `protocol`))
     }
     /// TL: `phone.acceptCall#3bd2b4a0 peer:InputPhoneCall g_b:bytes protocol:PhoneCallProtocol = phone.PhoneCall`
     public func acceptCall(peer: TL.InputPhoneCall, gB: Data, `protocol`: TL.PhoneCallProtocol) async throws -> TL.Phone.PhoneCall {
-      try await client.invoke(TL.Phone.AcceptCall(peer: peer, gB: gB, `protocol`: `protocol`))
+      try await client.invoke(TL.Phone.AcceptCall(peer: peer, gB: gB, protocol: `protocol`))
     }
     /// TL: `phone.confirmCall#2efe1722 peer:InputPhoneCall g_a:bytes key_fingerprint:long protocol:PhoneCallProtocol = phone.PhoneCall`
     public func confirmCall(peer: TL.InputPhoneCall, gA: Data, keyFingerprint: Int64, `protocol`: TL.PhoneCallProtocol) async throws -> TL.Phone.PhoneCall {
-      try await client.invoke(TL.Phone.ConfirmCall(peer: peer, gA: gA, keyFingerprint: keyFingerprint, `protocol`: `protocol`))
+      try await client.invoke(TL.Phone.ConfirmCall(peer: peer, gA: gA, keyFingerprint: keyFingerprint, protocol: `protocol`))
     }
     /// TL: `phone.receivedCall#17d54f61 peer:InputPhoneCall = Bool`
     public func receivedCall(peer: TL.InputPhoneCall) async throws -> Bool {

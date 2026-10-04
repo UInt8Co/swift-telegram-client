@@ -237,7 +237,7 @@ extension TLClient {
     }
     /// TL: `messages.setInlineBotResults#bb12a419 flags:# gallery:flags.0?true private:flags.1?true query_id:long results:Vector<InputBotInlineResult> cache_time:int next_offset:flags.2?string switch_pm:flags.3?InlineBotSwitchPM switch_webview:flags.4?InlineBotWebView = Bool`
     public func setInlineBotResults(gallery: Bool = false, `private`: Bool = false, queryId: Int64, results: [TL.InputBotInlineResultType], cacheTime: Int32, nextOffset: String? = nil, switchPm: TL.InlineBotSwitchPM? = nil, switchWebview: TL.InlineBotWebView? = nil) async throws -> Bool {
-      try await client.invoke(TL.Messages.SetInlineBotResults(gallery: gallery, `private`: `private`, queryId: queryId, results: results, cacheTime: cacheTime, nextOffset: nextOffset, switchPm: switchPm, switchWebview: switchWebview))
+      try await client.invoke(TL.Messages.SetInlineBotResults(gallery: gallery, private: `private`, queryId: queryId, results: results, cacheTime: cacheTime, nextOffset: nextOffset, switchPm: switchPm, switchWebview: switchWebview))
     }
     /// TL: `messages.sendInlineBotResult#c0cf7646 flags:# silent:flags.5?true background:flags.6?true clear_draft:flags.7?true hide_via:flags.11?true peer:InputPeer reply_to:flags.0?InputReplyTo random_id:long query_id:long id:string schedule_date:flags.10?int send_as:flags.13?InputPeer quick_reply_shortcut:flags.17?InputQuickReplyShortcut allow_paid_stars:flags.21?long = Updates`
     public func sendInlineBotResult(silent: Bool = false, background: Bool = false, clearDraft: Bool = false, hideVia: Bool = false, peer: TL.InputPeerType, replyTo: TL.InputReplyToType? = nil, randomId: Int64, queryId: Int64, id: String, scheduleDate: Int32? = nil, sendAs: TL.InputPeerType? = nil, quickReplyShortcut: TL.InputQuickReplyShortcutType? = nil, allowPaidStars: Int64? = nil) async throws -> TL.UpdatesType {
@@ -881,11 +881,11 @@ extension TLClient {
     }
     /// TL: `messages.sendPaidReaction#58bbcb50 flags:# peer:InputPeer msg_id:int count:int random_id:long private:flags.0?PaidReactionPrivacy = Updates`
     public func sendPaidReaction(peer: TL.InputPeerType, msgId: Int32, count: Int32, randomId: Int64, `private`: TL.PaidReactionPrivacyType? = nil) async throws -> TL.UpdatesType {
-      try await client.invoke(TL.Messages.SendPaidReaction(peer: peer, msgId: msgId, count: count, randomId: randomId, `private`: `private`))
+      try await client.invoke(TL.Messages.SendPaidReaction(peer: peer, msgId: msgId, count: count, randomId: randomId, private: `private`))
     }
     /// TL: `messages.togglePaidReactionPrivacy#435885b5 peer:InputPeer msg_id:int private:PaidReactionPrivacy = Bool`
     public func togglePaidReactionPrivacy(peer: TL.InputPeerType, msgId: Int32, `private`: TL.PaidReactionPrivacyType) async throws -> Bool {
-      try await client.invoke(TL.Messages.TogglePaidReactionPrivacy(peer: peer, msgId: msgId, `private`: `private`))
+      try await client.invoke(TL.Messages.TogglePaidReactionPrivacy(peer: peer, msgId: msgId, private: `private`))
     }
     /// TL: `messages.getPaidReactionPrivacy#472455aa = Updates`
     public func getPaidReactionPrivacy() async throws -> TL.UpdatesType {

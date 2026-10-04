@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     # The toolchain the package's swift-tools-version asks for, pinned rather
     # than floating: a compiler bump is a decision, not a surprise.
-    container: swift:6.3
+    container: swift:6.4.0-noble
     steps:
       - name: Check out
         uses: actions/checkout@v6
@@ -47,10 +47,10 @@ jobs:
           path: |
             .build
             ~/.cache/org.swift.swiftpm
-          key: spm-${{ runner.os }}-swift6.3-${{ hashFiles('Package.resolved') }}-${{ github.run_id }}
+          key: spm-${{ runner.os }}-swift6.4.0-${{ hashFiles('Package.resolved') }}-${{ github.run_id }}
           restore-keys: |
-            spm-${{ runner.os }}-swift6.3-${{ hashFiles('Package.resolved') }}-
-            spm-${{ runner.os }}-swift6.3-
+            spm-${{ runner.os }}-swift6.4.0-${{ hashFiles('Package.resolved') }}-
+            spm-${{ runner.os }}-swift6.4.0-
 
       # Resolution is its own step so a dependency that cannot be fetched fails
       # as that, rather than as a compile error somewhere in the schema.

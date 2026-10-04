@@ -1,4 +1,4 @@
-// swift-tools-version: 6.3
+// swift-tools-version: 6.4
 
 import PackageDescription
 
@@ -11,9 +11,8 @@ let package = Package(
   ],
   dependencies: [
     .package(url: "https://github.com/UInt8Co/swift-mtproto.git", from: "2.0.0"),
-    .package(url: "https://github.com/UInt8Co/swift-nio-mtproto.git", revision: "8e504b829c87039df57df8f70d9c9c0465686f51"),
-    .package(url: "https://github.com/apple/swift-crypto.git", from: "4.0.0"),
-    .package(url: "https://github.com/apple/swift-nio.git", from: "2.100.0"),
+    .package(url: "https://github.com/UInt8Co/swift-nio-mtproto.git", from: "1.1.0"),
+    .package(url: "https://github.com/apple/swift-crypto.git", from: "5.0.0"),
   ],
   targets: [
     // The client proper: everything between a connected MTProto session and the

@@ -28,7 +28,7 @@ jobs:
   regenerate:
     name: Regenerate from mtcute
     runs-on: ubuntu-latest
-    container: swift:6.3
+    container: swift:6.4.0-noble
     steps:
       - name: Check out main
         uses: actions/checkout@v6

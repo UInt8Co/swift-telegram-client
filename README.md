@@ -12,7 +12,7 @@ Uses Telegram's MTProto API, not the HTTP Bot API.
 
 ## Installation
 
-Requires Swift 6.3 or later. Apple minimum deployment targets are macOS 15,
+Requires Swift 6.4 or later. Apple minimum deployment targets are macOS 15,
 iOS 18, tvOS 18, watchOS 11, and Mac Catalyst 18.
 
 Add the package to your `Package.swift` dependencies. Use `main` until a tagged
