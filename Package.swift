@@ -8,6 +8,8 @@ let package = Package(
   products: [
     .library(name: "TelegramSchema", targets: ["TelegramSchema"]),
     .library(name: "TelegramClient", targets: ["TelegramClient"]),
+    .library(name: "TelegramRichText", targets: ["TelegramRichText"]),
+    .library(name: "TelegramMarkup", targets: ["TelegramMarkup"]),
   ],
   dependencies: [
     .package(url: "https://github.com/UInt8Co/swift-mtproto.git", from: "2.0.0"),
@@ -40,6 +42,26 @@ let package = Package(
         .product(name: "NIOMTProtoEncryption", package: "swift-nio-mtproto"),
         .product(name: "TLCoding", package: "swift-mtproto"),
       ]
+    ),
+    // Outgoing rich messages composed with a result builder into native
+    // `TL.InputRichMessageType` page blocks, validated against Telegram's limits.
+    .target(
+      name: "TelegramRichText",
+      dependencies: ["TelegramSchema"]
+    ),
+    .testTarget(
+      name: "TelegramRichTextTests",
+      dependencies: ["TelegramRichText", "TelegramSchema"]
+    ),
+    // Received message content rendered as compact markup in the style of the
+    // Bot API's rich HTML, for reading, logging or a language model's input.
+    .target(
+      name: "TelegramMarkup",
+      dependencies: ["TelegramSchema"]
+    ),
+    .testTarget(
+      name: "TelegramMarkupTests",
+      dependencies: ["TelegramMarkup", "TelegramSchema"]
     ),
     // schema-modules:begin — Scripts/generate-package-targets.ts. Do not edit by hand.
     // The API schema is generated as one module per subdirectory, all

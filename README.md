@@ -30,7 +30,13 @@ Add both products to your target's dependencies:
 ```
 
 `TelegramClient` provides connections and helpers; `TelegramSchema` provides the
-Telegram API types and methods.
+Telegram API types and methods. Two optional products depend only on
+`TelegramSchema`:
+
+| Product | Purpose |
+|---|---|
+| `TelegramRichText` | Compose outgoing rich messages with a result builder |
+| `TelegramMarkup` | Render received messages as compact HTML-style markup |
 
 ## Quick start
 
@@ -108,7 +114,9 @@ rather than logging in again when no valid saved session is available.
 Pass `onPushedUpdates:` to `connect` to receive live updates. The callback does
 not recover missed updates automatically: use `UpdateCursor` and
 `DifferenceDecoder` with `updates.getDifference`, plus the channel-difference
-helpers for channels and supergroups.
+helpers for channels and supergroups. `PushMailbox` batches pushes into one
+pass, and `SequencePositions` applies pushes that continue the saved `pts`,
+`qts` and `seq` directly, reporting only the gaps that need a difference call.
 
 The [API documentation][documentation] covers peer resolution with `PeerResolver`,
 additional datacenter connections with `TelegramClientPool`, photo and document
@@ -122,6 +130,53 @@ zero-hash lookup can return a full access hash that its writes need. Invalidate 
 rejected reference before retrying, and replace the cache with the connection;
 peer hashes cannot be shared across accounts or login sessions.
 
+## Rich messages
+
+`TelegramRichText` builds Telegram's native rich messages — paragraphs, quotes,
+collapsible sections, tables and footnotes — from typed components. Text is
+always literal, so nothing needs escaping:
+
+```swift
+import TelegramRichText
+
+let message = RichMessage {
+  Paragraph {
+    Text("Build passed").bold()
+    Text(" on ")
+    Text("main").monospaced()
+  }
+  Details("2 checks") {
+    Table(headers: ["Check", "State"]) {
+      Row { Cell("Tests"); Cell("✅") }
+      Row { Cell("Lint"); Cell("✅") }
+    }
+  }
+}
+_ = try await connection.api.messages.sendMessage(
+  peer: peer, message: "", randomId: .random(in: .min ... .max),
+  richMessage: message.richMessage)
+```
+
+`richMessage` throws `RichMessageValidationError` before sending when content
+exceeds Telegram's rich-message limits. See the [TelegramRichText
+documentation][rich-text].
+
+## Reading messages as markup
+
+`TelegramMarkup` renders a received `TL.Message` — text entities, rich blocks,
+media and buttons — as escaped markup in the style of the Bot API's rich HTML,
+for display, logs or a language model's input:
+
+```swift
+import TelegramMarkup
+
+let output = MarkupRenderer().render(message)
+print(output.markup)  // <b>Hello</b> <a href="https://example.com">world</a>
+```
+
+Opaque fields such as callback data and file references are never rendered.
+See the [TelegramMarkup documentation][markup].
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
@@ -129,3 +184,5 @@ MIT. See [LICENSE](LICENSE).
 [documentation]: https://swiftpackageindex.com/UInt8Co/swift-telegram-client/documentation/telegramclient
 [overview]: Sources/TelegramClient/TelegramClient.docc/TelegramClient.md
 [methods]: https://core.telegram.org/methods
+[rich-text]: Sources/TelegramRichText/TelegramRichText.docc/TelegramRichText.md
+[markup]: Sources/TelegramMarkup/TelegramMarkup.docc/TelegramMarkup.md

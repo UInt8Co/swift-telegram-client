@@ -45,6 +45,33 @@ let me = try await connection.api.users.getUsers(id: [.inputUserSelf(TL.InputUse
 await connection.disconnect()
 ```
 
+### Applying pushed updates without a round trip
+
+Most pushes continue the saved sequence exactly and can be applied as they are;
+only a gap needs `updates.getDifference` or `updates.getChannelDifference`.
+``PushMailbox`` coalesces a burst of pushes into one pass, and
+``SequencePositions`` advances past what continues and reports what does not:
+
+```swift
+let mailbox = PushMailbox()
+let connection = try await TelegramConnection.connect(
+  app: app, authorization: authorization,
+  onPushedUpdates: { mailbox.push($0) })
+
+var positions = SequencePositions(account: savedCursor, channels: savedChannelPts)
+for await _ in mailbox.wakes {
+  let batch = mailbox.take()
+  // Handle the updates inside batch.pushes, then:
+  let gaps = positions.advance(past: batch.pushes.map(PushSequence.init))
+  if gaps.account || batch.poll { /* updates.getDifference from positions.account */ }
+  for channel in gaps.channels { /* updates.getChannelDifference for channel */ }
+  // Save positions.
+}
+```
+
+Call `mailbox.poll()` from a timer so a quiet connection still catches up now
+and then.
+
 ### Talking to something that is not Telegram
 
 `TLClient.invoke` is generic over `TLFunction`, so a schema of your own rides
@@ -119,6 +146,10 @@ layer and none of the machinery above changes.
 - ``ChannelState``
 - ``ChannelUpdateFilter``
 - ``ChannelDifferenceError``
+- ``PushMailbox``
+- ``UpdateSequence``
+- ``PushSequence``
+- ``SequencePositions``
 
 ### Files and media
 
@@ -135,6 +166,10 @@ layer and none of the machinery above changes.
 - ``TransientRPCFailure``
 - ``ServerTimeout``
 - ``UnreadableReply``
+
+### Caching
+
+- ``ExpiringCache``
 
 ### Diagnostics and pacing
 
