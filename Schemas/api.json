@@ -4716,6 +4716,76 @@
    "type": "MessageAction"
   },
   {
+   "id": "-1825969613",
+   "predicate": "messageActionGramTransfer",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "comment_encrypted",
+     "type": "flags.1?true"
+    },
+    {
+     "name": "amount",
+     "type": "long"
+    },
+    {
+     "name": "peer_address",
+     "type": "string"
+    },
+    {
+     "name": "transaction_id",
+     "type": "string"
+    },
+    {
+     "name": "comment",
+     "type": "flags.0?string"
+    }
+   ],
+   "type": "MessageAction"
+  },
+  {
+   "id": "1773716671",
+   "predicate": "messageActionWalletTonConnectRequest",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "accepted",
+     "type": "flags.2?true"
+    },
+    {
+     "name": "declined",
+     "type": "flags.3?true"
+    },
+    {
+     "name": "session_id",
+     "type": "long"
+    },
+    {
+     "name": "expires",
+     "type": "int"
+    },
+    {
+     "name": "topic",
+     "type": "flags.0?string"
+    },
+    {
+     "name": "trace_id",
+     "type": "flags.1?string"
+    },
+    {
+     "name": "dapp_name",
+     "type": "flags.4?string"
+    }
+   ],
+   "type": "MessageAction"
+  },
+  {
    "id": "-58066957",
    "predicate": "dialog",
    "params": [
@@ -9431,6 +9501,93 @@
    "type": "Update"
   },
   {
+   "id": "1791226538",
+   "predicate": "updateWalletState",
+   "params": [
+    {
+     "name": "state",
+     "type": "WalletState"
+    }
+   ],
+   "type": "Update"
+  },
+  {
+   "id": "-1320989366",
+   "predicate": "updateSentWalletTransaction",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "gasless",
+     "type": "flags.0?true"
+    },
+    {
+     "name": "msg_hash",
+     "type": "string"
+    },
+    {
+     "name": "transaction",
+     "type": "flags.1?WalletTransaction"
+    }
+   ],
+   "type": "Update"
+  },
+  {
+   "id": "-1464984404",
+   "predicate": "updateWalletGaslessInfo",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "available",
+     "type": "flags.0?true"
+    },
+    {
+     "name": "left",
+     "type": "int"
+    },
+    {
+     "name": "reset_at",
+     "type": "int"
+    },
+    {
+     "name": "min_amount",
+     "type": "long"
+    },
+    {
+     "name": "relayer_address",
+     "type": "string"
+    }
+   ],
+   "type": "Update"
+  },
+  {
+   "id": "1352896014",
+   "predicate": "updateWalletTonConnectSession",
+   "params": [
+    {
+     "name": "session",
+     "type": "TonConnectSession"
+    }
+   ],
+   "type": "Update"
+  },
+  {
+   "id": "-772898407",
+   "predicate": "updateWalletTonConnectPendingDisconnect",
+   "params": [
+    {
+     "name": "session_ids",
+     "type": "Vector<long>"
+    }
+   ],
+   "type": "Update"
+  },
+  {
    "id": "-1519637954",
    "predicate": "updates.state",
    "params": [
@@ -13055,6 +13212,21 @@
    "type": "MessageEntity"
   },
   {
+   "id": "-39075891",
+   "predicate": "messageEntityTonAddress",
+   "params": [
+    {
+     "name": "offset",
+     "type": "int"
+    },
+    {
+     "name": "length",
+     "type": "int"
+    }
+   ],
+   "type": "MessageEntity"
+  },
+  {
    "id": "-292807034",
    "predicate": "inputChannelEmpty",
    "params": [],
@@ -15754,6 +15926,17 @@
     {
      "name": "style",
      "type": "flags.0?RichButtonStyle"
+    }
+   ],
+   "type": "RichText"
+  },
+  {
+   "id": "1020437354",
+   "predicate": "textTonAddress",
+   "params": [
+    {
+     "name": "text",
+     "type": "RichText"
     }
    ],
    "type": "RichText"
@@ -21037,7 +21220,7 @@
    "type": "messages.SearchCounter"
   },
   {
-   "id": "1020666860",
+   "id": "-1110810265",
    "predicate": "urlAuthResultRequest",
    "params": [
     {
@@ -21059,6 +21242,10 @@
     {
      "name": "is_app",
      "type": "flags.6?true"
+    },
+    {
+     "name": "request_wallet",
+     "type": "flags.8?true"
     },
     {
      "name": "bot",
@@ -21095,6 +21282,14 @@
     {
      "name": "verified_app_name",
      "type": "flags.7?string"
+    },
+    {
+     "name": "tc_session_id",
+     "type": "flags.9?long"
+    },
+    {
+     "name": "tc_client_id",
+     "type": "flags.10?string"
     }
    ],
    "type": "UrlAuthResult"
@@ -25259,6 +25454,14 @@
     {
      "name": "active",
      "type": "flags.1?true"
+    },
+    {
+     "name": "deletable",
+     "type": "flags.2?true"
+    },
+    {
+     "name": "expired",
+     "type": "flags.3?true"
     },
     {
      "name": "username",
@@ -30356,7 +30559,7 @@
    "type": "messages.FoundStickers"
   },
   {
-   "id": "-1328716265",
+   "id": "-1591021569",
    "predicate": "botVerifierSettings",
    "params": [
     {
@@ -30377,13 +30580,13 @@
     },
     {
      "name": "custom_description",
-     "type": "flags.0?string"
+     "type": "flags.0?TextWithEntities"
     }
    ],
    "type": "BotVerifierSettings"
   },
   {
-   "id": "-113453988",
+   "id": "-147976487",
    "predicate": "botVerification",
    "params": [
     {
@@ -30396,7 +30599,7 @@
     },
     {
      "name": "description",
-     "type": "string"
+     "type": "TextWithEntities"
     }
    ],
    "type": "BotVerification"
@@ -32105,17 +32308,6 @@
    "type": "InputPasskeyCredential"
   },
   {
-   "id": "1528613672",
-   "predicate": "inputPasskeyCredentialFirebasePNV",
-   "params": [
-    {
-     "name": "pnv_token",
-     "type": "string"
-    }
-   ],
-   "type": "InputPasskeyCredential"
-  },
-  {
    "id": "-1342872680",
    "predicate": "starGiftBackground",
    "params": [
@@ -33416,6 +33608,878 @@
    "type": "ephemeral.WelcomeMessages"
   },
   {
+   "id": "819557436",
+   "predicate": "currencyRate",
+   "params": [
+    {
+     "name": "currency",
+     "type": "string"
+    },
+    {
+     "name": "rate",
+     "type": "double"
+    }
+   ],
+   "type": "CurrencyRate"
+  },
+  {
+   "id": "-1144199998",
+   "predicate": "payments.currencyRates",
+   "params": [
+    {
+     "name": "rates",
+     "type": "Vector<CurrencyRate>"
+    }
+   ],
+   "type": "payments.CurrencyRates"
+  },
+  {
+   "id": "-1399980519",
+   "predicate": "toncenter.apiResponse",
+   "params": [
+    {
+     "name": "response",
+     "type": "DataJSON"
+    }
+   ],
+   "type": "toncenter.ApiResponse"
+  },
+  {
+   "id": "428373505",
+   "predicate": "toncenter.streamingUrl",
+   "params": [
+    {
+     "name": "url",
+     "type": "string"
+    },
+    {
+     "name": "expires",
+     "type": "int"
+    }
+   ],
+   "type": "toncenter.StreamingUrl"
+  },
+  {
+   "id": "-1631009112",
+   "predicate": "onrampMethodAvailability",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "available",
+     "type": "flags.0?true"
+    },
+    {
+     "name": "payment_method",
+     "type": "string"
+    }
+   ],
+   "type": "OnrampMethodAvailability"
+  },
+  {
+   "id": "230847874",
+   "predicate": "onrampProviderInfo",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "supports_base_currencies",
+     "type": "flags.0?true"
+    },
+    {
+     "name": "supports_limits",
+     "type": "flags.1?true"
+    },
+    {
+     "name": "supports_quote",
+     "type": "flags.2?true"
+    },
+    {
+     "name": "id",
+     "type": "string"
+    },
+    {
+     "name": "name",
+     "type": "string"
+    },
+    {
+     "name": "crypto_currencies",
+     "type": "Vector<string>"
+    }
+   ],
+   "type": "OnrampProviderInfo"
+  },
+  {
+   "id": "-104314509",
+   "predicate": "onrampAvailability",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "allowed",
+     "type": "flags.0?true"
+    },
+    {
+     "name": "buy_allowed",
+     "type": "flags.1?true"
+    },
+    {
+     "name": "country_code",
+     "type": "string"
+    },
+    {
+     "name": "state",
+     "type": "flags.2?string"
+    },
+    {
+     "name": "methods",
+     "type": "Vector<OnrampMethodAvailability>"
+    }
+   ],
+   "type": "OnrampAvailability"
+  },
+  {
+   "id": "2078435198",
+   "predicate": "onrampLimits",
+   "params": [
+    {
+     "name": "base_currency",
+     "type": "string"
+    },
+    {
+     "name": "base_min_amount",
+     "type": "string"
+    },
+    {
+     "name": "base_max_amount",
+     "type": "string"
+    },
+    {
+     "name": "crypto_min_amount",
+     "type": "string"
+    },
+    {
+     "name": "crypto_max_amount",
+     "type": "string"
+    },
+    {
+     "name": "payment_method",
+     "type": "string"
+    }
+   ],
+   "type": "OnrampLimits"
+  },
+  {
+   "id": "2055213545",
+   "predicate": "onrampQuote",
+   "params": [
+    {
+     "name": "base_currency",
+     "type": "string"
+    },
+    {
+     "name": "base_amount",
+     "type": "string"
+    },
+    {
+     "name": "crypto_currency",
+     "type": "string"
+    },
+    {
+     "name": "crypto_amount",
+     "type": "string"
+    },
+    {
+     "name": "crypto_price",
+     "type": "string"
+    },
+    {
+     "name": "fee_amount",
+     "type": "string"
+    },
+    {
+     "name": "extra_fee_amount",
+     "type": "string"
+    },
+    {
+     "name": "network_fee_amount",
+     "type": "string"
+    },
+    {
+     "name": "total_amount",
+     "type": "string"
+    },
+    {
+     "name": "payment_method",
+     "type": "string"
+    },
+    {
+     "name": "expires_date",
+     "type": "int"
+    }
+   ],
+   "type": "OnrampQuote"
+  },
+  {
+   "id": "-773575132",
+   "predicate": "onrampSession",
+   "params": [
+    {
+     "name": "provider",
+     "type": "string"
+    },
+    {
+     "name": "session_id",
+     "type": "string"
+    },
+    {
+     "name": "url",
+     "type": "string"
+    },
+    {
+     "name": "expires_date",
+     "type": "int"
+    }
+   ],
+   "type": "OnrampSession"
+  },
+  {
+   "id": "-1665551636",
+   "predicate": "walletStateEmpty",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "creating",
+     "type": "flags.0?true"
+    }
+   ],
+   "type": "WalletState"
+  },
+  {
+   "id": "-1782238101",
+   "predicate": "walletState",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "backup_enabled",
+     "type": "flags.0?true"
+    },
+    {
+     "name": "can_export_phrase",
+     "type": "flags.1?true"
+    },
+    {
+     "name": "can_enable_backup",
+     "type": "flags.2?true"
+    },
+    {
+     "name": "address",
+     "type": "string"
+    },
+    {
+     "name": "public_key",
+     "type": "bytes"
+    },
+    {
+     "name": "balance",
+     "type": "long"
+    }
+   ],
+   "type": "WalletState"
+  },
+  {
+   "id": "-25628980",
+   "predicate": "walletUserAddress",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "user_id",
+     "type": "flags.0?long"
+    },
+    {
+     "name": "address",
+     "type": "string"
+    },
+    {
+     "name": "public_key",
+     "type": "bytes"
+    }
+   ],
+   "type": "WalletUserAddress"
+  },
+  {
+   "id": "-1836156075",
+   "predicate": "wallet.userAddresses",
+   "params": [
+    {
+     "name": "addresses",
+     "type": "Vector<WalletUserAddress>"
+    },
+    {
+     "name": "users",
+     "type": "Vector<User>"
+    }
+   ],
+   "type": "wallet.UserAddresses"
+  },
+  {
+   "id": "-722833299",
+   "predicate": "walletTransactionPeerUser",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "user_id",
+     "type": "long"
+    },
+    {
+     "name": "address",
+     "type": "string"
+    },
+    {
+     "name": "domain",
+     "type": "flags.0?string"
+    }
+   ],
+   "type": "WalletTransactionPeer"
+  },
+  {
+   "id": "103596476",
+   "predicate": "walletTransactionPeerAddress",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "address",
+     "type": "string"
+    },
+    {
+     "name": "domain",
+     "type": "flags.0?string"
+    }
+   ],
+   "type": "WalletTransactionPeer"
+  },
+  {
+   "id": "-443213714",
+   "predicate": "walletTransactionPeerOnramp",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "address",
+     "type": "string"
+    },
+    {
+     "name": "domain",
+     "type": "flags.0?string"
+    },
+    {
+     "name": "provider_name",
+     "type": "string"
+    }
+   ],
+   "type": "WalletTransactionPeer"
+  },
+  {
+   "id": "1921772890",
+   "predicate": "walletTransactionPeerUnsupported",
+   "params": [],
+   "type": "WalletTransactionPeer"
+  },
+  {
+   "id": "-1792163517",
+   "predicate": "walletTransaction",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "incoming",
+     "type": "flags.0?true"
+    },
+    {
+     "name": "gasless",
+     "type": "flags.1?true"
+    },
+    {
+     "name": "failed",
+     "type": "flags.2?true"
+    },
+    {
+     "name": "key_change",
+     "type": "flags.5?true"
+    },
+    {
+     "name": "comment_encrypted",
+     "type": "flags.6?true"
+    },
+    {
+     "name": "id",
+     "type": "string"
+    },
+    {
+     "name": "amount",
+     "type": "long"
+    },
+    {
+     "name": "fee",
+     "type": "long"
+    },
+    {
+     "name": "date",
+     "type": "int"
+    },
+    {
+     "name": "peer",
+     "type": "WalletTransactionPeer"
+    },
+    {
+     "name": "comment",
+     "type": "flags.3?string"
+    },
+    {
+     "name": "tx_hash",
+     "type": "flags.4?string"
+    },
+    {
+     "name": "nft",
+     "type": "flags.7?wallet.NftItem"
+    }
+   ],
+   "type": "WalletTransaction"
+  },
+  {
+   "id": "1126356389",
+   "predicate": "wallet.transactions",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "balance",
+     "type": "long"
+    },
+    {
+     "name": "transactions",
+     "type": "Vector<WalletTransaction>"
+    },
+    {
+     "name": "next_offset",
+     "type": "flags.0?string"
+    },
+    {
+     "name": "chats",
+     "type": "Vector<Chat>"
+    },
+    {
+     "name": "users",
+     "type": "Vector<User>"
+    }
+   ],
+   "type": "wallet.Transactions"
+  },
+  {
+   "id": "-422514943",
+   "predicate": "wallet.secretPhraseParts",
+   "params": [
+    {
+     "name": "token",
+     "type": "string"
+    },
+    {
+     "name": "dcs",
+     "type": "Vector<int>"
+    }
+   ],
+   "type": "wallet.SecretPhraseParts"
+  },
+  {
+   "id": "417867063",
+   "predicate": "wallet.encryptedSecretPhrasePart",
+   "params": [
+    {
+     "name": "data",
+     "type": "bytes"
+    }
+   ],
+   "type": "wallet.EncryptedSecretPhrasePart"
+  },
+  {
+   "id": "-103410961",
+   "predicate": "wallet.holderDc",
+   "params": [
+    {
+     "name": "dc",
+     "type": "int"
+    },
+    {
+     "name": "public_key",
+     "type": "bytes"
+    }
+   ],
+   "type": "wallet.HolderDc"
+  },
+  {
+   "id": "-1713105145",
+   "predicate": "wallet.proofChallenge",
+   "params": [
+    {
+     "name": "payload",
+     "type": "string"
+    },
+    {
+     "name": "expires",
+     "type": "int"
+    },
+    {
+     "name": "domain",
+     "type": "string"
+    }
+   ],
+   "type": "wallet.ProofChallenge"
+  },
+  {
+   "id": "1622985485",
+   "predicate": "walletOwnershipProof",
+   "params": [
+    {
+     "name": "timestamp",
+     "type": "int"
+    },
+    {
+     "name": "signature",
+     "type": "bytes"
+    }
+   ],
+   "type": "WalletOwnershipProof"
+  },
+  {
+   "id": "1671708892",
+   "predicate": "inputWalletNew",
+   "params": [],
+   "type": "InputWalletReplacement"
+  },
+  {
+   "id": "1722182203",
+   "predicate": "inputWalletImported",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "public_key",
+     "type": "bytes"
+    },
+    {
+     "name": "anchor_public_key",
+     "type": "flags.0?bytes"
+    },
+    {
+     "name": "proof",
+     "type": "WalletOwnershipProof"
+    }
+   ],
+   "type": "InputWalletReplacement"
+  },
+  {
+   "id": "304255588",
+   "predicate": "tonConnectManifest",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "url",
+     "type": "string"
+    },
+    {
+     "name": "name",
+     "type": "string"
+    },
+    {
+     "name": "icon",
+     "type": "flags.0?WebDocument"
+    }
+   ],
+   "type": "TonConnectManifest"
+  },
+  {
+   "id": "308631238",
+   "predicate": "tonConnectSession",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "pending",
+     "type": "flags.0?true"
+    },
+    {
+     "name": "closing",
+     "type": "flags.1?true"
+    },
+    {
+     "name": "closed",
+     "type": "flags.2?true"
+    },
+    {
+     "name": "id",
+     "type": "long"
+    },
+    {
+     "name": "dapp_client_id",
+     "type": "string"
+    },
+    {
+     "name": "client_id",
+     "type": "flags.3?string"
+    },
+    {
+     "name": "nonce",
+     "type": "bytes"
+    },
+    {
+     "name": "manifest",
+     "type": "flags.4?TonConnectManifest"
+    },
+    {
+     "name": "manifest_error",
+     "type": "flags.5?int"
+    },
+    {
+     "name": "date",
+     "type": "int"
+    }
+   ],
+   "type": "TonConnectSession"
+  },
+  {
+   "id": "1271436947",
+   "predicate": "wallet.tonConnectChallenge",
+   "params": [
+    {
+     "name": "challenge",
+     "type": "bytes"
+    },
+    {
+     "name": "event_id",
+     "type": "long"
+    }
+   ],
+   "type": "wallet.TonConnectChallenge"
+  },
+  {
+   "id": "1478780131",
+   "predicate": "tonConnectNextEventId",
+   "params": [
+    {
+     "name": "event_id",
+     "type": "long"
+    }
+   ],
+   "type": "TonConnectNextEventId"
+  },
+  {
+   "id": "-1587575533",
+   "predicate": "tonConnectRequest",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "session_id",
+     "type": "long"
+    },
+    {
+     "name": "msg_id",
+     "type": "int"
+    },
+    {
+     "name": "body",
+     "type": "bytes"
+    },
+    {
+     "name": "expires",
+     "type": "int"
+    },
+    {
+     "name": "topic",
+     "type": "flags.0?string"
+    },
+    {
+     "name": "trace_id",
+     "type": "flags.1?string"
+    }
+   ],
+   "type": "TonConnectRequest"
+  },
+  {
+   "id": "-2050952924",
+   "predicate": "wallet.tonConnectPending",
+   "params": [
+    {
+     "name": "session",
+     "type": "TonConnectSession"
+    },
+    {
+     "name": "requests",
+     "type": "Vector<TonConnectRequest>"
+    }
+   ],
+   "type": "wallet.TonConnectPending"
+  },
+  {
+   "id": "236939414",
+   "predicate": "wallet.tonConnectSessions",
+   "params": [
+    {
+     "name": "sessions",
+     "type": "Vector<TonConnectSession>"
+    }
+   ],
+   "type": "wallet.TonConnectSessions"
+  },
+  {
+   "id": "-1108800883",
+   "predicate": "wallet.existingBalance",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "has_balance",
+     "type": "flags.0?true"
+    },
+    {
+     "name": "url",
+     "type": "string"
+    }
+   ],
+   "type": "wallet.ExistingBalance"
+  },
+  {
+   "id": "1277096206",
+   "predicate": "wallet.nftAttribute",
+   "params": [
+    {
+     "name": "trait_type",
+     "type": "string"
+    },
+    {
+     "name": "value",
+     "type": "string"
+    }
+   ],
+   "type": "wallet.NftAttribute"
+  },
+  {
+   "id": "876739868",
+   "predicate": "wallet.nftItem",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "collection_address",
+     "type": "flags.0?string"
+    },
+    {
+     "name": "address",
+     "type": "string"
+    },
+    {
+     "name": "owner_address",
+     "type": "string"
+    },
+    {
+     "name": "index",
+     "type": "string"
+    },
+    {
+     "name": "name",
+     "type": "flags.1?string"
+    },
+    {
+     "name": "description",
+     "type": "flags.2?string"
+    },
+    {
+     "name": "image",
+     "type": "flags.3?WebDocument"
+    },
+    {
+     "name": "image_small",
+     "type": "flags.4?WebDocument"
+    },
+    {
+     "name": "content_url",
+     "type": "flags.5?WebDocument"
+    },
+    {
+     "name": "lottie",
+     "type": "flags.6?WebDocument"
+    },
+    {
+     "name": "attributes",
+     "type": "flags.7?Vector<wallet.NftAttribute>"
+    },
+    {
+     "name": "extra",
+     "type": "flags.8?DataJSON"
+    }
+   ],
+   "type": "wallet.NftItem"
+  },
+  {
+   "id": "2035107951",
+   "predicate": "wallet.nftItems",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "items",
+     "type": "Vector<wallet.NftItem>"
+    },
+    {
+     "name": "next_offset",
+     "type": "flags.0?string"
+    }
+   ],
+   "type": "wallet.NftItems"
+  },
+  {
    "id": "-547700724",
    "predicate": "auth.firebasePnvIntent",
    "params": [
@@ -33429,6 +34493,29 @@
     }
    ],
    "type": "auth.FirebasePnvIntent"
+  },
+  {
+   "id": "1654613710",
+   "predicate": "inputTonConnectOauthSession",
+   "params": [
+    {
+     "name": "session_id",
+     "type": "long"
+    },
+    {
+     "name": "challenge_answer",
+     "type": "bytes"
+    },
+    {
+     "name": "body",
+     "type": "bytes"
+    },
+    {
+     "name": "proof",
+     "type": "WalletOwnershipProof"
+    }
+   ],
+   "type": "InputTonConnectOauthSession"
   },
   {
    "id": "614906126",
@@ -34122,9 +35209,28 @@
    "type": "auth.Authorization"
   },
   {
-   "id": "2004743034",
+   "id": "1225633185",
+   "method": "auth.cancelWebTokenAuthorization",
+   "params": [
+    {
+     "name": "web_auth_token",
+     "type": "string"
+    }
+   ],
+   "type": "Bool"
+  },
+  {
+   "id": "1682904512",
    "method": "auth.initFirebasePnvLogin",
    "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "except_ids",
+     "type": "flags.0?Vector<long>"
+    },
     {
      "name": "api_id",
      "type": "int"
@@ -39063,7 +40169,7 @@
    "type": "UrlAuthResult"
   },
   {
-   "id": "1738797278",
+   "id": "417156754",
    "method": "messages.acceptUrlAuth",
    "params": [
     {
@@ -39097,6 +40203,10 @@
     {
      "name": "match_code",
      "type": "flags.4?string"
+    },
+    {
+     "name": "tonconnect_session",
+     "type": "flags.5?InputTonConnectOauthSession"
     }
    ],
    "type": "UrlAuthResult"
@@ -44221,7 +45331,7 @@
    "type": "StarRefProgram"
   },
   {
-   "id": "-1953898563",
+   "id": "-191600809",
    "method": "bots.setCustomVerification",
    "params": [
     {
@@ -44242,7 +45352,7 @@
     },
     {
      "name": "custom_description",
-     "type": "flags.2?string"
+     "type": "flags.2?TextWithEntities"
     }
    ],
    "type": "Bool"
@@ -44259,9 +45369,17 @@
    "type": "users.Users"
   },
   {
-   "id": "-2014174821",
+   "id": "-475247519",
    "method": "bots.checkUsername",
    "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "additional",
+     "type": "flags.0?true"
+    },
     {
      "name": "username",
      "type": "string"
@@ -44386,6 +45504,36 @@
     {
      "name": "result",
      "type": "JoinChatBotResult"
+    }
+   ],
+   "type": "Bool"
+  },
+  {
+   "id": "889307274",
+   "method": "bots.addUsername",
+   "params": [
+    {
+     "name": "bot",
+     "type": "InputUser"
+    },
+    {
+     "name": "username",
+     "type": "string"
+    }
+   ],
+   "type": "Bool"
+  },
+  {
+   "id": "-956033923",
+   "method": "bots.removeUsername",
+   "params": [
+    {
+     "name": "bot",
+     "type": "InputUser"
+    },
+    {
+     "name": "username",
+     "type": "string"
     }
    ],
    "type": "Bool"
@@ -45573,6 +46721,182 @@
     }
    ],
    "type": "Updates"
+  },
+  {
+   "id": "-749108248",
+   "method": "payments.getCurrencyRates",
+   "params": [],
+   "type": "payments.CurrencyRates"
+  },
+  {
+   "id": "1061028060",
+   "method": "payments.getOnrampProviders",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "crypto_currency",
+     "type": "flags.0?string"
+    }
+   ],
+   "type": "Vector<OnrampProviderInfo>"
+  },
+  {
+   "id": "478932467",
+   "method": "payments.getOnrampBaseCurrencies",
+   "params": [
+    {
+     "name": "provider",
+     "type": "string"
+    },
+    {
+     "name": "crypto_currency",
+     "type": "string"
+    }
+   ],
+   "type": "Vector<string>"
+  },
+  {
+   "id": "784505169",
+   "method": "payments.getOnrampAvailability",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "provider",
+     "type": "string"
+    },
+    {
+     "name": "crypto_currency",
+     "type": "string"
+    },
+    {
+     "name": "base_currency",
+     "type": "flags.0?string"
+    }
+   ],
+   "type": "OnrampAvailability"
+  },
+  {
+   "id": "-2132258307",
+   "method": "payments.getOnrampLimits",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "provider",
+     "type": "string"
+    },
+    {
+     "name": "crypto_currency",
+     "type": "string"
+    },
+    {
+     "name": "base_currency",
+     "type": "string"
+    },
+    {
+     "name": "payment_method",
+     "type": "flags.0?string"
+    }
+   ],
+   "type": "OnrampLimits"
+  },
+  {
+   "id": "-530168326",
+   "method": "payments.getOnrampQuote",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "provider",
+     "type": "string"
+    },
+    {
+     "name": "crypto_currency",
+     "type": "string"
+    },
+    {
+     "name": "base_currency",
+     "type": "string"
+    },
+    {
+     "name": "base_amount",
+     "type": "flags.0?string"
+    },
+    {
+     "name": "crypto_amount",
+     "type": "flags.1?string"
+    },
+    {
+     "name": "payment_method",
+     "type": "flags.2?string"
+    }
+   ],
+   "type": "OnrampQuote"
+  },
+  {
+   "id": "-1575387914",
+   "method": "payments.createOnrampSession",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "provider",
+     "type": "string"
+    },
+    {
+     "name": "crypto_currency",
+     "type": "string"
+    },
+    {
+     "name": "address",
+     "type": "string"
+    },
+    {
+     "name": "payment_method",
+     "type": "flags.0?string"
+    },
+    {
+     "name": "base_currency",
+     "type": "flags.1?string"
+    },
+    {
+     "name": "base_amount",
+     "type": "flags.2?string"
+    },
+    {
+     "name": "memo",
+     "type": "flags.3?string"
+    },
+    {
+     "name": "theme",
+     "type": "flags.4?string"
+    },
+    {
+     "name": "success_return_url",
+     "type": "flags.5?string"
+    },
+    {
+     "name": "fail_return_url",
+     "type": "flags.6?string"
+    },
+    {
+     "name": "crypto_amount",
+     "type": "flags.7?string"
+    }
+   ],
+   "type": "OnrampSession"
   },
   {
    "id": "-1876841625",
@@ -48483,6 +49807,452 @@
     }
    ],
    "type": "ephemeral.WelcomeMessages"
+  },
+  {
+   "id": "-1921262239",
+   "method": "toncenter.performApiRequest",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "post",
+     "type": "flags.0?true"
+    },
+    {
+     "name": "endpoint",
+     "type": "string"
+    },
+    {
+     "name": "query",
+     "type": "flags.1?string"
+    },
+    {
+     "name": "payload",
+     "type": "flags.2?string"
+    }
+   ],
+   "type": "toncenter.ApiResponse"
+  },
+  {
+   "id": "-844143673",
+   "method": "toncenter.getStreamingUrl",
+   "params": [],
+   "type": "toncenter.StreamingUrl"
+  },
+  {
+   "id": "-1417432262",
+   "method": "wallet.getState",
+   "params": [],
+   "type": "WalletState"
+  },
+  {
+   "id": "1383456733",
+   "method": "wallet.getUserAddresses",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "force",
+     "type": "flags.0?true"
+    },
+    {
+     "name": "id",
+     "type": "Vector<InputUser>"
+    },
+    {
+     "name": "addresses",
+     "type": "Vector<string>"
+    }
+   ],
+   "type": "wallet.UserAddresses"
+  },
+  {
+   "id": "-1467807101",
+   "method": "wallet.getTransactions",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "inbound",
+     "type": "flags.0?true"
+    },
+    {
+     "name": "outbound",
+     "type": "flags.1?true"
+    },
+    {
+     "name": "offset",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ],
+   "type": "wallet.Transactions"
+  },
+  {
+   "id": "-2128811338",
+   "method": "wallet.getTransactionsByIDs",
+   "params": [
+    {
+     "name": "id",
+     "type": "Vector<string>"
+    }
+   ],
+   "type": "wallet.Transactions"
+  },
+  {
+   "id": "-1497663139",
+   "method": "wallet.getTransactionsByMsgHash",
+   "params": [
+    {
+     "name": "msg_hash",
+     "type": "Vector<string>"
+    }
+   ],
+   "type": "wallet.Transactions"
+  },
+  {
+   "id": "-1871197780",
+   "method": "wallet.exportSecretPhrase",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "password",
+     "type": "flags.0?InputCheckPasswordSRP"
+    }
+   ],
+   "type": "wallet.SecretPhraseParts"
+  },
+  {
+   "id": "-180804145",
+   "method": "wallet.fetchEncryptedSecretPhrasePart",
+   "params": [
+    {
+     "name": "token",
+     "type": "string"
+    },
+    {
+     "name": "public_key",
+     "type": "bytes"
+    }
+   ],
+   "type": "wallet.EncryptedSecretPhrasePart"
+  },
+  {
+   "id": "-658034964",
+   "method": "wallet.replaceWallet",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "wallet",
+     "type": "InputWalletReplacement"
+    },
+    {
+     "name": "password",
+     "type": "flags.0?InputCheckPasswordSRP"
+    }
+   ],
+   "type": "WalletState"
+  },
+  {
+   "id": "185331930",
+   "method": "wallet.disableBackup",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "password",
+     "type": "flags.0?InputCheckPasswordSRP"
+    },
+    {
+     "name": "new_public_key",
+     "type": "flags.1?bytes"
+    },
+    {
+     "name": "proof",
+     "type": "flags.2?WalletOwnershipProof"
+    }
+   ],
+   "type": "WalletState"
+  },
+  {
+   "id": "-780544876",
+   "method": "wallet.getBackupHolderDcs",
+   "params": [],
+   "type": "Vector<wallet.HolderDc>"
+  },
+  {
+   "id": "1157678373",
+   "method": "wallet.enableBackup",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "parts",
+     "type": "Vector<bytes>"
+    },
+    {
+     "name": "new_public_key",
+     "type": "flags.1?bytes"
+    },
+    {
+     "name": "proof",
+     "type": "flags.2?WalletOwnershipProof"
+    }
+   ],
+   "type": "WalletState"
+  },
+  {
+   "id": "539354775",
+   "method": "wallet.getProofChallenge",
+   "params": [],
+   "type": "wallet.ProofChallenge"
+  },
+  {
+   "id": "-639247902",
+   "method": "wallet.sendTransfer",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "data_normal",
+     "type": "bytes"
+    },
+    {
+     "name": "data_gasless",
+     "type": "flags.0?bytes"
+    },
+    {
+     "name": "user_id",
+     "type": "InputUser"
+    },
+    {
+     "name": "random_id",
+     "type": "long"
+    }
+   ],
+   "type": "Updates"
+  },
+  {
+   "id": "1949167777",
+   "method": "wallet.getGaslessInfo",
+   "params": [],
+   "type": "Updates"
+  },
+  {
+   "id": "1763656544",
+   "method": "wallet.getExistingWaltBalance",
+   "params": [],
+   "type": "wallet.ExistingBalance"
+  },
+  {
+   "id": "-1944915036",
+   "method": "wallet.getNfts",
+   "params": [
+    {
+     "name": "offset",
+     "type": "string"
+    },
+    {
+     "name": "limit",
+     "type": "int"
+    }
+   ],
+   "type": "wallet.NftItems"
+  },
+  {
+   "id": "-862777274",
+   "method": "wallet.tonConnectCreateSession",
+   "params": [
+    {
+     "name": "dapp_client_id",
+     "type": "string"
+    },
+    {
+     "name": "manifest_url",
+     "type": "string"
+    }
+   ],
+   "type": "TonConnectSession"
+  },
+  {
+   "id": "864800540",
+   "method": "wallet.tonConnectRegisterKey",
+   "params": [
+    {
+     "name": "session_id",
+     "type": "long"
+    },
+    {
+     "name": "client_id",
+     "type": "string"
+    }
+   ],
+   "type": "wallet.TonConnectChallenge"
+  },
+  {
+   "id": "-1027602567",
+   "method": "wallet.tonConnectSubmitConnectResult",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "error",
+     "type": "flags.0?true"
+    },
+    {
+     "name": "session_id",
+     "type": "long"
+    },
+    {
+     "name": "challenge_answer",
+     "type": "bytes"
+    },
+    {
+     "name": "body",
+     "type": "bytes"
+    },
+    {
+     "name": "trace_id",
+     "type": "flags.1?string"
+    }
+   ],
+   "type": "Bool"
+  },
+  {
+   "id": "296673381",
+   "method": "wallet.tonConnectGetPending",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "dapp_client_id",
+     "type": "flags.0?string"
+    },
+    {
+     "name": "session_id",
+     "type": "flags.1?long"
+    }
+   ],
+   "type": "wallet.TonConnectPending"
+  },
+  {
+   "id": "1723169601",
+   "method": "wallet.tonConnectClaimRequest",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "declined",
+     "type": "flags.1?true"
+    },
+    {
+     "name": "session_id",
+     "type": "long"
+    },
+    {
+     "name": "msg_id",
+     "type": "int"
+    },
+    {
+     "name": "app_request_id",
+     "type": "string"
+    },
+    {
+     "name": "challenge_answer",
+     "type": "flags.0?bytes"
+    }
+   ],
+   "type": "Bool"
+  },
+  {
+   "id": "-87655108",
+   "method": "wallet.tonConnectSubmitResponse",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "session_id",
+     "type": "long"
+    },
+    {
+     "name": "msg_id",
+     "type": "int"
+    },
+    {
+     "name": "body",
+     "type": "bytes"
+    },
+    {
+     "name": "trace_id",
+     "type": "flags.0?string"
+    }
+   ],
+   "type": "Bool"
+  },
+  {
+   "id": "2002612804",
+   "method": "wallet.tonConnectNextEventId",
+   "params": [
+    {
+     "name": "session_id",
+     "type": "long"
+    }
+   ],
+   "type": "TonConnectNextEventId"
+  },
+  {
+   "id": "-700489266",
+   "method": "wallet.tonConnectCloseSession",
+   "params": [
+    {
+     "name": "flags",
+     "type": "#"
+    },
+    {
+     "name": "session_id",
+     "type": "long"
+    },
+    {
+     "name": "body",
+     "type": "flags.0?bytes"
+    }
+   ],
+   "type": "Bool"
+  },
+  {
+   "id": "-1476414098",
+   "method": "wallet.tonConnectGetSessions",
+   "params": [],
+   "type": "wallet.TonConnectSessions"
   },
   {
    "id": "-1854748419",

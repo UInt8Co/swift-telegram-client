@@ -14,7 +14,7 @@ extension TL {
   /// The TL type `UrlAuthResult` (3 constructors).
   @TLType
   public indirect enum UrlAuthResultType: Equatable, Sendable {
-    /// `urlAuthResultRequest#3cd623ec flags:# request_write_access:flags.0?true request_phone_number:flags.1?true match_codes_first:flags.5?true is_app:flags.6?true bot:User domain:string browser:flags.2?string platform:flags.2?string ip:flags.2?string region:flags.2?string match_codes:flags.3?Vector<string> user_id_hint:flags.4?long verified_app_name:flags.7?string = UrlAuthResult`
+    /// `urlAuthResultRequest#bdca6167 flags:# request_write_access:flags.0?true request_phone_number:flags.1?true match_codes_first:flags.5?true is_app:flags.6?true request_wallet:flags.8?true bot:User domain:string browser:flags.2?string platform:flags.2?string ip:flags.2?string region:flags.2?string match_codes:flags.3?Vector<string> user_id_hint:flags.4?long verified_app_name:flags.7?string tc_session_id:flags.9?long tc_client_id:flags.10?string = UrlAuthResult`
     case urlAuthResultRequest(TL.UrlAuthResultRequest)
     /// `urlAuthResultAccepted#623a8fa0 flags:# url:flags.0?string = UrlAuthResult`
     case urlAuthResultAccepted(TL.UrlAuthResultAccepted)
@@ -22,8 +22,8 @@ extension TL {
     case urlAuthResultDefault(TL.UrlAuthResultDefault)
   }
 
-  /// TL: `urlAuthResultRequest#3cd623ec flags:# request_write_access:flags.0?true request_phone_number:flags.1?true match_codes_first:flags.5?true is_app:flags.6?true bot:User domain:string browser:flags.2?string platform:flags.2?string ip:flags.2?string region:flags.2?string match_codes:flags.3?Vector<string> user_id_hint:flags.4?long verified_app_name:flags.7?string = UrlAuthResult`
-  @TLObject(id: 0x3cd623ec)
+  /// TL: `urlAuthResultRequest#bdca6167 flags:# request_write_access:flags.0?true request_phone_number:flags.1?true match_codes_first:flags.5?true is_app:flags.6?true request_wallet:flags.8?true bot:User domain:string browser:flags.2?string platform:flags.2?string ip:flags.2?string region:flags.2?string match_codes:flags.3?Vector<string> user_id_hint:flags.4?long verified_app_name:flags.7?string tc_session_id:flags.9?long tc_client_id:flags.10?string = UrlAuthResult`
+  @TLObject(id: 0xbdca6167)
   @TLFlagsEquatable
   public struct UrlAuthResultRequest: Equatable, Sendable {
     @TLFlags public var flags: UInt32 = 0
@@ -31,6 +31,7 @@ extension TL {
     @TLConditional("flags", bit: 1) public var requestPhoneNumber: Bool = false
     @TLConditional("flags", bit: 5) public var matchCodesFirst: Bool = false
     @TLConditional("flags", bit: 6) public var isApp: Bool = false
+    @TLConditional("flags", bit: 8) public var requestWallet: Bool = false
     public var bot: TL.UserType
     public var domain: String
     @TLConditional("flags", bit: 2) public var browser: String? = nil
@@ -40,6 +41,8 @@ extension TL {
     @TLConditional("flags", bit: 3) public var matchCodes: [String]? = nil
     @TLConditional("flags", bit: 4) public var userIdHint: Int64? = nil
     @TLConditional("flags", bit: 7) public var verifiedAppName: String? = nil
+    @TLConditional("flags", bit: 9) public var tcSessionId: Int64? = nil
+    @TLConditional("flags", bit: 10) public var tcClientId: String? = nil
   }
 
   /// TL: `urlAuthResultAccepted#623a8fa0 flags:# url:flags.0?string = UrlAuthResult`

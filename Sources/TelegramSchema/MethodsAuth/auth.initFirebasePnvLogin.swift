@@ -12,9 +12,12 @@ import MTProtoBaseSchema
 
 extension TL.Auth {
 
-  /// TL: `auth.initFirebasePnvLogin#777df37a api_id:int api_hash:string = auth.FirebasePnvIntent`
-  @TLObject(id: 0x777df37a, returning: TL.Auth.FirebasePnvIntent.self)
+  /// TL: `auth.initFirebasePnvLogin#644f15c0 flags:# except_ids:flags.0?Vector<long> api_id:int api_hash:string = auth.FirebasePnvIntent`
+  @TLObject(id: 0x644f15c0, returning: TL.Auth.FirebasePnvIntent.self)
+  @TLFlagsEquatable
   public struct InitFirebasePnvLogin: Equatable, Sendable {
+    @TLFlags public var flags: UInt32 = 0
+    @TLConditional("flags", bit: 0) public var exceptIds: [Int64]? = nil
     public var apiId: Int32
     public var apiHash: String
   }

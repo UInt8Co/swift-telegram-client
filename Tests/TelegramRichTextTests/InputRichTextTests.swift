@@ -9,6 +9,7 @@ import Testing
     .textBotCommand(.init(text: label)), .textCashtag(.init(text: label)),
     .textAutoUrl(.init(text: label)), .textAutoEmail(.init(text: label)),
     .textAutoPhone(.init(text: label)), .textBankCard(.init(text: label)),
+    .textTonAddress(.init(text: label)),
   ]
 
   @Test(arguments: receivedEntities)

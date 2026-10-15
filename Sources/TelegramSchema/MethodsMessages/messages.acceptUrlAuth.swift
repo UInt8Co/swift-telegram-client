@@ -12,8 +12,8 @@ import MTProtoBaseSchema
 
 extension TL.Messages {
 
-  /// TL: `messages.acceptUrlAuth#67a3f0de flags:# write_allowed:flags.0?true share_phone_number:flags.3?true peer:flags.1?InputPeer msg_id:flags.1?int button_id:flags.1?int url:flags.2?string match_code:flags.4?string = UrlAuthResult`
-  @TLObject(id: 0x67a3f0de, returning: TL.UrlAuthResultType.self)
+  /// TL: `messages.acceptUrlAuth#18dd4e92 flags:# write_allowed:flags.0?true share_phone_number:flags.3?true peer:flags.1?InputPeer msg_id:flags.1?int button_id:flags.1?int url:flags.2?string match_code:flags.4?string tonconnect_session:flags.5?InputTonConnectOauthSession = UrlAuthResult`
+  @TLObject(id: 0x18dd4e92, returning: TL.UrlAuthResultType.self)
   @TLFlagsEquatable
   public struct AcceptUrlAuth: Equatable, Sendable {
     @TLFlags public var flags: UInt32 = 0
@@ -24,5 +24,6 @@ extension TL.Messages {
     @TLConditional("flags", bit: 1) public var buttonId: Int32? = nil
     @TLConditional("flags", bit: 2) public var url: String? = nil
     @TLConditional("flags", bit: 4) public var matchCode: String? = nil
+    @TLConditional("flags", bit: 5) public var tonconnectSession: TL.InputTonConnectOauthSession? = nil
   }
 }

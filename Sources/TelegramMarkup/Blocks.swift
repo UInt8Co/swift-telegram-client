@@ -44,6 +44,7 @@ extension Writer {
     case .textAutoEmail(let v): rich(v.text, depth: next)
     case .textAutoPhone(let v): rich(v.text, depth: next)
     case .textBankCard(let v): rich(v.text, depth: next)
+    case .textTonAddress(let v): rich(v.text, depth: next)
     case .textMentionName(let v): wrap("a", v.text, [.init("href", "tg://user?id=\(v.userId)")])
     case .textDate(let v): rich(v.text, depth: next)
     case .textDiff(let v): wrap("ins", v.text)

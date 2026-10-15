@@ -81,6 +81,9 @@ extension TL {
   /// The TL namespace `stories.*`.
   public enum Stories {
   }
+  /// The TL namespace `toncenter.*`.
+  public enum Toncenter {
+  }
   /// The TL namespace `updates.*`.
   public enum Updates {
   }
@@ -89,5 +92,8 @@ extension TL {
   }
   /// The TL namespace `users.*`.
   public enum Users {
+  }
+  /// The TL namespace `wallet.*`.
+  public enum Wallet {
   }
 }

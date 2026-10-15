@@ -283,5 +283,33 @@ extension TLClient {
     public func craftStarGift(stargift: [TL.InputSavedStarGiftType]) async throws -> TL.UpdatesType {
       try await client.invoke(TL.Payments.CraftStarGift(stargift: stargift))
     }
+    /// TL: `payments.getCurrencyRates#d35983e8 = payments.CurrencyRates`
+    public func getCurrencyRates() async throws -> TL.Payments.CurrencyRates {
+      try await client.invoke(TL.Payments.GetCurrencyRates())
+    }
+    /// TL: `payments.getOnrampProviders#3f3e00dc flags:# crypto_currency:flags.0?string = Vector<OnrampProviderInfo>`
+    public func getOnrampProviders(cryptoCurrency: String? = nil) async throws -> [TL.OnrampProviderInfo] {
+      try await client.invoke(TL.Payments.GetOnrampProviders(cryptoCurrency: cryptoCurrency))
+    }
+    /// TL: `payments.getOnrampBaseCurrencies#1c8bedf3 provider:string crypto_currency:string = Vector<string>`
+    public func getOnrampBaseCurrencies(provider: String, cryptoCurrency: String) async throws -> [String] {
+      try await client.invoke(TL.Payments.GetOnrampBaseCurrencies(provider: provider, cryptoCurrency: cryptoCurrency))
+    }
+    /// TL: `payments.getOnrampAvailability#2ec29951 flags:# provider:string crypto_currency:string base_currency:flags.0?string = OnrampAvailability`
+    public func getOnrampAvailability(provider: String, cryptoCurrency: String, baseCurrency: String? = nil) async throws -> TL.OnrampAvailability {
+      try await client.invoke(TL.Payments.GetOnrampAvailability(provider: provider, cryptoCurrency: cryptoCurrency, baseCurrency: baseCurrency))
+    }
+    /// TL: `payments.getOnrampLimits#80e851fd flags:# provider:string crypto_currency:string base_currency:string payment_method:flags.0?string = OnrampLimits`
+    public func getOnrampLimits(provider: String, cryptoCurrency: String, baseCurrency: String, paymentMethod: String? = nil) async throws -> TL.OnrampLimits {
+      try await client.invoke(TL.Payments.GetOnrampLimits(provider: provider, cryptoCurrency: cryptoCurrency, baseCurrency: baseCurrency, paymentMethod: paymentMethod))
+    }
+    /// TL: `payments.getOnrampQuote#e06645fa flags:# provider:string crypto_currency:string base_currency:string base_amount:flags.0?string crypto_amount:flags.1?string payment_method:flags.2?string = OnrampQuote`
+    public func getOnrampQuote(provider: String, cryptoCurrency: String, baseCurrency: String, baseAmount: String? = nil, cryptoAmount: String? = nil, paymentMethod: String? = nil) async throws -> TL.OnrampQuote {
+      try await client.invoke(TL.Payments.GetOnrampQuote(provider: provider, cryptoCurrency: cryptoCurrency, baseCurrency: baseCurrency, baseAmount: baseAmount, cryptoAmount: cryptoAmount, paymentMethod: paymentMethod))
+    }
+    /// TL: `payments.createOnrampSession#a2197cf6 flags:# provider:string crypto_currency:string address:string payment_method:flags.0?string base_currency:flags.1?string base_amount:flags.2?string memo:flags.3?string theme:flags.4?string success_return_url:flags.5?string fail_return_url:flags.6?string crypto_amount:flags.7?string = OnrampSession`
+    public func createOnrampSession(provider: String, cryptoCurrency: String, address: String, paymentMethod: String? = nil, baseCurrency: String? = nil, baseAmount: String? = nil, memo: String? = nil, theme: String? = nil, successReturnUrl: String? = nil, failReturnUrl: String? = nil, cryptoAmount: String? = nil) async throws -> TL.OnrampSession {
+      try await client.invoke(TL.Payments.CreateOnrampSession(provider: provider, cryptoCurrency: cryptoCurrency, address: address, paymentMethod: paymentMethod, baseCurrency: baseCurrency, baseAmount: baseAmount, memo: memo, theme: theme, successReturnUrl: successReturnUrl, failReturnUrl: failReturnUrl, cryptoAmount: cryptoAmount))
+    }
   }
 }

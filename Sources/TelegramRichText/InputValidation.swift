@@ -72,6 +72,7 @@ private struct InputValidation {
       case .textAutoEmail: throw RichMessageValidationError.unsupportedRichText("textAutoEmail")
       case .textAutoPhone: throw RichMessageValidationError.unsupportedRichText("textAutoPhone")
       case .textBankCard: throw RichMessageValidationError.unsupportedRichText("textBankCard")
+      case .textTonAddress: throw RichMessageValidationError.unsupportedRichText("textTonAddress")
       default: nextDepth += 1
       }
     }

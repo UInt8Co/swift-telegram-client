@@ -11,7 +11,7 @@ import MTProtoBaseSchema
 
 extension TL {
 
-  /// The TL type `RichText` (31 constructors).
+  /// The TL type `RichText` (32 constructors).
   @TLType
   public indirect enum RichTextType: Equatable, Sendable {
     /// `textEmpty#dc3d824f = RichText`
@@ -76,6 +76,8 @@ extension TL {
     case textDiff(TL.TextDiff)
     /// `textButton#afc79cd6 flags:# text:RichText type:InlineButtonType style:flags.0?RichButtonStyle = RichText`
     case textButton(TL.TextButton)
+    /// `textTonAddress#3cd2a36a text:RichText = RichText`
+    case textTonAddress(TL.TextTonAddress)
   }
 
   /// TL: `textEmpty#dc3d824f = RichText`
@@ -284,5 +286,11 @@ extension TL {
     public var text: TL.RichTextType
     public var type: TL.InlineButtonTypeType
     @TLConditional("flags", bit: 0) public var style: TL.RichButtonStyle? = nil
+  }
+
+  /// TL: `textTonAddress#3cd2a36a text:RichText = RichText`
+  @TLObject(id: 0x3cd2a36a)
+  public struct TextTonAddress: Equatable, Sendable {
+    public var text: TL.RichTextType
   }
 }

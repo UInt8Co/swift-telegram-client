@@ -124,12 +124,16 @@ extension TLClient {
       try await client.invoke(TL.Auth.InitPasskeyLogin(apiId: apiId, apiHash: apiHash))
     }
     /// TL: `auth.finishPasskeyLogin#9857ad07 flags:# credential:InputPasskeyCredential from_dc_id:flags.0?int from_auth_key_id:flags.0?long = auth.Authorization`
-    public func finishPasskeyLogin(credential: TL.InputPasskeyCredentialType, fromDcId: Int32? = nil, fromAuthKeyId: Int64? = nil) async throws -> TL.Auth.AuthorizationType {
+    public func finishPasskeyLogin(credential: TL.InputPasskeyCredentialPublicKey, fromDcId: Int32? = nil, fromAuthKeyId: Int64? = nil) async throws -> TL.Auth.AuthorizationType {
       try await client.invoke(TL.Auth.FinishPasskeyLogin(credential: credential, fromDcId: fromDcId, fromAuthKeyId: fromAuthKeyId))
     }
-    /// TL: `auth.initFirebasePnvLogin#777df37a api_id:int api_hash:string = auth.FirebasePnvIntent`
-    public func initFirebasePnvLogin(apiId: Int32, apiHash: String) async throws -> TL.Auth.FirebasePnvIntent {
-      try await client.invoke(TL.Auth.InitFirebasePnvLogin(apiId: apiId, apiHash: apiHash))
+    /// TL: `auth.cancelWebTokenAuthorization#490dada1 web_auth_token:string = Bool`
+    public func cancelWebTokenAuthorization(webAuthToken: String) async throws -> Bool {
+      try await client.invoke(TL.Auth.CancelWebTokenAuthorization(webAuthToken: webAuthToken))
+    }
+    /// TL: `auth.initFirebasePnvLogin#644f15c0 flags:# except_ids:flags.0?Vector<long> api_id:int api_hash:string = auth.FirebasePnvIntent`
+    public func initFirebasePnvLogin(exceptIds: [Int64]? = nil, apiId: Int32, apiHash: String) async throws -> TL.Auth.FirebasePnvIntent {
+      try await client.invoke(TL.Auth.InitFirebasePnvLogin(exceptIds: exceptIds, apiId: apiId, apiHash: apiHash))
     }
     /// TL: `auth.finishFirebasePnvLogin#2c85094c google_token:string = auth.Authorization`
     public func finishFirebasePnvLogin(googleToken: String) async throws -> TL.Auth.AuthorizationType {

@@ -12,9 +12,12 @@ import MTProtoBaseSchema
 
 extension TL.Bots {
 
-  /// TL: `bots.checkUsername#87f2219b username:string = Bool`
-  @TLObject(id: 0x87f2219b, returning: Bool.self)
+  /// TL: `bots.checkUsername#e3ac4c61 flags:# additional:flags.0?true username:string = Bool`
+  @TLObject(id: 0xe3ac4c61, returning: Bool.self)
+  @TLFlagsEquatable
   public struct CheckUsername: Equatable, Sendable {
+    @TLFlags public var flags: UInt32 = 0
+    @TLConditional("flags", bit: 0) public var additional: Bool = false
     public var username: String
   }
 }

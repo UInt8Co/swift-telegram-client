@@ -11,13 +11,15 @@ import MTProtoBaseSchema
 
 extension TL {
 
-  /// TL: `username#b4073647 flags:# editable:flags.0?true active:flags.1?true username:string = Username`
+  /// TL: `username#b4073647 flags:# editable:flags.0?true active:flags.1?true deletable:flags.2?true expired:flags.3?true username:string = Username`
   @TLObject(id: 0xb4073647)
   @TLFlagsEquatable
   public struct Username: Equatable, Sendable {
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var editable: Bool = false
     @TLConditional("flags", bit: 1) public var active: Bool = false
+    @TLConditional("flags", bit: 2) public var deletable: Bool = false
+    @TLConditional("flags", bit: 3) public var expired: Bool = false
     public var username: String
   }
 }

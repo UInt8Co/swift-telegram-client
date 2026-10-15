@@ -504,7 +504,7 @@ extension TLClient {
       try await client.invoke(TL.Account.InitPasskeyRegistration())
     }
     /// TL: `account.registerPasskey#55b41fd6 credential:InputPasskeyCredential = Passkey`
-    public func registerPasskey(credential: TL.InputPasskeyCredentialType) async throws -> TL.Passkey {
+    public func registerPasskey(credential: TL.InputPasskeyCredentialPublicKey) async throws -> TL.Passkey {
       try await client.invoke(TL.Account.RegisterPasskey(credential: credential))
     }
     /// TL: `account.getPasskeys#ea1f0c52 = account.Passkeys`

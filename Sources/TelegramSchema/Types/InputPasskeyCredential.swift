@@ -11,26 +11,11 @@ import MTProtoBaseSchema
 
 extension TL {
 
-  /// The TL type `InputPasskeyCredential` (2 constructors).
-  @TLType
-  public indirect enum InputPasskeyCredentialType: Equatable, Sendable {
-    /// `inputPasskeyCredentialPublicKey#3c27b78f id:string raw_id:string response:InputPasskeyResponse = InputPasskeyCredential`
-    case inputPasskeyCredentialPublicKey(TL.InputPasskeyCredentialPublicKey)
-    /// `inputPasskeyCredentialFirebasePNV#5b1ccb28 pnv_token:string = InputPasskeyCredential`
-    case inputPasskeyCredentialFirebasePNV(TL.InputPasskeyCredentialFirebasePNV)
-  }
-
   /// TL: `inputPasskeyCredentialPublicKey#3c27b78f id:string raw_id:string response:InputPasskeyResponse = InputPasskeyCredential`
   @TLObject(id: 0x3c27b78f)
   public struct InputPasskeyCredentialPublicKey: Equatable, Sendable {
     public var id: String
     public var rawId: String
     public var response: TL.InputPasskeyResponseType
-  }
-
-  /// TL: `inputPasskeyCredentialFirebasePNV#5b1ccb28 pnv_token:string = InputPasskeyCredential`
-  @TLObject(id: 0x5b1ccb28)
-  public struct InputPasskeyCredentialFirebasePNV: Equatable, Sendable {
-    public var pnvToken: String
   }
 }

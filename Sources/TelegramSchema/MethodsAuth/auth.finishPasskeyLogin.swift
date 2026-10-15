@@ -17,7 +17,7 @@ extension TL.Auth {
   @TLFlagsEquatable
   public struct FinishPasskeyLogin: Equatable, Sendable {
     @TLFlags public var flags: UInt32 = 0
-    public var credential: TL.InputPasskeyCredentialType
+    public var credential: TL.InputPasskeyCredentialPublicKey
     @TLConditional("flags", bit: 0) public var fromDcId: Int32? = nil
     @TLConditional("flags", bit: 0) public var fromAuthKeyId: Int64? = nil
   }

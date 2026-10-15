@@ -23,6 +23,7 @@ private enum InputRichText {
     case .textAutoEmail(let value): return text(value.text)
     case .textAutoPhone(let value): return text(value.text)
     case .textBankCard(let value): return text(value.text)
+    case .textTonAddress(let value): return text(value.text)
     case .textPlain(let value): return Text(value.text).richText
     case .textConcat(var value):
       value.texts = value.texts.map(text)

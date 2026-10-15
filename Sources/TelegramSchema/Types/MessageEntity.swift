@@ -11,7 +11,7 @@ import MTProtoBaseSchema
 
 extension TL {
 
-  /// The TL type `MessageEntity` (25 constructors).
+  /// The TL type `MessageEntity` (26 constructors).
   @TLType
   public indirect enum MessageEntityType: Equatable, Sendable {
     /// `messageEntityUnknown#bb92ba95 offset:int length:int = MessageEntity`
@@ -64,6 +64,8 @@ extension TL {
     case messageEntityDiffReplace(TL.MessageEntityDiffReplace)
     /// `messageEntityDiffDelete#0652c1c5 offset:int length:int = MessageEntity`
     case messageEntityDiffDelete(TL.MessageEntityDiffDelete)
+    /// `messageEntityTonAddress#fdabbfcd offset:int length:int = MessageEntity`
+    case messageEntityTonAddress(TL.MessageEntityTonAddress)
   }
 
   /// TL: `messageEntityUnknown#bb92ba95 offset:int length:int = MessageEntity`
@@ -255,6 +257,13 @@ extension TL {
   /// TL: `messageEntityDiffDelete#0652c1c5 offset:int length:int = MessageEntity`
   @TLObject(id: 0x0652c1c5)
   public struct MessageEntityDiffDelete: Equatable, Sendable {
+    public var offset: Int32
+    public var length: Int32
+  }
+
+  /// TL: `messageEntityTonAddress#fdabbfcd offset:int length:int = MessageEntity`
+  @TLObject(id: 0xfdabbfcd)
+  public struct MessageEntityTonAddress: Equatable, Sendable {
     public var offset: Int32
     public var length: Int32
   }

@@ -11,14 +11,14 @@ import MTProtoBaseSchema
 
 extension TL {
 
-  /// TL: `botVerifierSettings#b0cd6617 flags:# can_modify_custom_description:flags.1?true icon:long company:string custom_description:flags.0?string = BotVerifierSettings`
-  @TLObject(id: 0xb0cd6617)
+  /// TL: `botVerifierSettings#a12aefff flags:# can_modify_custom_description:flags.1?true icon:long company:string custom_description:flags.0?TextWithEntities = BotVerifierSettings`
+  @TLObject(id: 0xa12aefff)
   @TLFlagsEquatable
   public struct BotVerifierSettings: Equatable, Sendable {
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var canModifyCustomDescription: Bool = false
     public var icon: Int64
     public var company: String
-    @TLConditional("flags", bit: 0) public var customDescription: String? = nil
+    @TLConditional("flags", bit: 0) public var customDescription: TL.TextWithEntities? = nil
   }
 }

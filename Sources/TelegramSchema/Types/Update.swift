@@ -11,7 +11,7 @@ import MTProtoBaseSchema
 
 extension TL {
 
-  /// The TL type `Update` (165 constructors).
+  /// The TL type `Update` (170 constructors).
   @TLType
   public indirect enum UpdateType: Equatable, Sendable {
     /// `updateNewMessage#1f2b0afd message:Message pts:int pts_count:int = Update`
@@ -344,6 +344,16 @@ extension TL {
     case updateEphemeralBotCallbackQuery(TL.UpdateEphemeralBotCallbackQuery)
     /// `updateBotStarsSubscription#6c0d8e23 flags:# canceled:flags.0?true payment_failed:flags.1?true restored:flags.2?true user_id:long payload:bytes qts:int = Update`
     case updateBotStarsSubscription(TL.UpdateBotStarsSubscription)
+    /// `updateWalletState#6ac3f2aa state:WalletState = Update`
+    case updateWalletState(TL.UpdateWalletState)
+    /// `updateSentWalletTransaction#b1434d4a flags:# gasless:flags.0?true msg_hash:string transaction:flags.1?WalletTransaction = Update`
+    case updateSentWalletTransaction(TL.UpdateSentWalletTransaction)
+    /// `updateWalletGaslessInfo#a8ae1cac flags:# available:flags.0?true left:int reset_at:int min_amount:long relayer_address:string = Update`
+    case updateWalletGaslessInfo(TL.UpdateWalletGaslessInfo)
+    /// `updateWalletTonConnectSession#50a38e0e session:TonConnectSession = Update`
+    case updateWalletTonConnectSession(TL.UpdateWalletTonConnectSession)
+    /// `updateWalletTonConnectPendingDisconnect#d1ee8199 session_ids:Vector<long> = Update`
+    case updateWalletTonConnectPendingDisconnect(TL.UpdateWalletTonConnectPendingDisconnect)
   }
 
   /// TL: `updateNewMessage#1f2b0afd message:Message pts:int pts_count:int = Update`
@@ -1715,5 +1725,45 @@ extension TL {
     public var userId: Int64
     public var payload: Data
     public var qts: Int32
+  }
+
+  /// TL: `updateWalletState#6ac3f2aa state:WalletState = Update`
+  @TLObject(id: 0x6ac3f2aa)
+  public struct UpdateWalletState: Equatable, Sendable {
+    public var state: TL.WalletStateType
+  }
+
+  /// TL: `updateSentWalletTransaction#b1434d4a flags:# gasless:flags.0?true msg_hash:string transaction:flags.1?WalletTransaction = Update`
+  @TLObject(id: 0xb1434d4a)
+  @TLFlagsEquatable
+  public struct UpdateSentWalletTransaction: Equatable, Sendable {
+    @TLFlags public var flags: UInt32 = 0
+    @TLConditional("flags", bit: 0) public var gasless: Bool = false
+    public var msgHash: String
+    @TLConditional("flags", bit: 1) public var transaction: TL.WalletTransaction? = nil
+  }
+
+  /// TL: `updateWalletGaslessInfo#a8ae1cac flags:# available:flags.0?true left:int reset_at:int min_amount:long relayer_address:string = Update`
+  @TLObject(id: 0xa8ae1cac)
+  @TLFlagsEquatable
+  public struct UpdateWalletGaslessInfo: Equatable, Sendable {
+    @TLFlags public var flags: UInt32 = 0
+    @TLConditional("flags", bit: 0) public var available: Bool = false
+    public var left: Int32
+    public var resetAt: Int32
+    public var minAmount: Int64
+    public var relayerAddress: String
+  }
+
+  /// TL: `updateWalletTonConnectSession#50a38e0e session:TonConnectSession = Update`
+  @TLObject(id: 0x50a38e0e)
+  public struct UpdateWalletTonConnectSession: Equatable, Sendable {
+    public var session: TL.TonConnectSession
+  }
+
+  /// TL: `updateWalletTonConnectPendingDisconnect#d1ee8199 session_ids:Vector<long> = Update`
+  @TLObject(id: 0xd1ee8199)
+  public struct UpdateWalletTonConnectPendingDisconnect: Equatable, Sendable {
+    public var sessionIds: [Int64]
   }
 }

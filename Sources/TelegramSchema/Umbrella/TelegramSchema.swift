@@ -31,9 +31,11 @@
 @_exported import TelegramSchemaMethodsStats
 @_exported import TelegramSchemaMethodsStickers
 @_exported import TelegramSchemaMethodsStories
+@_exported import TelegramSchemaMethodsToncenter
 @_exported import TelegramSchemaMethodsUpdates
 @_exported import TelegramSchemaMethodsUpload
 @_exported import TelegramSchemaMethodsUsers
+@_exported import TelegramSchemaMethodsWallet
 @_exported import TelegramSchemaClient
 @_exported import TelegramSchemaClientGlobal
 @_exported import TelegramSchemaClientAccount
@@ -58,6 +60,8 @@
 @_exported import TelegramSchemaClientStats
 @_exported import TelegramSchemaClientStickers
 @_exported import TelegramSchemaClientStories
+@_exported import TelegramSchemaClientToncenter
 @_exported import TelegramSchemaClientUpdates
 @_exported import TelegramSchemaClientUpload
 @_exported import TelegramSchemaClientUsers
+@_exported import TelegramSchemaClientWallet

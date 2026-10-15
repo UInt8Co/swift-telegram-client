@@ -135,17 +135,17 @@ extension TLClient {
     public func updateStarRefProgram(bot: TL.InputUserType, commissionPermille: Int32, durationMonths: Int32? = nil) async throws -> TL.StarRefProgram {
       try await client.invoke(TL.Bots.UpdateStarRefProgram(bot: bot, commissionPermille: commissionPermille, durationMonths: durationMonths))
     }
-    /// TL: `bots.setCustomVerification#8b89dfbd flags:# enabled:flags.1?true bot:flags.0?InputUser peer:InputPeer custom_description:flags.2?string = Bool`
-    public func setCustomVerification(enabled: Bool = false, bot: TL.InputUserType? = nil, peer: TL.InputPeerType, customDescription: String? = nil) async throws -> Bool {
+    /// TL: `bots.setCustomVerification#f4946757 flags:# enabled:flags.1?true bot:flags.0?InputUser peer:InputPeer custom_description:flags.2?TextWithEntities = Bool`
+    public func setCustomVerification(enabled: Bool = false, bot: TL.InputUserType? = nil, peer: TL.InputPeerType, customDescription: TL.TextWithEntities? = nil) async throws -> Bool {
       try await client.invoke(TL.Bots.SetCustomVerification(enabled: enabled, bot: bot, peer: peer, customDescription: customDescription))
     }
     /// TL: `bots.getBotRecommendations#a1b70815 bot:InputUser = users.Users`
     public func getBotRecommendations(bot: TL.InputUserType) async throws -> TL.Users.UsersType {
       try await client.invoke(TL.Bots.GetBotRecommendations(bot: bot))
     }
-    /// TL: `bots.checkUsername#87f2219b username:string = Bool`
-    public func checkUsername(username: String) async throws -> Bool {
-      try await client.invoke(TL.Bots.CheckUsername(username: username))
+    /// TL: `bots.checkUsername#e3ac4c61 flags:# additional:flags.0?true username:string = Bool`
+    public func checkUsername(additional: Bool = false, username: String) async throws -> Bool {
+      try await client.invoke(TL.Bots.CheckUsername(additional: additional, username: username))
     }
     /// TL: `bots.createBot#e5b17f2b flags:# via_deeplink:flags.0?true name:string username:string manager_id:InputUser = User`
     public func createBot(viaDeeplink: Bool = false, name: String, username: String, managerId: TL.InputUserType) async throws -> TL.UserType {
@@ -174,6 +174,14 @@ extension TLClient {
     /// TL: `bots.setJoinChatResults#e71a4810 query_id:long result:JoinChatBotResult = Bool`
     public func setJoinChatResults(queryId: Int64, result: TL.JoinChatBotResultType) async throws -> Bool {
       try await client.invoke(TL.Bots.SetJoinChatResults(queryId: queryId, result: result))
+    }
+    /// TL: `bots.addUsername#3501c08a bot:InputUser username:string = Bool`
+    public func addUsername(bot: TL.InputUserType, username: String) async throws -> Bool {
+      try await client.invoke(TL.Bots.AddUsername(bot: bot, username: username))
+    }
+    /// TL: `bots.removeUsername#c704147d bot:InputUser username:string = Bool`
+    public func removeUsername(bot: TL.InputUserType, username: String) async throws -> Bool {
+      try await client.invoke(TL.Bots.RemoveUsername(bot: bot, username: username))
     }
   }
 }

@@ -38,6 +38,7 @@ function returnType(e: Entry): string {
 // The generator parses `id` as a signed 32-bit decimal; mtcute stores unsigned.
 function signedId(id: number): string {
   return (id > 0x7fffffff ? id - 0x100000000 : id).toString()
+}
 
 // This is a pure format conversion: every entry the schema publishes is carried
 // over verbatim, vendor namespaces included (`mtcute.dummyUpdate`,
@@ -46,7 +47,6 @@ function signedId(id: number): string {
 // `--exclude-namespace mtcute` in Scripts/generate-schema.sh — so the committed
 // schema stays a faithful copy of the layer and one place decides what is
 // excluded.
-// of the layer and one place decides what is excluded.
 const [inPath, outPath] = Deno.args
 const schema = JSON.parse(await Deno.readTextFile(inPath)) as { l: number; e: Entry[] }
 const constructors: unknown[] = []

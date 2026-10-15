@@ -12,14 +12,14 @@ import MTProtoBaseSchema
 
 extension TL.Bots {
 
-  /// TL: `bots.setCustomVerification#8b89dfbd flags:# enabled:flags.1?true bot:flags.0?InputUser peer:InputPeer custom_description:flags.2?string = Bool`
-  @TLObject(id: 0x8b89dfbd, returning: Bool.self)
+  /// TL: `bots.setCustomVerification#f4946757 flags:# enabled:flags.1?true bot:flags.0?InputUser peer:InputPeer custom_description:flags.2?TextWithEntities = Bool`
+  @TLObject(id: 0xf4946757, returning: Bool.self)
   @TLFlagsEquatable
   public struct SetCustomVerification: Equatable, Sendable {
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var enabled: Bool = false
     @TLConditional("flags", bit: 0) public var bot: TL.InputUserType? = nil
     public var peer: TL.InputPeerType
-    @TLConditional("flags", bit: 2) public var customDescription: String? = nil
+    @TLConditional("flags", bit: 2) public var customDescription: TL.TextWithEntities? = nil
   }
 }

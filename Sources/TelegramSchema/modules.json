@@ -303,6 +303,18 @@
         "TelegramSchemaSupport",
         "TelegramSchemaTypes"
       ],
+      "directory" : "MethodsToncenter",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsToncenter"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
       "directory" : "MethodsUpdates",
       "externalDependencies" : [
         "TLCoding",
@@ -333,6 +345,18 @@
         "MTProtoBaseSchema"
       ],
       "name" : "TelegramSchemaMethodsUsers"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes"
+      ],
+      "directory" : "MethodsWallet",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaMethodsWallet"
     },
     {
       "dependencies" : [
@@ -673,6 +697,20 @@
         "TelegramSchemaSupport",
         "TelegramSchemaTypes",
         "TelegramSchemaClient",
+        "TelegramSchemaMethodsToncenter"
+      ],
+      "directory" : "ClientToncenter",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientToncenter"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
         "TelegramSchemaMethodsUpdates"
       ],
       "directory" : "ClientUpdates",
@@ -714,6 +752,20 @@
       "dependencies" : [
         "TelegramSchemaSupport",
         "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsWallet"
+      ],
+      "directory" : "ClientWallet",
+      "externalDependencies" : [
+        "TLCoding",
+        "MTProtoBaseSchema"
+      ],
+      "name" : "TelegramSchemaClientWallet"
+    },
+    {
+      "dependencies" : [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
         "TelegramSchemaMethodsGlobal",
         "TelegramSchemaMethodsAccount",
         "TelegramSchemaMethodsAicompose",
@@ -737,9 +789,11 @@
         "TelegramSchemaMethodsStats",
         "TelegramSchemaMethodsStickers",
         "TelegramSchemaMethodsStories",
+        "TelegramSchemaMethodsToncenter",
         "TelegramSchemaMethodsUpdates",
         "TelegramSchemaMethodsUpload",
         "TelegramSchemaMethodsUsers",
+        "TelegramSchemaMethodsWallet",
         "TelegramSchemaClient",
         "TelegramSchemaClientGlobal",
         "TelegramSchemaClientAccount",
@@ -764,9 +818,11 @@
         "TelegramSchemaClientStats",
         "TelegramSchemaClientStickers",
         "TelegramSchemaClientStories",
+        "TelegramSchemaClientToncenter",
         "TelegramSchemaClientUpdates",
         "TelegramSchemaClientUpload",
-        "TelegramSchemaClientUsers"
+        "TelegramSchemaClientUsers",
+        "TelegramSchemaClientWallet"
       ],
       "directory" : "Umbrella",
       "externalDependencies" : [

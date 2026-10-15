@@ -11,11 +11,11 @@ import MTProtoBaseSchema
 
 extension TL {
 
-  /// TL: `botVerification#f93cd45c bot_id:long icon:long description:string = BotVerification`
-  @TLObject(id: 0xf93cd45c)
+  /// TL: `botVerification#f72e0ed9 bot_id:long icon:long description:TextWithEntities = BotVerification`
+  @TLObject(id: 0xf72e0ed9)
   public struct BotVerification: Equatable, Sendable {
     public var botId: Int64
     public var icon: Int64
-    public var description: String
+    public var description: TL.TextWithEntities
   }
 }

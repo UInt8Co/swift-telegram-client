@@ -52,6 +52,7 @@ public struct RichMessage: Equatable, Sendable {
     case .textAutoEmail(let value): return plainText(value.text)
     case .textAutoPhone(let value): return plainText(value.text)
     case .textBankCard(let value): return plainText(value.text)
+    case .textTonAddress(let value): return plainText(value.text)
     case .textMentionName(let value): return plainText(value.text)
     case .textDate(let value): return plainText(value.text)
     case .textDiff(let value): return plainText(value.text)

@@ -455,9 +455,9 @@ extension TLClient {
     public func requestUrlAuth(peer: TL.InputPeerType? = nil, msgId: Int32? = nil, buttonId: Int32? = nil, url: String? = nil, inAppOrigin: String? = nil) async throws -> TL.UrlAuthResultType {
       try await client.invoke(TL.Messages.RequestUrlAuth(peer: peer, msgId: msgId, buttonId: buttonId, url: url, inAppOrigin: inAppOrigin))
     }
-    /// TL: `messages.acceptUrlAuth#67a3f0de flags:# write_allowed:flags.0?true share_phone_number:flags.3?true peer:flags.1?InputPeer msg_id:flags.1?int button_id:flags.1?int url:flags.2?string match_code:flags.4?string = UrlAuthResult`
-    public func acceptUrlAuth(writeAllowed: Bool = false, sharePhoneNumber: Bool = false, peer: TL.InputPeerType? = nil, msgId: Int32? = nil, buttonId: Int32? = nil, url: String? = nil, matchCode: String? = nil) async throws -> TL.UrlAuthResultType {
-      try await client.invoke(TL.Messages.AcceptUrlAuth(writeAllowed: writeAllowed, sharePhoneNumber: sharePhoneNumber, peer: peer, msgId: msgId, buttonId: buttonId, url: url, matchCode: matchCode))
+    /// TL: `messages.acceptUrlAuth#18dd4e92 flags:# write_allowed:flags.0?true share_phone_number:flags.3?true peer:flags.1?InputPeer msg_id:flags.1?int button_id:flags.1?int url:flags.2?string match_code:flags.4?string tonconnect_session:flags.5?InputTonConnectOauthSession = UrlAuthResult`
+    public func acceptUrlAuth(writeAllowed: Bool = false, sharePhoneNumber: Bool = false, peer: TL.InputPeerType? = nil, msgId: Int32? = nil, buttonId: Int32? = nil, url: String? = nil, matchCode: String? = nil, tonconnectSession: TL.InputTonConnectOauthSession? = nil) async throws -> TL.UrlAuthResultType {
+      try await client.invoke(TL.Messages.AcceptUrlAuth(writeAllowed: writeAllowed, sharePhoneNumber: sharePhoneNumber, peer: peer, msgId: msgId, buttonId: buttonId, url: url, matchCode: matchCode, tonconnectSession: tonconnectSession))
     }
     /// TL: `messages.hidePeerSettingsBar#4facb138 peer:InputPeer = Bool`
     public func hidePeerSettingsBar(peer: TL.InputPeerType) async throws -> Bool {

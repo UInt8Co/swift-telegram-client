@@ -315,6 +315,16 @@ let package = Package(
       path: "Sources/TelegramSchema/MethodsStories"
     ),
     .target(
+      name: "TelegramSchemaMethodsToncenter",
+      dependencies: [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        .product(name: "TLCoding", package: "swift-mtproto"),
+        .product(name: "MTProtoBaseSchema", package: "swift-mtproto"),
+      ],
+      path: "Sources/TelegramSchema/MethodsToncenter"
+    ),
+    .target(
       name: "TelegramSchemaMethodsUpdates",
       dependencies: [
         "TelegramSchemaSupport",
@@ -343,6 +353,16 @@ let package = Package(
         .product(name: "MTProtoBaseSchema", package: "swift-mtproto"),
       ],
       path: "Sources/TelegramSchema/MethodsUsers"
+    ),
+    .target(
+      name: "TelegramSchemaMethodsWallet",
+      dependencies: [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        .product(name: "TLCoding", package: "swift-mtproto"),
+        .product(name: "MTProtoBaseSchema", package: "swift-mtproto"),
+      ],
+      path: "Sources/TelegramSchema/MethodsWallet"
     ),
     .target(
       name: "TelegramSchemaClient",
@@ -631,6 +651,18 @@ let package = Package(
       path: "Sources/TelegramSchema/ClientStories"
     ),
     .target(
+      name: "TelegramSchemaClientToncenter",
+      dependencies: [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsToncenter",
+        .product(name: "TLCoding", package: "swift-mtproto"),
+        .product(name: "MTProtoBaseSchema", package: "swift-mtproto"),
+      ],
+      path: "Sources/TelegramSchema/ClientToncenter"
+    ),
+    .target(
       name: "TelegramSchemaClientUpdates",
       dependencies: [
         "TelegramSchemaSupport",
@@ -667,6 +699,18 @@ let package = Package(
       path: "Sources/TelegramSchema/ClientUsers"
     ),
     .target(
+      name: "TelegramSchemaClientWallet",
+      dependencies: [
+        "TelegramSchemaSupport",
+        "TelegramSchemaTypes",
+        "TelegramSchemaClient",
+        "TelegramSchemaMethodsWallet",
+        .product(name: "TLCoding", package: "swift-mtproto"),
+        .product(name: "MTProtoBaseSchema", package: "swift-mtproto"),
+      ],
+      path: "Sources/TelegramSchema/ClientWallet"
+    ),
+    .target(
       name: "TelegramSchema",
       dependencies: [
         "TelegramSchemaSupport",
@@ -694,9 +738,11 @@ let package = Package(
         "TelegramSchemaMethodsStats",
         "TelegramSchemaMethodsStickers",
         "TelegramSchemaMethodsStories",
+        "TelegramSchemaMethodsToncenter",
         "TelegramSchemaMethodsUpdates",
         "TelegramSchemaMethodsUpload",
         "TelegramSchemaMethodsUsers",
+        "TelegramSchemaMethodsWallet",
         "TelegramSchemaClient",
         "TelegramSchemaClientGlobal",
         "TelegramSchemaClientAccount",
@@ -721,9 +767,11 @@ let package = Package(
         "TelegramSchemaClientStats",
         "TelegramSchemaClientStickers",
         "TelegramSchemaClientStories",
+        "TelegramSchemaClientToncenter",
         "TelegramSchemaClientUpdates",
         "TelegramSchemaClientUpload",
         "TelegramSchemaClientUsers",
+        "TelegramSchemaClientWallet",
         .product(name: "TLCoding", package: "swift-mtproto"),
         .product(name: "MTProtoBaseSchema", package: "swift-mtproto"),
       ],

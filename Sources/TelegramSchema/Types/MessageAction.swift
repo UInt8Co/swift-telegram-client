@@ -11,7 +11,7 @@ import MTProtoBaseSchema
 
 extension TL {
 
-  /// The TL type `MessageAction` (69 constructors).
+  /// The TL type `MessageAction` (71 constructors).
   @TLType
   public indirect enum MessageActionType: Equatable, Sendable {
     /// `messageActionEmpty#b6aef7b0 = MessageAction`
@@ -152,6 +152,10 @@ extension TL {
     case messageActionChangeCommunity(TL.MessageActionChangeCommunity)
     /// `messageActionChatJoinedViaCommunity#4a8bfe80 community_id:long = MessageAction`
     case messageActionChatJoinedViaCommunity(TL.MessageActionChatJoinedViaCommunity)
+    /// `messageActionGramTransfer#9329ea33 flags:# comment_encrypted:flags.1?true amount:long peer_address:string transaction_id:string comment:flags.0?string = MessageAction`
+    case messageActionGramTransfer(TL.MessageActionGramTransfer)
+    /// `messageActionWalletTonConnectRequest#69b8c4bf flags:# accepted:flags.2?true declined:flags.3?true session_id:long expires:int topic:flags.0?string trace_id:flags.1?string dapp_name:flags.4?string = MessageAction`
+    case messageActionWalletTonConnectRequest(TL.MessageActionWalletTonConnectRequest)
   }
 
   /// TL: `messageActionEmpty#b6aef7b0 = MessageAction`
@@ -747,5 +751,31 @@ extension TL {
   @TLObject(id: 0x4a8bfe80)
   public struct MessageActionChatJoinedViaCommunity: Equatable, Sendable {
     public var communityId: Int64
+  }
+
+  /// TL: `messageActionGramTransfer#9329ea33 flags:# comment_encrypted:flags.1?true amount:long peer_address:string transaction_id:string comment:flags.0?string = MessageAction`
+  @TLObject(id: 0x9329ea33)
+  @TLFlagsEquatable
+  public struct MessageActionGramTransfer: Equatable, Sendable {
+    @TLFlags public var flags: UInt32 = 0
+    @TLConditional("flags", bit: 1) public var commentEncrypted: Bool = false
+    public var amount: Int64
+    public var peerAddress: String
+    public var transactionId: String
+    @TLConditional("flags", bit: 0) public var comment: String? = nil
+  }
+
+  /// TL: `messageActionWalletTonConnectRequest#69b8c4bf flags:# accepted:flags.2?true declined:flags.3?true session_id:long expires:int topic:flags.0?string trace_id:flags.1?string dapp_name:flags.4?string = MessageAction`
+  @TLObject(id: 0x69b8c4bf)
+  @TLFlagsEquatable
+  public struct MessageActionWalletTonConnectRequest: Equatable, Sendable {
+    @TLFlags public var flags: UInt32 = 0
+    @TLConditional("flags", bit: 2) public var accepted: Bool = false
+    @TLConditional("flags", bit: 3) public var declined: Bool = false
+    public var sessionId: Int64
+    public var expires: Int32
+    @TLConditional("flags", bit: 0) public var topic: String? = nil
+    @TLConditional("flags", bit: 1) public var traceId: String? = nil
+    @TLConditional("flags", bit: 4) public var dappName: String? = nil
   }
 }
