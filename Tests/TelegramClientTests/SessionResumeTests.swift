@@ -17,11 +17,14 @@ import Testing
 #endif
 
 @Suite struct SessionResumeTests {
-  @Test(arguments: [ResumeReply.silence, .close])
-  private func transientFailureKeepsSessionFile(reply: ResumeReply) async throws {
-    let fixture = try await ResumeFixture.make(replies: [reply, reply, reply])
+  @Test(arguments: [
+    [ResumeReply.close, .close, .close],
+    [.close, .silence, .silence], [.silence, .close, .silence], [.silence, .silence, .close],
+  ])
+  private func transportFailuresKeepSessionFile(replies: [ResumeReply]) async throws {
+    let fixture = try await ResumeFixture.make(replies: replies)
     defer { fixture.removeDirectory() }
-    let expected: MTProtoClientError = reply == .silence ? .timeout : .connectionClosed
+    let expected: MTProtoClientError = replies.last == .silence ? .timeout : .connectionClosed
     await #expect(throws: expected) { try await fixture.connect() }
     #expect(try await fixture.reopenedSession() == fixture.cached)
     #expect(fixture.server.observed.state.withLock { $0.connections } == 3)
@@ -30,6 +33,39 @@ import Testing
     #expect(logs.count == 3)
     #expect(logs.allSatisfy { $0.contains("resume identify failed") })
     #expect(logs.last?.contains("attempt 3/3") == true)
+    try await fixture.server.channel.close()
+  }
+
+  @Test func allIdentifyTimeoutsDiscardAndAuthorizeAgain() async throws {
+    let fixture = try await ResumeFixture.make(
+      replies: [.silence, .silence, .silence, .authorize("42:test-secret")])
+    defer { fixture.removeDirectory() }
+    let connection = try await fixture.establish(authorization: .botToken("42:test-secret"))
+    #expect(!connection.resumedSession)
+    #expect(connection.accountID == 42)
+    #expect(
+      try await fixture.reopenedSession()
+        == CachedTelegramSession(session: ResumeServer.freshSession, accountID: 42))
+    #expect(
+      fixture.dials.withLock { $0 } == [
+        fixture.cached.session, fixture.cached.session, fixture.cached.session, nil,
+      ])
+    #expect(fixture.server.observed.state.withLock { $0.connections } == 4)
+    let logs = fixture.warnings.withLock { $0 }
+    #expect(logs.filter { $0.contains("resume identify failed") }.count == 3)
+    #expect(
+      logs.last?.contains("no reply to 3 resume attempts; treating the key as forgotten") == true)
+    #expect(logs.allSatisfy { !$0.contains("test-secret") })
+    await connection.disconnect()
+    try await fixture.server.channel.close()
+  }
+
+  @Test func allIdentifyTimeoutsLeaveNoStoredSessionInResumeOnlyMode() async throws {
+    let fixture = try await ResumeFixture.make(replies: [.silence, .silence, .silence])
+    defer { fixture.removeDirectory() }
+    await #expect(throws: TelegramClientError.noStoredSession) { try await fixture.connect() }
+    #expect(try await fixture.reopenedSession() == nil)
+    #expect(fixture.server.observed.state.withLock { $0.connections } == 3)
     try await fixture.server.channel.close()
   }
 
@@ -84,6 +120,7 @@ import Testing
     #expect(connection.accountID == fixture.cached.accountID)
     #expect(try await fixture.reopenedSession() == fixture.cached)
     let requests = fixture.server.observed.state.withLock { $0.requests }
+    #expect(fixture.server.observed.state.withLock { $0.connections } == (afterTimeout ? 2 : 1))
     #expect(requests.count == (afterTimeout ? 3 : 2))
     #expect(requests.last?.salt == ResumeServer.correctedSalt)
     #expect(requests.last?.msgID != requests[requests.count - 2].msgID)
@@ -104,14 +141,72 @@ import Testing
     #expect(logs.allSatisfy { $0.contains("resume connect failed") })
   }
 
-  @Test func mismatchedTokenPreservesOriginalAccountKey() async throws {
-    let fixture = try await ResumeFixture.make(replies: [])
+  @Test(arguments: [0, 1, 2, 3])
+  func connectTimeoutsKeepSessionAndSurfaceError(failedAttempt: Int) async throws {
+    let fixture = try await ResumeFixture.make(replies: [.silence, .silence])
     defer { fixture.removeDirectory() }
-    await #expect(throws: TelegramClientError.sessionBelongsToAnotherAccount) {
-      try await fixture.connect(authorization: .botToken("99:test"))
+    // Zero means every dial times out while connecting; otherwise mix one
+    // connect timeout with two whole-budget identify timeouts, in every order.
+    let failures: [Int: MTProtoClientError] =
+      failedAttempt == 0
+      ? [1: .timeout, 2: .timeout, 3: .timeout] : [failedAttempt: .timeout]
+    await #expect(throws: MTProtoClientError.timeout) {
+      try await fixture.establish(connectFailures: failures)
     }
     #expect(try await fixture.reopenedSession() == fixture.cached)
-    #expect(fixture.server.observed.state.withLock { $0.connections } == 0)
+    #expect(fixture.dials.withLock { $0 } == Array(repeating: fixture.cached.session, count: 3))
+    let logs = fixture.warnings.withLock { $0 }
+    #expect(logs.count == 3)
+    #expect(logs.filter { $0.contains("resume connect failed") }.count == failures.count)
+    #expect(logs.allSatisfy { !$0.contains("discarding") })
+    try await fixture.server.channel.close()
+  }
+
+  @Test func mismatchedTokenDiscardsAndAuthorizesItsAccount() async throws {
+    let fixture = try await ResumeFixture.make(replies: [.authorize("99:test-secret")])
+    defer { fixture.removeDirectory() }
+    let connection = try await fixture.establish(authorization: .botToken("99:test-secret"))
+    #expect(!connection.resumedSession)
+    #expect(connection.accountID == 99)
+    #expect(
+      try await fixture.reopenedSession()
+        == CachedTelegramSession(session: ResumeServer.freshSession, accountID: 99))
+    #expect(fixture.dials.withLock { $0 } == [nil])
+    let logs = fixture.warnings.withLock { $0 }
+    #expect(logs.count == 1)
+    #expect(logs[0].contains("account 42"))
+    #expect(logs[0].contains("bot token names account 99"))
+    #expect(logs[0].contains("discarding it and authorizing again"))
+    #expect(!logs[0].contains("test-secret"))
+    await connection.disconnect()
+    try await fixture.server.channel.close()
+  }
+
+  @Test func mismatchedIdentifiedAccountDiscardsAndAuthorizesAgain() async throws {
+    let fixture = try await ResumeFixture.make(
+      replies: [.identify(99), .authorize("42:test-secret")])
+    defer { fixture.removeDirectory() }
+    let connection = try await fixture.establish(authorization: .botToken("42:test-secret"))
+    #expect(!connection.resumedSession)
+    #expect(connection.accountID == 42)
+    #expect(
+      try await fixture.reopenedSession()
+        == CachedTelegramSession(session: ResumeServer.freshSession, accountID: 42))
+    #expect(fixture.dials.withLock { $0 } == [fixture.cached.session, nil])
+    let logs = fixture.warnings.withLock { $0 }
+    #expect(
+      logs.contains { $0.contains("identifies account 99") && $0.contains("cached account is 42") })
+    #expect(logs.last?.contains("another account; discarding it") == true)
+    await connection.disconnect()
+    try await fixture.server.channel.close()
+  }
+
+  @Test func mismatchedIdentifiedAccountLeavesNoStoredSessionInResumeOnlyMode() async throws {
+    let fixture = try await ResumeFixture.make(replies: [.identify(99)])
+    defer { fixture.removeDirectory() }
+    await #expect(throws: TelegramClientError.noStoredSession) { try await fixture.connect() }
+    #expect(try await fixture.reopenedSession() == nil)
+    #expect(fixture.server.observed.state.withLock { $0.connections } == 1)
     try await fixture.server.channel.close()
   }
 
@@ -136,6 +231,7 @@ private final class ResumeFixture: Sendable {
   let cached: CachedTelegramSession
   let server: ResumeServer
   let warnings = Mutex<[String]>([])
+  let dials = Mutex<[MTProtoStoredSession?]>([])
   static let sessionKey = TelegramConnection.sessionKey(scope: "resume-test", dcID: 2)
 
   private init(
@@ -177,6 +273,46 @@ private final class ResumeFixture: Sendable {
     try await FileTelegramSessionStore(directory: directory).session(for: Self.sessionKey)
   }
 
+  /// Inject only the dial boundary: connect failures are deterministic and a
+  /// fresh handshake supplies a distinct fixture key. Identify and bot login
+  /// still run as encrypted RPCs against the peer, through the real transport.
+  func establish(
+    authorization: TelegramAuthorization = .storedSessionOnly,
+    connectFailures: [Int: MTProtoClientError] = [:]
+  ) async throws -> TelegramConnection {
+    try await TelegramConnection.establish(
+      endpoint: server.endpoint, rsaPublicKey: TelegramService.production.rsaPublicKey,
+      app: TelegramApp(apiID: 12345, apiHash: "test"), layer: TelegramSchemaLayer.current,
+      authorization: authorization, sessionStore: store, sessionScope: "resume-test",
+      onPushedUpdates: nil,
+      timeouts: .init(connect: .seconds(1), request: .milliseconds(150)),
+      log: TelegramLog(minimum: .warning) { _, message in
+        self.warnings.withLock { $0.append(message) }
+      },
+      dial: { endpoint, configuration in
+        let attempt = self.dials.withLock {
+          $0.append(configuration.resumeSession)
+          return $0.count
+        }
+        if let failure = connectFailures[attempt] { throw failure }
+        var configuration = configuration
+        let fresh = configuration.resumeSession == nil
+        if fresh {
+          #expect(try await self.reopenedSession() == nil, "discard before authorizing")
+          configuration.resumeSession = ResumeServer.freshSession
+        }
+        let client = try await TelegramConnection.dialClient(endpoint, configuration)
+        if fresh {
+          let session = ResumeServer.freshSession
+          configuration.onSessionEstablished?(
+            MTProtoSessionKeys(
+              authKey: session.authKey, authKeyID: MTProtoMessageCrypto.authKeyID(session.authKey),
+              serverSalt: session.serverSalt))
+        }
+        return client
+      })
+  }
+
   func removeDirectory() { try? FileManager.default.removeItem(at: directory) }
 }
 
@@ -185,11 +321,15 @@ private enum ResumeReply: Equatable, Sendable {
   case close
   case rpcError(String)
   case saltThenIdentify
+  case identify(Int64)
+  case authorize(String)
 }
 
 /// A localhost MTProto peer: no credentials, external network, or mocked client.
 private struct ResumeServer: Sendable {
   static let correctedSalt: Int64 = 12345
+  static let freshSession = MTProtoStoredSession(
+    authKey: Data(repeating: 0x5A, count: 256), serverSalt: correctedSalt)
   struct Observed {
     var connections = 0
     var requests: [MTProtoPlainMessage] = []
@@ -209,8 +349,14 @@ private struct ResumeServer: Sendable {
           return index < replies.count ? replies[index] : .silence
         }
         return channel.eventLoop.submit {
+          let key: Data
+          if case .authorize = reply {
+            key = freshSession.authKey
+          } else {
+            key = authKey
+          }
           try channel.pipeline.syncOperations.addHandler(
-            ByteToMessageHandler(ResumeDecoder(authKey: authKey, reply: reply, observed: observed)))
+            ByteToMessageHandler(ResumeDecoder(authKey: key, reply: reply, observed: observed)))
         }
       }.bind(host: "127.0.0.1", port: 0).get()
     let port = try #require(channel.localAddress?.port)
@@ -268,6 +414,23 @@ private struct ResumeDecoder: ByteToMessageDecoder {
       body.writeUInt32(TL.RpcResult.tlConstructorID)
       body.writeInt64(request.msgID)
       body.writeRawData(TL.RpcError(errorCode: 401, errorMessage: message).tlSerialized())
+    case .identify(let accountID):
+      body.writeUInt32(TL.RpcResult.tlConstructorID)
+      body.writeInt64(request.msgID)
+      body.writeRawData([TL.UserType.user(TL.User(id: accountID))].tlSerialized())
+    case .authorize(let token):
+      let accountID = try #require(TelegramBotToken.accountID(of: token))
+      let login = TL.Auth.ImportBotAuthorization(
+        flags: 0, apiId: 12345, apiHash: "test", botAuthToken: token
+      ).tlSerialized()
+      #expect(request.body.suffix(login.count) == login)
+      body.writeUInt32(TL.RpcResult.tlConstructorID)
+      body.writeInt64(request.msgID)
+      body.writeRawData(
+        TL.Auth.AuthorizationType.authorization(
+          TL.Auth.Authorization(
+            user: .user(TL.User(bot: true, id: accountID, botInfoVersion: 1)))
+        ).tlSerialized())
     case .saltThenIdentify:
       if request.salt != ResumeServer.correctedSalt {
         body.writeRawData(

@@ -112,17 +112,23 @@ rather than logging in again when no valid saved session is available.
 A resumed session is proved by `users.getUsers(inputUserSelf)`; no separate ping
 is needed. A timeout or transport failure retries the same cached key on a new
 connection, at most three attempts with 250 ms and 500 ms backoff. The configured
-connect/request budgets apply to each attempt. If all attempts fail, `connect`
-throws and leaves the file intact so the caller can retry later. Warning logs
-name the failed phase (`connect` or `identify`), attempt, and error. Flood waits,
-migrations, identity mismatches, and other RPC errors are surfaced without this
-retry. A bot token for another account fails without replacing its cached key.
+connect/request budgets apply to each attempt. If **every attempt exhausts its
+whole identify budget**, the cached session is discarded with a warning and the
+client authorizes again: Telegram can silently ignore messages sealed with a key
+it has forgotten. A timeout followed by success keeps the session. Connect-phase
+timeouts, closed connections, and other transport failures never count toward
+the forgotten-key signal; exhausted retries surface the error and keep the file.
+Warning logs name the failed phase (`connect` or `identify`), attempt, and error.
+Flood waits, migrations, and unrelated RPC errors are surfaced without this retry.
 
-Only explicit server invalidity (`-404`, `AUTH_KEY_UNREGISTERED`, `AUTH_KEY_INVALID`,
-`AUTH_KEY_DUPLICATED`, `SESSION_REVOKED`, or `SESSION_EXPIRED`) removes a cached
-session. With `.storedSessionOnly`, that leaves no stored session; other modes
-may authorize again. Media connections using exported authorization continue to
-accept the home-DC redirect as their resume proof.
+Explicit server invalidity (`-404`, `AUTH_KEY_UNREGISTERED`, `AUTH_KEY_INVALID`,
+`AUTH_KEY_DUPLICATED`, `SESSION_REVOKED`, or `SESSION_EXPIRED`) discards immediately.
+An account mismatch also discards: a bot token naming another account replaces
+the cached session with that bot's login, and a resumed key identifying another
+account triggers fresh authorization. Warnings name both account IDs without
+logging credentials. With `.storedSessionOnly`, discarding leaves no stored
+session and the call fails instead of logging in. Media connections using
+exported authorization continue to accept the home-DC redirect as their resume proof.
 
 Salt corrections are applied by the transport for the live connection. The
 current transport API exposes keys only at the initial handshake, so this library
