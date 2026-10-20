@@ -43,9 +43,8 @@ public enum TelegramAuthorization: Sendable {
   }
 }
 
-/// What one dial waits for. A datacenter that will not talk to this session says
-/// nothing at all rather than refusing, so both budgets are what ends the
-/// attempt.
+/// What one dial waits for. These budgets bound each resume attempt; a timeout
+/// is a transient failure, never evidence that a stored key has been revoked.
 public struct TelegramConnectionTimeouts: Sendable {
   /// The handshake (or resume) becoming usable.
   public var connect: Duration
@@ -187,80 +186,97 @@ public final class TelegramConnection: Sendable {
     timeouts: TelegramConnectionTimeouts, log: TelegramLog
   ) async throws -> TelegramConnection {
     let sessionKey = sessionScope.map { Self.sessionKey(scope: $0, dcID: endpoint.dcID) }
-    var cached: CachedTelegramSession? =
+    let cached: CachedTelegramSession? =
       if let sessionStore, let sessionKey {
         try await sessionStore.session(for: sessionKey)
       } else {
         nil
       }
-    // A bot token names its own account before anything is spent, so a session
-    // cached under a key that now belongs to a different bot is discarded
-    // rather than resumed and then found out.
+    // A mismatched credential is a scope/configuration error, not proof that
+    // the stored key is invalid. Leave it intact for its original account.
     if let stored = cached, case .botToken(let token) = authorization,
       let tokenAccountID = TelegramBotToken.accountID(of: token),
-      stored.accountID != tokenAccountID, let sessionStore, let sessionKey
+      stored.accountID != tokenAccountID
     {
-      try await sessionStore.deleteSession(for: sessionKey)
-      cached = nil
+      throw TelegramClientError.sessionBelongsToAnotherAccount
     }
     if cached == nil, case .storedSessionOnly = authorization {
       throw TelegramClientError.noStoredSession
     }
 
-    let captured = Mutex<MTProtoSessionKeys?>(nil)
-    let configuration = MTProtoClientConfiguration(
-      rsaPublicKey: rsaPublicKey, dcID: endpoint.dcID,
-      resumeSession: cached?.session,
-      requestTimeout: timeouts.request, connectTimeout: timeouts.connect,
-      onSessionEstablished: { keys in captured.withLock { $0 = keys } },
-      onUnhandledMessage: Self.pushSink(onPushedUpdates, log: log),
-      log: log.lineSink(at: .debug))
-    let client = MTProtoClient(
-      host: endpoint.host, port: endpoint.port, configuration: configuration)
-    let transport = TelegramTransport(client: client, app: app, layer: layer)
-    let api = TLClient(transport: transport)
-    do {
-      try await client.connect()
-      if let cached {
-        try await client.ping()
-        try await proveResumedSession(
-          api, is: cached.accountID, authorization: authorization, on: endpoint.dcID)
-      }
-    } catch {
-      try? await client.disconnect()
-      guard cached != nil, invalidatesCachedSession(error),
-        let sessionStore, let sessionKey
-      else { throw error }
-      log.warning(
-        "the cached \(sessionKey) session did not survive the resume check (\(error)); "
-          + "discarding it and authorizing again")
-      try await sessionStore.deleteSession(for: sessionKey)
-      return try await establish(
-        endpoint: endpoint, rsaPublicKey: rsaPublicKey, app: app, layer: layer,
-        authorization: authorization, sessionStore: sessionStore,
-        sessionScope: sessionScope, onPushedUpdates: onPushedUpdates,
-        timeouts: timeouts, log: log)
-    }
-    do {
-      let accountID: Int64
-      if let cached {
-        accountID = cached.accountID
-      } else {
-        accountID = try await authorize(api, app: app, using: authorization, binding: await client.sessionBinding())
-        if let keys = captured.withLock({ $0 }), let sessionStore, let sessionKey {
-          try await sessionStore.save(
-            MTProtoStoredSession(
-              authKey: keys.authKey, serverSalt: keys.serverSalt,
-              expiresAt: keys.expiresAt),
-            accountID: accountID, for: sessionKey)
+    var attempt = 0
+    while true {
+      try Task.checkCancellation()
+      attempt += 1
+      let captured = Mutex<MTProtoSessionKeys?>(nil)
+      let configuration = MTProtoClientConfiguration(
+        rsaPublicKey: rsaPublicKey, dcID: endpoint.dcID,
+        resumeSession: cached?.session,
+        requestTimeout: timeouts.request, connectTimeout: timeouts.connect,
+        onSessionEstablished: { keys in captured.withLock { $0 = keys } },
+        onUnhandledMessage: Self.pushSink(onPushedUpdates, log: log),
+        log: log.lineSink(at: .debug))
+      let client = MTProtoClient(
+        host: endpoint.host, port: endpoint.port, configuration: configuration)
+      let transport = TelegramTransport(client: client, app: app, layer: layer)
+      let api = TLClient(transport: transport)
+      var phase = "connect"
+      do {
+        try await client.connect()
+        if let cached {
+          phase = "identify"
+          // This authenticated RPC proves liveness as well as identity. An
+          // extra ping adds no authorization evidence and delays the first RPC.
+          try await proveResumedSession(
+            api, is: cached.accountID, authorization: authorization, on: endpoint.dcID)
         }
+      } catch {
+        try? await client.disconnect()
+        guard cached != nil else { throw error }
+        log.warning(
+          "cached session \(sessionKey ?? "") resume \(phase) failed "
+            + "(attempt \(attempt)/3): \(error)")
+        try Task.checkCancellation()
+        if let sessionStore, let sessionKey,
+          try await discardInvalidCachedSession(
+            error, store: sessionStore, key: sessionKey, log: log)
+        {
+          return try await establish(
+            endpoint: endpoint, rsaPublicKey: rsaPublicKey, app: app, layer: layer,
+            authorization: authorization, sessionStore: sessionStore,
+            sessionScope: sessionScope, onPushedUpdates: onPushedUpdates,
+            timeouts: timeouts, log: log)
+        }
+        guard attempt < 3, retriesResume(error, duringConnect: phase == "connect") else {
+          throw error
+        }
+        // The same snapshot is used for every dial; no failed probe can spend
+        // a login or replace the file. Each dial has a fresh transport/session ID.
+        try await Task.sleep(for: .milliseconds(250 * attempt))
+        continue
       }
-      return TelegramConnection(
-        endpoint: endpoint, client: client, transport: transport,
-        accountID: accountID, resumedSession: cached != nil)
-    } catch {
-      try? await client.disconnect()
-      throw error
+      do {
+        let accountID: Int64
+        if let cached {
+          accountID = cached.accountID
+        } else {
+          accountID = try await authorize(
+            api, app: app, using: authorization, binding: await client.sessionBinding())
+          if let keys = captured.withLock({ $0 }), let sessionStore, let sessionKey {
+            try await sessionStore.save(
+              MTProtoStoredSession(
+                authKey: keys.authKey, serverSalt: keys.serverSalt,
+                expiresAt: keys.expiresAt),
+              accountID: accountID, for: sessionKey)
+          }
+        }
+        return TelegramConnection(
+          endpoint: endpoint, client: client, transport: transport,
+          accountID: accountID, resumedSession: cached != nil)
+      } catch {
+        try? await client.disconnect()
+        throw error
+      }
     }
   }
 
@@ -331,7 +347,8 @@ public final class TelegramConnection: Sendable {
   }
 
   private static func authorize(
-    _ api: TLClient, app: TelegramApp, using mode: TelegramAuthorization, binding: MTProtoSessionBinding?
+    _ api: TLClient, app: TelegramApp, using mode: TelegramAuthorization,
+    binding: MTProtoSessionBinding?
   ) async throws -> Int64 {
     switch mode {
     case .botToken(let token):
@@ -377,9 +394,8 @@ public final class TelegramConnection: Sendable {
   /// there answers `USER_MIGRATE_<home>` — exactly what it answers a fresh
   /// login. That redirect is the proof rather than a failure: a key the
   /// datacenter does not know is answered `AUTH_KEY_UNREGISTERED` by the same
-  /// call, and a key it has forgotten is answered with silence (see
-  /// ``invalidatesCachedSession``), so a redirect can only come from a live
-  /// authorized session.
+  /// call. Silence does not prove anything about authorization; it leaves the
+  /// stored session intact for another attempt.
   ///
   /// Reading the redirect as a failure instead is what makes every media
   /// connection whose session was resumed — that is, every one after the first
@@ -408,32 +424,43 @@ public final class TelegramConnection: Sendable {
     return user.id
   }
 
-  /// Whether a failed resume means the key is gone rather than the network is.
-  ///
-  /// **Telegram answers a message sealed with an auth key it has forgotten with
-  /// nothing at all** — the frontend accepts the TCP connection, takes the
-  /// resumed message and never replies, so the check that proves whose key it is
-  /// runs out its budget and the attempt fails as `timeout`. Silence therefore
-  /// has to count: a resumed session that cannot be proved within one dial is
-  /// discarded and the credential spent again. Reading it as a transient network
-  /// fault instead leaves a client resuming the same dead key on every
-  /// reconnect, for as long as the process lives. A server that answers `-404`
-  /// to an unknown key is saying the same thing outright.
-  ///
-  /// A whole budget of silence is the signal; a closed connection is not, and
-  /// stays out. Re-authorizing spends a login, which is what earns a flood wait,
-  /// so only the evidence that actually distinguishes a forgotten key from a bad
-  /// link buys it.
+  /// Keep the persistence decision shared by every resume phase.
+  static func discardInvalidCachedSession(
+    _ error: any Error, store: any TelegramSessionStore, key: String, log: TelegramLog
+  ) async throws -> Bool {
+    guard invalidatesCachedSession(error) else { return false }
+    log.warning("server rejected the cached \(key) key; discarding it")
+    try await store.deleteSession(for: key)
+    return true
+  }
+
+  /// Only an explicit server rejection proves that the cached authorization
+  /// cannot be reused. Timeouts, transport failures and unrelated RPC errors
+  /// leave it intact. See https://core.telegram.org/api/errors and
+  /// https://core.telegram.org/mtproto/mtproto-transports#transport-errors.
   private static func invalidatesCachedSession(_ error: any Error) -> Bool {
     if let client = error as? MTProtoClientError {
+      return client == .protocolError(-404)
+    }
+    guard let rpc = error as? MTProtoRPCError else { return false }
+    return [
+      "AUTH_KEY_UNREGISTERED", "AUTH_KEY_INVALID", "AUTH_KEY_DUPLICATED",
+      "SESSION_REVOKED", "SESSION_EXPIRED",
+    ].contains(rpc.message)
+  }
+
+  private static func retriesResume(_ error: any Error, duringConnect: Bool) -> Bool {
+    if error is CancellationError { return false }
+    if let client = error as? MTProtoClientError {
       switch client {
-      case .protocolError(-404), .timeout: return true
+      case .timeout, .connectionClosed, .notConnected: return true
       default: return false
       }
     }
-    guard let rpc = error as? MTProtoRPCError else { return false }
-    return ["AUTH_KEY_UNREGISTERED", "AUTH_KEY_INVALID", "SESSION_REVOKED"]
-      .contains(rpc.message)
+    if error is MTProtoRPCError { return false }
+    // Socket/DNS/connect errors come from NIO before an MTProto session exists.
+    // Decoding and identity errors during the proof are not transport failures.
+    return duringConnect
   }
 }
 

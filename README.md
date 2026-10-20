@@ -109,6 +109,26 @@ concurrent processes should use separate directories. You can also implement
 `TelegramSessionStore` for a database or keychain. `.storedSessionOnly` fails
 rather than logging in again when no valid saved session is available.
 
+A resumed session is proved by `users.getUsers(inputUserSelf)`; no separate ping
+is needed. A timeout or transport failure retries the same cached key on a new
+connection, at most three attempts with 250 ms and 500 ms backoff. The configured
+connect/request budgets apply to each attempt. If all attempts fail, `connect`
+throws and leaves the file intact so the caller can retry later. Warning logs
+name the failed phase (`connect` or `identify`), attempt, and error. Flood waits,
+migrations, identity mismatches, and other RPC errors are surfaced without this
+retry. A bot token for another account fails without replacing its cached key.
+
+Only explicit server invalidity (`-404`, `AUTH_KEY_UNREGISTERED`, `AUTH_KEY_INVALID`,
+`AUTH_KEY_DUPLICATED`, `SESSION_REVOKED`, or `SESSION_EXPIRED`) removes a cached
+session. With `.storedSessionOnly`, that leaves no stored session; other modes
+may authorize again. Media connections using exported authorization continue to
+accept the home-DC redirect as their resume proof.
+
+Salt corrections are applied by the transport for the live connection. The
+current transport API exposes keys only at the initial handshake, so this library
+cannot yet persist the corrected salt after resume. A stored salt may therefore
+need correction on the next connection; that does not require a new auth key.
+
 ## Updates, peers, and media
 
 Pass `onPushedUpdates:` to `connect` to receive live updates. The callback does
