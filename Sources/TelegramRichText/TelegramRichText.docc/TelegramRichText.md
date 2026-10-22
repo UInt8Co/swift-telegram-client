@@ -67,6 +67,20 @@ Media and user references are left alone; supply the matching input objects
 yourself. ``Hashtag`` sends its text with automatic entity detection, as TDLib
 does.
 
+### Dates
+
+``FormattedDate`` sends a point in time that each reader's Telegram app formats
+in their own language and time zone, as a whole or as the parts its
+``FormattedDate/Format`` names. Apps that cannot format dates show its fallback,
+by default the UTC date and time in ISO 8601 order:
+
+```swift
+Paragraph {
+  Text("Banned ")
+  FormattedDate(bannedAt, format: .dateTime)
+}
+```
+
 ### Footnotes and references
 
 `footnote(_:named:)` attaches a definition to
@@ -100,6 +114,7 @@ let message = RichMessage {
 - ``Text``
 - ``Inline``
 - ``Hashtag``
+- ``FormattedDate``
 - ``CustomEmoji``
 - ``InlineBuilder``
 
