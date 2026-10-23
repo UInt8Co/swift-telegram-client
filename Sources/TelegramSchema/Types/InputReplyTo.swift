@@ -14,7 +14,7 @@ extension TL {
   /// The TL type `InputReplyTo` (4 constructors).
   @TLType
   public indirect enum InputReplyToType: Equatable, Sendable {
-    /// `inputReplyToMessage#3bd4b7c2 flags:# reply_to_msg_id:int top_msg_id:flags.0?int reply_to_peer_id:flags.1?InputPeer quote_text:flags.2?string quote_entities:flags.3?Vector<MessageEntity> quote_offset:flags.4?int monoforum_peer_id:flags.5?InputPeer todo_item_id:flags.6?int poll_option:flags.7?bytes = InputReplyTo`
+    /// `inputReplyToMessage#75c1ad70 flags:# reply_to_msg_id:int top_msg_id:flags.0?int reply_to_peer_id:flags.1?InputPeer quote_text:flags.2?string quote_entities:flags.3?Vector<MessageEntity> quote_offset:flags.4?int monoforum_peer_id:flags.5?InputPeer todo_item_id:flags.6?int poll_option:flags.7?bytes quote_rich:flags.8?Vector<RichText> = InputReplyTo`
     case inputReplyToMessage(TL.InputReplyToMessage)
     /// `inputReplyToStory#5881323a peer:InputPeer story_id:int = InputReplyTo`
     case inputReplyToStory(TL.InputReplyToStory)
@@ -24,8 +24,8 @@ extension TL {
     case inputReplyToEphemeralMessage(TL.InputReplyToEphemeralMessage)
   }
 
-  /// TL: `inputReplyToMessage#3bd4b7c2 flags:# reply_to_msg_id:int top_msg_id:flags.0?int reply_to_peer_id:flags.1?InputPeer quote_text:flags.2?string quote_entities:flags.3?Vector<MessageEntity> quote_offset:flags.4?int monoforum_peer_id:flags.5?InputPeer todo_item_id:flags.6?int poll_option:flags.7?bytes = InputReplyTo`
-  @TLObject(id: 0x3bd4b7c2)
+  /// TL: `inputReplyToMessage#75c1ad70 flags:# reply_to_msg_id:int top_msg_id:flags.0?int reply_to_peer_id:flags.1?InputPeer quote_text:flags.2?string quote_entities:flags.3?Vector<MessageEntity> quote_offset:flags.4?int monoforum_peer_id:flags.5?InputPeer todo_item_id:flags.6?int poll_option:flags.7?bytes quote_rich:flags.8?Vector<RichText> = InputReplyTo`
+  @TLObject(id: 0x75c1ad70)
   @TLFlagsEquatable
   public struct InputReplyToMessage: Equatable, Sendable {
     @TLFlags public var flags: UInt32 = 0
@@ -38,6 +38,7 @@ extension TL {
     @TLConditional("flags", bit: 5) public var monoforumPeerId: TL.InputPeerType? = nil
     @TLConditional("flags", bit: 6) public var todoItemId: Int32? = nil
     @TLConditional("flags", bit: 7) public var pollOption: Data? = nil
+    @TLConditional("flags", bit: 8) public var quoteRich: [TL.RichTextType]? = nil
   }
 
   /// TL: `inputReplyToStory#5881323a peer:InputPeer story_id:int = InputReplyTo`

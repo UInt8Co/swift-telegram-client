@@ -11,8 +11,8 @@ import MTProtoBaseSchema
 
 extension TL.Wallet {
 
-  /// TL: `wallet.nftItem#3441fd1c flags:# collection_address:flags.0?string address:string owner_address:string index:string name:flags.1?string description:flags.2?string image:flags.3?WebDocument image_small:flags.4?WebDocument content_url:flags.5?WebDocument lottie:flags.6?WebDocument attributes:flags.7?Vector<wallet.NftAttribute> extra:flags.8?DataJSON = wallet.NftItem`
-  @TLObject(id: 0x3441fd1c)
+  /// TL: `wallet.nftItem#173dfaf3 flags:# collection_address:flags.0?string address:string owner_address:string index:string name:flags.1?string description:flags.2?string image:flags.3?WebDocument image_small:flags.4?WebDocument content_url:flags.5?WebDocument lottie:flags.6?WebDocument attributes:flags.7?Vector<wallet.NftAttribute> extra:flags.8?DataJSON gift:flags.9?StarGift = wallet.NftItem`
+  @TLObject(id: 0x173dfaf3)
   @TLFlagsEquatable
   public struct NftItem: Equatable, Sendable {
     @TLFlags public var flags: UInt32 = 0
@@ -28,5 +28,6 @@ extension TL.Wallet {
     @TLConditional("flags", bit: 6) public var lottie: TL.WebDocumentType? = nil
     @TLConditional("flags", bit: 7) public var attributes: [TL.Wallet.NftAttribute]? = nil
     @TLConditional("flags", bit: 8) public var extra: TL.DataJSON? = nil
+    @TLConditional("flags", bit: 9) public var gift: TL.StarGiftType? = nil
   }
 }

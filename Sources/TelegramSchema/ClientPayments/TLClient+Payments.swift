@@ -199,9 +199,9 @@ extension TLClient {
     public func getSavedStarGift(stargift: [TL.InputSavedStarGiftType]) async throws -> TL.Payments.SavedStarGifts {
       try await client.invoke(TL.Payments.GetSavedStarGift(stargift: stargift))
     }
-    /// TL: `payments.getStarGiftWithdrawalUrl#d06e93a8 stargift:InputSavedStarGift password:InputCheckPasswordSRP = payments.StarGiftWithdrawalUrl`
-    public func getStarGiftWithdrawalUrl(stargift: TL.InputSavedStarGiftType, password: TL.InputCheckPasswordSRPType) async throws -> TL.Payments.StarGiftWithdrawalUrl {
-      try await client.invoke(TL.Payments.GetStarGiftWithdrawalUrl(stargift: stargift, password: password))
+    /// TL: `payments.getStarGiftWithdrawalUrl#c8ca817b flags:# stargift:InputSavedStarGift tmp_password:bytes = payments.StarGiftWithdrawalUrl`
+    public func getStarGiftWithdrawalUrl(stargift: TL.InputSavedStarGiftType, tmpPassword: Data) async throws -> TL.Payments.StarGiftWithdrawalUrl {
+      try await client.invoke(TL.Payments.GetStarGiftWithdrawalUrl(stargift: stargift, tmpPassword: tmpPassword))
     }
     /// TL: `payments.toggleChatStarGiftNotifications#60eaefa1 flags:# enabled:flags.0?true peer:InputPeer = Bool`
     public func toggleChatStarGiftNotifications(enabled: Bool = false, peer: TL.InputPeerType) async throws -> Bool {
@@ -310,6 +310,22 @@ extension TLClient {
     /// TL: `payments.createOnrampSession#a2197cf6 flags:# provider:string crypto_currency:string address:string payment_method:flags.0?string base_currency:flags.1?string base_amount:flags.2?string memo:flags.3?string theme:flags.4?string success_return_url:flags.5?string fail_return_url:flags.6?string crypto_amount:flags.7?string = OnrampSession`
     public func createOnrampSession(provider: String, cryptoCurrency: String, address: String, paymentMethod: String? = nil, baseCurrency: String? = nil, baseAmount: String? = nil, memo: String? = nil, theme: String? = nil, successReturnUrl: String? = nil, failReturnUrl: String? = nil, cryptoAmount: String? = nil) async throws -> TL.OnrampSession {
       try await client.invoke(TL.Payments.CreateOnrampSession(provider: provider, cryptoCurrency: cryptoCurrency, address: address, paymentMethod: paymentMethod, baseCurrency: baseCurrency, baseAmount: baseAmount, memo: memo, theme: theme, successReturnUrl: successReturnUrl, failReturnUrl: failReturnUrl, cryptoAmount: cryptoAmount))
+    }
+    /// TL: `payments.withdrawStarGift#ec2030ae flags:# keep_on_profile:flags.0?true stargift:InputSavedStarGift tmp_password:bytes = Bool`
+    public func withdrawStarGift(keepOnProfile: Bool = false, stargift: TL.InputSavedStarGiftType, tmpPassword: Data) async throws -> Bool {
+      try await client.invoke(TL.Payments.WithdrawStarGift(keepOnProfile: keepOnProfile, stargift: stargift, tmpPassword: tmpPassword))
+    }
+    /// TL: `payments.depositStarGift#c0a2ea9f flags:# hide_sender:flags.0?true peer:InputPeer slug:string = payments.StarGiftDepositPayload`
+    public func depositStarGift(hideSender: Bool = false, peer: TL.InputPeerType, slug: String) async throws -> TL.Payments.StarGiftDepositPayload {
+      try await client.invoke(TL.Payments.DepositStarGift(hideSender: hideSender, peer: peer, slug: slug))
+    }
+    /// TL: `payments.displayStarGift#4aa5f0fe flags:# peer:flags.0?InputPeer slug:string = Bool`
+    public func displayStarGift(peer: TL.InputPeerType? = nil, slug: String) async throws -> Bool {
+      try await client.invoke(TL.Payments.DisplayStarGift(peer: peer, slug: slug))
+    }
+    /// TL: `payments.deleteStarGift#3cdaf8aa stargift:InputSavedStarGift = Bool`
+    public func deleteStarGift(stargift: TL.InputSavedStarGiftType) async throws -> Bool {
+      try await client.invoke(TL.Payments.DeleteStarGift(stargift: stargift))
     }
   }
 }

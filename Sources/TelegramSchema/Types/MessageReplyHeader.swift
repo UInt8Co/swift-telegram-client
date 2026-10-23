@@ -14,14 +14,14 @@ extension TL {
   /// The TL type `MessageReplyHeader` (2 constructors).
   @TLType
   public indirect enum MessageReplyHeaderType: Equatable, Sendable {
-    /// `messageReplyHeader#1b97dd66 flags:# reply_to_scheduled:flags.2?true forum_topic:flags.3?true quote:flags.9?true reply_to_ephemeral:flags.13?true reply_to_msg_id:flags.4?int reply_to_peer_id:flags.0?Peer reply_from:flags.5?MessageFwdHeader reply_media:flags.8?MessageMedia reply_to_top_id:flags.1?int quote_text:flags.6?string quote_entities:flags.7?Vector<MessageEntity> quote_offset:flags.10?int todo_item_id:flags.11?int poll_option:flags.12?bytes = MessageReplyHeader`
+    /// `messageReplyHeader#ddb5ab75 flags:# reply_to_scheduled:flags.2?true forum_topic:flags.3?true quote:flags.9?true reply_to_ephemeral:flags.13?true reply_to_msg_id:flags.4?int reply_to_peer_id:flags.0?Peer reply_from:flags.5?MessageFwdHeader reply_media:flags.8?MessageMedia reply_to_top_id:flags.1?int quote_text:flags.6?string quote_entities:flags.7?Vector<MessageEntity> quote_offset:flags.10?int todo_item_id:flags.11?int poll_option:flags.12?bytes quote_rich:flags.14?Vector<RichText> = MessageReplyHeader`
     case messageReplyHeader(TL.MessageReplyHeader)
     /// `messageReplyStoryHeader#0e5af939 peer:Peer story_id:int = MessageReplyHeader`
     case messageReplyStoryHeader(TL.MessageReplyStoryHeader)
   }
 
-  /// TL: `messageReplyHeader#1b97dd66 flags:# reply_to_scheduled:flags.2?true forum_topic:flags.3?true quote:flags.9?true reply_to_ephemeral:flags.13?true reply_to_msg_id:flags.4?int reply_to_peer_id:flags.0?Peer reply_from:flags.5?MessageFwdHeader reply_media:flags.8?MessageMedia reply_to_top_id:flags.1?int quote_text:flags.6?string quote_entities:flags.7?Vector<MessageEntity> quote_offset:flags.10?int todo_item_id:flags.11?int poll_option:flags.12?bytes = MessageReplyHeader`
-  @TLObject(id: 0x1b97dd66)
+  /// TL: `messageReplyHeader#ddb5ab75 flags:# reply_to_scheduled:flags.2?true forum_topic:flags.3?true quote:flags.9?true reply_to_ephemeral:flags.13?true reply_to_msg_id:flags.4?int reply_to_peer_id:flags.0?Peer reply_from:flags.5?MessageFwdHeader reply_media:flags.8?MessageMedia reply_to_top_id:flags.1?int quote_text:flags.6?string quote_entities:flags.7?Vector<MessageEntity> quote_offset:flags.10?int todo_item_id:flags.11?int poll_option:flags.12?bytes quote_rich:flags.14?Vector<RichText> = MessageReplyHeader`
+  @TLObject(id: 0xddb5ab75)
   @TLFlagsEquatable
   public struct MessageReplyHeader: Equatable, Sendable {
     @TLFlags public var flags: UInt32 = 0
@@ -39,6 +39,7 @@ extension TL {
     @TLConditional("flags", bit: 10) public var quoteOffset: Int32? = nil
     @TLConditional("flags", bit: 11) public var todoItemId: Int32? = nil
     @TLConditional("flags", bit: 12) public var pollOption: Data? = nil
+    @TLConditional("flags", bit: 14) public var quoteRich: [TL.RichTextType]? = nil
   }
 
   /// TL: `messageReplyStoryHeader#0e5af939 peer:Peer story_id:int = MessageReplyHeader`

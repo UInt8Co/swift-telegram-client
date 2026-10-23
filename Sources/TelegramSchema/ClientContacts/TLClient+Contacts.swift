@@ -135,5 +135,13 @@ extension TLClient {
     public func updateContactNote(id: TL.InputUserType, note: TL.TextWithEntities) async throws -> Bool {
       try await client.invoke(TL.Contacts.UpdateContactNote(id: id, note: note))
     }
+    /// TL: `contacts.exportNoPaidMessagesToken#83c586ae flags:# revoke:flags.0?true temporary:flags.1?true = ExportedNoPaidMessagesToken`
+    public func exportNoPaidMessagesToken(revoke: Bool = false, temporary: Bool = false) async throws -> TL.ExportedNoPaidMessagesToken {
+      try await client.invoke(TL.Contacts.ExportNoPaidMessagesToken(revoke: revoke, temporary: temporary))
+    }
+    /// TL: `contacts.importNoPaidMessagesToken#35a7c6ca user_id:InputUser token:string = User`
+    public func importNoPaidMessagesToken(userId: TL.InputUserType, token: String) async throws -> TL.UserType {
+      try await client.invoke(TL.Contacts.ImportNoPaidMessagesToken(userId: userId, token: token))
+    }
   }
 }

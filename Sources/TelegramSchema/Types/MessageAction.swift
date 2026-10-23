@@ -11,7 +11,7 @@ import MTProtoBaseSchema
 
 extension TL {
 
-  /// The TL type `MessageAction` (71 constructors).
+  /// The TL type `MessageAction` (72 constructors).
   @TLType
   public indirect enum MessageActionType: Equatable, Sendable {
     /// `messageActionEmpty#b6aef7b0 = MessageAction`
@@ -156,6 +156,8 @@ extension TL {
     case messageActionGramTransfer(TL.MessageActionGramTransfer)
     /// `messageActionWalletTonConnectRequest#69b8c4bf flags:# accepted:flags.2?true declined:flags.3?true session_id:long expires:int topic:flags.0?string trace_id:flags.1?string dapp_name:flags.4?string = MessageAction`
     case messageActionWalletTonConnectRequest(TL.MessageActionWalletTonConnectRequest)
+    /// `messageActionNoPaidMessagesTokenUsed#c1d2f1c6 = MessageAction`
+    case messageActionNoPaidMessagesTokenUsed(TL.MessageActionNoPaidMessagesTokenUsed)
   }
 
   /// TL: `messageActionEmpty#b6aef7b0 = MessageAction`
@@ -777,5 +779,10 @@ extension TL {
     @TLConditional("flags", bit: 0) public var topic: String? = nil
     @TLConditional("flags", bit: 1) public var traceId: String? = nil
     @TLConditional("flags", bit: 4) public var dappName: String? = nil
+  }
+
+  /// TL: `messageActionNoPaidMessagesTokenUsed#c1d2f1c6 = MessageAction`
+  @TLObject(id: 0xc1d2f1c6)
+  public struct MessageActionNoPaidMessagesTokenUsed: Equatable, Sendable {
   }
 }

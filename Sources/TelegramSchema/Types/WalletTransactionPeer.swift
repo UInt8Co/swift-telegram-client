@@ -11,7 +11,7 @@ import MTProtoBaseSchema
 
 extension TL {
 
-  /// The TL type `WalletTransactionPeer` (4 constructors).
+  /// The TL type `WalletTransactionPeer` (6 constructors).
   @TLType
   public indirect enum WalletTransactionPeerType: Equatable, Sendable {
     /// `walletTransactionPeerUser#d4ea706d flags:# user_id:long address:string domain:flags.0?string = WalletTransactionPeer`
@@ -22,6 +22,10 @@ extension TL {
     case walletTransactionPeerOnramp(TL.WalletTransactionPeerOnramp)
     /// `walletTransactionPeerUnsupported#728bed5a = WalletTransactionPeer`
     case walletTransactionPeerUnsupported(TL.WalletTransactionPeerUnsupported)
+    /// `walletTransactionPeerChannel#54e70c31 flags:# channel_id:long address:string domain:flags.0?string = WalletTransactionPeer`
+    case walletTransactionPeerChannel(TL.WalletTransactionPeerChannel)
+    /// `walletTransactionPeerTelegramGift#f4729499 flags:# own_profile:flags.0?true = WalletTransactionPeer`
+    case walletTransactionPeerTelegramGift(TL.WalletTransactionPeerTelegramGift)
   }
 
   /// TL: `walletTransactionPeerUser#d4ea706d flags:# user_id:long address:string domain:flags.0?string = WalletTransactionPeer`
@@ -56,5 +60,23 @@ extension TL {
   /// TL: `walletTransactionPeerUnsupported#728bed5a = WalletTransactionPeer`
   @TLObject(id: 0x728bed5a)
   public struct WalletTransactionPeerUnsupported: Equatable, Sendable {
+  }
+
+  /// TL: `walletTransactionPeerChannel#54e70c31 flags:# channel_id:long address:string domain:flags.0?string = WalletTransactionPeer`
+  @TLObject(id: 0x54e70c31)
+  @TLFlagsEquatable
+  public struct WalletTransactionPeerChannel: Equatable, Sendable {
+    @TLFlags public var flags: UInt32 = 0
+    public var channelId: Int64
+    public var address: String
+    @TLConditional("flags", bit: 0) public var domain: String? = nil
+  }
+
+  /// TL: `walletTransactionPeerTelegramGift#f4729499 flags:# own_profile:flags.0?true = WalletTransactionPeer`
+  @TLObject(id: 0xf4729499)
+  @TLFlagsEquatable
+  public struct WalletTransactionPeerTelegramGift: Equatable, Sendable {
+    @TLFlags public var flags: UInt32 = 0
+    @TLConditional("flags", bit: 0) public var ownProfile: Bool = false
   }
 }

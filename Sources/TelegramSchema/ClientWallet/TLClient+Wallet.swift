@@ -123,5 +123,9 @@ extension TLClient {
     public func tonConnectGetSessions() async throws -> TL.Wallet.TonConnectSessions {
       try await client.invoke(TL.Wallet.TonConnectGetSessions())
     }
+    /// TL: `wallet.setCardStickers#068509ac flags:# stickers:Vector<InputWalletCardSticker> bg_nft_address:flags.0?string = wallet.Card`
+    public func setCardStickers(stickers: [TL.InputWalletCardSticker], bgNftAddress: String? = nil) async throws -> TL.Wallet.Card {
+      try await client.invoke(TL.Wallet.SetCardStickers(stickers: stickers, bgNftAddress: bgNftAddress))
+    }
   }
 }

@@ -1059,5 +1059,13 @@ extension TLClient {
     public func requestChatJoinWebView(queryId: Int64, themeParams: TL.DataJSON? = nil, platform: String) async throws -> TL.WebViewResultUrl {
       try await client.invoke(TL.Messages.RequestChatJoinWebView(queryId: queryId, themeParams: themeParams, platform: platform))
     }
+    /// TL: `messages.setShareTheme#698a9b1a peer:InputPeer theme:ShareTheme = Bool`
+    public func setShareTheme(peer: TL.InputPeerType, theme: TL.ShareThemeType) async throws -> Bool {
+      try await client.invoke(TL.Messages.SetShareTheme(peer: peer, theme: theme))
+    }
+    /// TL: `messages.getShareThemeBackdrops#f4599ef2 hash:int = ShareThemeBackdrops`
+    public func getShareThemeBackdrops(hash: Int32) async throws -> TL.ShareThemeBackdropsType {
+      try await client.invoke(TL.Messages.GetShareThemeBackdrops(hash: hash))
+    }
   }
 }

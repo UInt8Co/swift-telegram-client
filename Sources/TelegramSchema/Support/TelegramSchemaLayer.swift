@@ -2,5 +2,5 @@
 
 /// The API layer `TelegramSchema` was generated from.
 public enum TelegramSchemaLayer {
-  public static let current: Int32 = 231
+  public static let current: Int32 = 232
 }

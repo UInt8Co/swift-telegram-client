@@ -12,10 +12,12 @@ import MTProtoBaseSchema
 
 extension TL.Payments {
 
-  /// TL: `payments.getStarGiftWithdrawalUrl#d06e93a8 stargift:InputSavedStarGift password:InputCheckPasswordSRP = payments.StarGiftWithdrawalUrl`
-  @TLObject(id: 0xd06e93a8, returning: TL.Payments.StarGiftWithdrawalUrl.self)
+  /// TL: `payments.getStarGiftWithdrawalUrl#c8ca817b flags:# stargift:InputSavedStarGift tmp_password:bytes = payments.StarGiftWithdrawalUrl`
+  @TLObject(id: 0xc8ca817b, returning: TL.Payments.StarGiftWithdrawalUrl.self)
+  @TLFlagsEquatable
   public struct GetStarGiftWithdrawalUrl: Equatable, Sendable {
+    @TLFlags public var flags: UInt32 = 0
     public var stargift: TL.InputSavedStarGiftType
-    public var password: TL.InputCheckPasswordSRPType
+    public var tmpPassword: Data
   }
 }
