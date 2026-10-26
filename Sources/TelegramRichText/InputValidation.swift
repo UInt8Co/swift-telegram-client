@@ -6,6 +6,9 @@ import TelegramSchema
   import Foundation
 #endif
 
+/// New cases are added as Telegram's limits are learned, so switches over this
+/// error need `@unknown default`.
+@nonexhaustive
 public enum RichMessageValidationError: Error, Equatable, Sendable {
   case unsupportedRichText(String)
   case nestingTooDeep
