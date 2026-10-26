@@ -49,7 +49,9 @@ their input form and throws ``RichMessageValidationError`` before a request is
 made when content exceeds Telegram's
 [rich message limits](https://core.telegram.org/bots/api#rich-message-limits) —
 nesting depth, block count, text length, attachments, table columns — or uses
-formatting that cannot be sent. ``RichMessage/inputMessage(blocks:rtl:photos:documents:users:)``
+formatting that cannot be sent. It also refuses content Telegram rejects as
+empty: a message with no blocks, and a table, table row, details block, list or
+list item with nothing in it. ``RichMessage/inputMessage(blocks:rtl:photos:documents:users:)``
 applies the same checks to blocks you assembled yourself and lets you attach
 photos, documents and users.
 

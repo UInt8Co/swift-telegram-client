@@ -13,6 +13,11 @@ public enum RichMessageValidationError: Error, Equatable, Sendable {
   case textTooLong
   case tooManyAttachments
   case tooManyTableColumns
+  /// The message has no blocks; Telegram answers `RICH_MESSAGE_EMPTY`.
+  case emptyMessage
+  /// A container block has nothing in it; Telegram answers
+  /// `RICH_MESSAGE_CONTENT_REQUIRED`. Names the empty TL constructor.
+  case contentRequired(String)
 }
 
 extension RichMessage {
@@ -29,6 +34,7 @@ extension RichMessage {
       throw RichMessageValidationError.tooManyAttachments
     }
     let input = inputBlocks(blocks)
+    guard !input.isEmpty else { throw RichMessageValidationError.emptyMessage }
     var validation = InputValidation()
     try validation.visit(input)
     return .inputRichMessage(
@@ -50,11 +56,13 @@ private struct InputValidation {
       blocks += 1
       nextDepth += 1
       if case .pageBlockMath(let math) = block { characters += math.source.unicodeScalars.count }
+      try Self.requireContent(block)
     } else if value is TL.PageListItemType || value is TL.PageListOrderedItemType
       || value is TL.PageTableRow
     {
       blocks += 1
       nextDepth += 1
+      try Self.requireContent(value)
     } else if let rich = value as? TL.RichTextType {
       switch rich {
       case .textEmpty, .textImage: break
@@ -87,5 +95,25 @@ private struct InputValidation {
     guard characters <= 32_768 else { throw RichMessageValidationError.textTooLong }
     if value is String || value is Data { return }
     for child in Mirror(reflecting: value).children { try visit(child.value, depth: nextDepth) }
+  }
+
+  /// Live MTProto refuses these containers when empty, at any depth. Empty
+  /// paragraphs and list item text, cells without text, and tables with only
+  /// a heading row or no heading row are accepted.
+  static func requireContent(_ value: Any) throws {
+    let empty: String?
+    switch value {
+    case TL.PageBlockType.pageBlockTable(let table): empty = table.rows.isEmpty ? "pageBlockTable" : nil
+    case TL.PageBlockType.pageBlockDetails(let details): empty = details.blocks.isEmpty ? "pageBlockDetails" : nil
+    case TL.PageBlockType.pageBlockList(let list): empty = list.items.isEmpty ? "pageBlockList" : nil
+    case TL.PageBlockType.pageBlockOrderedList(let list):
+      empty = list.items.isEmpty ? "pageBlockOrderedList" : nil
+    case TL.PageListItemType.pageListItemBlocks(let item): empty = item.blocks.isEmpty ? "pageListItemBlocks" : nil
+    case TL.PageListOrderedItemType.pageListOrderedItemBlocks(let item):
+      empty = item.blocks.isEmpty ? "pageListOrderedItemBlocks" : nil
+    case let row as TL.PageTableRow: empty = row.cells.isEmpty ? "pageTableRow" : nil
+    default: empty = nil
+    }
+    if let empty { throw RichMessageValidationError.contentRequired(empty) }
   }
 }

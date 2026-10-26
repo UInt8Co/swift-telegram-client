@@ -84,4 +84,47 @@ import Testing
       try RichMessage.inputMessage(blocks: [table])
     }
   }
+
+  @Test func emptyContainersUseTheLiveTelegramBoundary() throws {
+    let paragraph = Paragraph("probe").blocks[0]
+    let row = TL.PageTableRow(cells: [.init(text: Text("cell").richText)])
+    func table(_ rows: [TL.PageTableRow]) -> TL.PageBlockType {
+      .pageBlockTable(.init(title: .textEmpty(.init()), rows: rows))
+    }
+    #expect(throws: RichMessageValidationError.emptyMessage) { try RichMessage.inputMessage(blocks: []) }
+    let refused: [(String, TL.PageBlockType)] = [
+      ("pageBlockTable", table([])),
+      ("pageTableRow", table([row, .init(cells: [])])),
+      ("pageBlockDetails", Details("Outer") { paragraph; Details("Inner") {} }.blocks[0]),
+      ("pageBlockList", .pageBlockList(.init(items: []))),
+      ("pageBlockOrderedList", .pageBlockOrderedList(.init(items: []))),
+      ("pageListItemBlocks", .pageBlockList(.init(items: [.pageListItemBlocks(.init(blocks: []))]))),
+      (
+        "pageListOrderedItemBlocks",
+        .pageBlockOrderedList(.init(items: [.pageListOrderedItemBlocks(.init(blocks: []))]))
+      ),
+    ]
+    for (name, block) in refused {
+      #expect(throws: RichMessageValidationError.contentRequired(name)) {
+        try RichMessage.inputMessage(blocks: [paragraph, block])
+      }
+    }
+    // Telegram accepts these.
+    _ = try RichMessage.inputMessage(blocks: [
+      .pageBlockParagraph(.init(text: .textEmpty(.init()))),
+      table([.init(cells: [.init()])]),
+      .pageBlockList(.init(items: [.pageListItemText(.init(text: .textEmpty(.init())))])),
+    ])
+  }
+
+  @Test func tablesWithoutHeadersOmitTheHeadingRow() throws {
+    _ = try RichMessage { Table(headers: ["Only heading"]) {} }.richMessage
+    guard case .pageBlockTable(let table) = Table(headers: []) { Row { "cell" } }.blocks.first else {
+      Issue.record("Expected a table")
+      return
+    }
+    #expect(table.rows.count == 1)
+    _ = try RichMessage { Table(headers: []) { Row { "cell" } } }.richMessage
+    #expect(Table(headers: []) {}.blocks.isEmpty)
+  }
 }

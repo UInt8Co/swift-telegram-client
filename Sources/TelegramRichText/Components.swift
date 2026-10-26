@@ -202,14 +202,18 @@ public struct Table: BlockContent {
     self.headers = headers
     rows = content()
   }
+  /// Without headers there is no heading row, since Telegram refuses a row
+  /// with no cells. A table with neither headers nor rows renders nothing.
   public var blocks: [TL.PageBlockType] {
-    let heading = TL.PageTableRow(
-      cells: headers.map { .init(header: true, text: Text($0).richText) })
+    let heading =
+      headers.isEmpty
+      ? [] : [TL.PageTableRow(cells: headers.map { .init(header: true, text: Text($0).richText) })]
     let body = rows.map {
       TL.PageTableRow(cells: $0.cells.map { .init(text: $0.content.richText) })
     }
+    guard !heading.isEmpty || !body.isEmpty else { return [] }
     return [
-      .pageBlockTable(.init(compact: true, title: .textEmpty(.init()), rows: [heading] + body))
+      .pageBlockTable(.init(compact: true, title: .textEmpty(.init()), rows: heading + body))
     ]
   }
 }

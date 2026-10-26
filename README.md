@@ -184,7 +184,8 @@ _ = try await connection.api.messages.sendMessage(
 ```
 
 `richMessage` throws `RichMessageValidationError` before sending when content
-exceeds Telegram's rich-message limits. See the [TelegramRichText
+exceeds Telegram's rich-message limits or has an empty container that Telegram
+refuses. See the [TelegramRichText
 documentation][rich-text].
 
 ## Reading messages as markup
