@@ -18,7 +18,8 @@ public struct PeerDisplayText: Equatable, Sendable {
 
   /// Projects only the supplied user's display names.
   public init(_ user: TL.User) {
-    firstName = user.firstName; lastName = user.lastName
+    firstName = user.firstName
+    lastName = user.lastName
   }
 
   /// Projects only business display fields; surrounding response users are not read.

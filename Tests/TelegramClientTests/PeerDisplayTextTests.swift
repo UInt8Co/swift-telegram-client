@@ -12,10 +12,12 @@ import Testing
   }
 
   @Test func businessFieldsDoNotIncludeOtherFullUserMetadata() {
-    let full = TL.UserFull(id: 7, about: "Biography", settings: .init(), notifySettings: .init(), commonChatsCount: 0,
+    let full = TL.UserFull(
+      id: 7, about: "Biography", settings: .init(), notifySettings: .init(), commonChatsCount: 0,
       businessIntro: .init(title: "Welcome", description: "Open daily"))
     let display = PeerDisplayText(full)
-    #expect(display.businessIntroTitle == "Welcome" && display.businessIntroDescription == "Open daily")
+    #expect(
+      display.businessIntroTitle == "Welcome" && display.businessIntroDescription == "Open daily")
     #expect(display.firstName == nil && display.title == nil && display.businessAddress == nil)
   }
 

@@ -1,11 +1,12 @@
-#if canImport(FoundationEssentials)
-import FoundationEssentials
-#else
-import Foundation
-#endif
 import TelegramClient
 import TelegramSchema
 import Testing
+
+#if canImport(FoundationEssentials)
+  import FoundationEssentials
+#else
+  import Foundation
+#endif
 
 @Suite struct CustomEmojiCacheTests {
   @Test func expiredStatusEmojiIsNotDisplayed() {
@@ -16,6 +17,16 @@ import Testing
     #expect(EmojiStatus.documentID(.emojiStatus(.init(documentId: 8)), now: now) == 8)
     #expect(EmojiStatus.documentID(nil, now: now) == nil)
   }
+  @Test func collectibleStatusUsesTheSameExpiryBoundary() {
+    var status = TL.EmojiStatusCollectible(
+      collectibleId: 1, documentId: 8, title: "Gift", slug: "gift",
+      patternDocumentId: 9, centerColor: 0, edgeColor: 0, patternColor: 0, textColor: 0, until: 100)
+    let now = Date(timeIntervalSince1970: 100)
+    #expect(EmojiStatus.documentID(.emojiStatusCollectible(status), now: now) == nil)
+    status.until = 101
+    #expect(EmojiStatus.documentID(.emojiStatusCollectible(status), now: now) == 8)
+  }
+
   @Test func batchesSortedUniqueIDsAndReusesAttributes() async throws {
     let fetcher = EmojiFetcher()
     let cache = CustomEmojiCache { try await fetcher.fetch($0) }
@@ -42,7 +53,9 @@ import Testing
     #expect(try await cache.attribute(documentID: 3, now: now) == nil)
     #expect(try await cache.attribute(documentID: 3, now: now) == nil)
     await fetcher.configure(fail: true)
-    await #expect(throws: CancellationError.self) { try await cache.attribute(documentID: 3, now: now) }
+    await #expect(throws: CancellationError.self) {
+      try await cache.attribute(documentID: 3, now: now)
+    }
     await fetcher.configure()
     #expect(try await cache.attribute(documentID: 3, now: now) != nil)
     #expect(await fetcher.calls.count == 6)
@@ -61,18 +74,26 @@ private actor EmojiFetcher {
   var calls: [[Int64]] = []
   var missing = false
   var fail = false
-  func configure(missing: Bool = false, fail: Bool = false) { self.missing = missing; self.fail = fail }
+  func configure(missing: Bool = false, fail: Bool = false) {
+    self.missing = missing
+    self.fail = fail
+  }
   func fetch(_ ids: [Int64]) throws -> [TL.DocumentType] {
     calls.append(ids)
     if fail { throw CancellationError() }
     if missing { return [] }
     // Unrequested documents must never populate the cache.
     return (ids + [9_999]).map { id in
-      let set: TL.InputStickerSetType = id == 0 ? .inputStickerSetEmpty(.init()) : .inputStickerSetID(.init(id: id, accessHash: 1))
-      return .document(.init(id: id, accessHash: 1, fileReference: Data(), date: 1,
-        mimeType: "image/webp", size: 1, dcId: 1, attributes: [
-          .documentAttributeCustomEmoji(.init(alt: "one", stickerset: set)),
-          .documentAttributeCustomEmoji(.init(alt: "two", stickerset: set))]))
+      let set: TL.InputStickerSetType =
+        id == 0 ? .inputStickerSetEmpty(.init()) : .inputStickerSetID(.init(id: id, accessHash: 1))
+      return .document(
+        .init(
+          id: id, accessHash: 1, fileReference: Data(), date: 1,
+          mimeType: "image/webp", size: 1, dcId: 1,
+          attributes: [
+            .documentAttributeCustomEmoji(.init(alt: "one", stickerset: set)),
+            .documentAttributeCustomEmoji(.init(alt: "two", stickerset: set)),
+          ]))
     }
   }
 }

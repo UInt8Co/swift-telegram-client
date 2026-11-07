@@ -3,8 +3,10 @@ import Testing
 
 @Suite struct TelegramLinksTests {
   @Test func destinationRoutes() {
-    for link in ["https://t.me/Example", "telegram.me/EXAMPLE", "https://t.me/Example/123",
-                 "https://t.me/s/Example/123", "tg://resolve?domain=Example"] {
+    for link in [
+      "https://t.me/Example", "telegram.me/EXAMPLE", "https://t.me/Example/123",
+      "https://t.me/s/Example/123", "tg://resolve?domain=Example",
+    ] {
       #expect(TelegramLink.destinations(inURL: link) == [.username("example")])
     }
     for link in ["https://t.me/addemoji/Pack", "tg://addemoji?set=pack"] {
@@ -13,14 +15,18 @@ import Testing
     for link in ["https://t.me/addstickers/PACK", "tg://addstickers?set=Pack"] {
       #expect(TelegramLink.destinations(inURL: link) == [.stickerSet("pack")])
     }
-    for link in ["https://t.me/+InvitationToken", "https://t.me/share/url?url=https://example.com",
-                 "https://t.me/joinchat/abcdef", "https://t.me/boost/example", "https://t.me/c/100/1"] {
+    for link in [
+      "https://t.me/+InvitationToken", "https://t.me/share/url?url=https://example.com",
+      "https://t.me/joinchat/abcdef", "https://t.me/boost/example", "https://t.me/c/100/1",
+    ] {
       #expect(TelegramLink.destinations(inURL: link).isEmpty)
     }
   }
 
   @Test func numericUserLinksDecodeOnce() {
-    for link in ["tg://user?id=42", "TG://USER?id=00042", "tg://user?%69d=%34%32", "tg://user?id=42#ignored"] {
+    for link in [
+      "tg://user?id=42", "TG://USER?id=00042", "tg://user?%69d=%34%32", "tg://user?id=42#ignored",
+    ] {
       #expect(TelegramLink.destinations(inURL: link) == [.user(42)])
     }
     #expect(TelegramLink.telegramUserID(inURL: "tg://user?id=9223372036854775807") == Int64.max)
@@ -35,7 +41,8 @@ import Testing
     for name in ["", "a-b", "é", "a b", "@@Name"] {
       #expect(TelegramUsername.normalized(name) == nil)
     }
-    #expect(TelegramLink.packName(String(repeating: "A", count: 64)) == String(repeating: "a", count: 64))
+    #expect(
+      TelegramLink.packName(String(repeating: "A", count: 64)) == String(repeating: "a", count: 64))
     #expect(TelegramLink.packName(String(repeating: "A", count: 65)) == nil)
     #expect(TelegramLink.packName("1Pack") == nil)
   }
@@ -53,6 +60,8 @@ import Testing
   ])
   func unrelatedOrMalformedURLsNeverNameAUser(_ url: String) {
     #expect(TelegramLink.telegramUserID(inURL: url) == nil)
-    #expect(!TelegramLink.destinations(inURL: url).contains { if case .user = $0 { true } else { false } })
+    #expect(
+      !TelegramLink.destinations(inURL: url).contains { if case .user = $0 { true } else { false } }
+    )
   }
 }

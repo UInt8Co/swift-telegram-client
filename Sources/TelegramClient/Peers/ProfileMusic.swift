@@ -29,7 +29,9 @@ public struct ProfileMusic: Equatable, Sendable {
     documentID = document.id
     for attribute in document.attributes {
       switch attribute {
-      case .documentAttributeAudio(let audio): title = audio.title; performer = audio.performer
+      case .documentAttributeAudio(let audio):
+        title = audio.title
+        performer = audio.performer
       case .documentAttributeFilename(let name): filename = name.fileName
       default: break
       }

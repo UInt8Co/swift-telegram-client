@@ -33,7 +33,9 @@ public enum ChannelParticipantLookup {
 
     /// Requires a nonnegative authoritative count and visible member lists.
     public func count(in info: TL.ChatFullType) throws -> Int32 {
-      guard case .channelFull(let channel) = info else { throw ParticipantLookupError.incompleteMembership }
+      guard case .channelFull(let channel) = info else {
+        throw ParticipantLookupError.incompleteMembership
+      }
       let count: Int32?
       switch self {
       case .member:
@@ -59,14 +61,18 @@ public enum ChannelParticipantLookup {
   /// Nil from the individual lookup means absence. Partial lists never prove absence;
   /// they throw `ParticipantLookupError`. Transport errors propagate unchanged.
   /// Cancellation is checked during fallback; supplied closures own RPC cancellation.
-  public static func contains(userID: Int64, role: Role,
-            participant: @Sendable () async throws -> TL.ChannelParticipantType?,
-            count: @Sendable () async throws -> Int32,
-            page: @Sendable (TL.ChannelParticipantsFilterType, Int32, Int32) async throws -> TL.Channels.ChannelParticipantsType) async throws -> Bool {
+  public static func contains(
+    userID: Int64, role: Role,
+    participant: @Sendable () async throws -> TL.ChannelParticipantType?,
+    count: @Sendable () async throws -> Int32,
+    page:
+      @Sendable (TL.ChannelParticipantsFilterType, Int32, Int32) async throws ->
+      TL.Channels.ChannelParticipantsType
+  ) async throws -> Bool {
     do {
       guard let participant = try await participant() else { return false }
       return role.userID(participant) == userID
-    } catch where PeerAccessFailure.userUnavailable(error) || isUnresolvableParticipant(error) {
+    } catch  where PeerAccessFailure.userUnavailable(error) || isUnresolvableParticipant(error) {
       try Task.checkCancellation()
     }
 
@@ -90,7 +96,9 @@ public enum ChannelParticipantLookup {
         }
         if id == userID { return true }
       }
-      guard seen.count <= Int(result.count) else { throw ParticipantLookupError.incompleteMembership }
+      guard seen.count <= Int(result.count) else {
+        throw ParticipantLookupError.incompleteMembership
+      }
       if seen.count == Int(result.count) { return false }
       guard !result.participants.isEmpty else { throw ParticipantLookupError.incompleteMembership }
     }

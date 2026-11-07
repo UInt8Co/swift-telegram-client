@@ -1,9 +1,10 @@
-#if canImport(FoundationEssentials)
-import FoundationEssentials
-#else
-import Foundation
-#endif
 import TelegramSchema
+
+#if canImport(FoundationEssentials)
+  import FoundationEssentials
+#else
+  import Foundation
+#endif
 
 /// Pack titles can change. Reuse metadata briefly, without retaining the full
 /// sticker documents returned by Telegram or caching transient RPC failures.
@@ -22,9 +23,13 @@ public actor StickerSetCache {
   /// At capacity the cache clears before inserting a result and up to three aliases;
   /// capacity is therefore a clearing threshold, not a strict entry limit.
   /// Concurrent misses are independent; errors are not cached, missing sets are.
-  public init(lifetime: TimeInterval = 300, capacity: Int = 10_000, fetch: @escaping @Sendable (TL.InputStickerSetType) async throws -> TL.StickerSet?) {
+  public init(
+    lifetime: TimeInterval = 300, capacity: Int = 10_000,
+    fetch: @escaping @Sendable (TL.InputStickerSetType) async throws -> TL.StickerSet?
+  ) {
     precondition(lifetime >= 0 && capacity > 0)
-    self.lifetime = lifetime; self.capacity = capacity
+    self.lifetime = lifetime
+    self.capacity = capacity
     self.fetch = fetch
   }
 
@@ -42,7 +47,9 @@ public actor StickerSetCache {
 
   /// Fetches fresh metadata. Empty references return nil; special references bypass caching.
   /// The fetch runs in the caller task and owns cancellation. Expiry starts at `now`.
-  public func value(for reference: TL.InputStickerSetType, now: Date = Date()) async throws -> TL.StickerSet? {
+  public func value(for reference: TL.InputStickerSetType, now: Date = Date()) async throws -> TL
+    .StickerSet?
+  {
     let key: String
     switch reference {
     case .inputStickerSetEmpty: return nil

@@ -11,14 +11,16 @@ public enum ReplyResolver {
   /// Scheduled replies have a separate ID space and return nil.
   public static func address(for message: TL.Message) -> MessageAddress? {
     guard case .messageReplyHeader(let reply) = message.replyTo,
-       let id = reply.replyToMsgId, id > 0, !reply.replyToScheduled else { return nil }
+      let id = reply.replyToMsgId, id > 0, !reply.replyToScheduled
+    else { return nil }
     return .init(peer: PeerID(reply.replyToPeerId ?? message.peerId), id: id)
   }
 
   /// Only an explicit forwarded author establishes identity; display names do not.
   public static func quotedAuthor(for message: TL.Message) -> PeerID? {
     guard case .messageReplyHeader(let reply) = message.replyTo,
-       let author = reply.replyFrom?.fromId else { return nil }
+      let author = reply.replyFrom?.fromId
+    else { return nil }
     return PeerID(author)
   }
 }

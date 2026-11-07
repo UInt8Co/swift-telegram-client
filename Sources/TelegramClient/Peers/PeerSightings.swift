@@ -26,15 +26,19 @@ public enum PeerSightings {
       peers += [.init(kind: .chat, id: value.chatId), .init(kind: .user, id: value.userId)]
     case .updateChatParticipants(let value):
       switch value.participants {
-      case .chatParticipants(let participants): peers.append(.init(kind: .chat, id: participants.chatId))
-      case .chatParticipantsForbidden(let participants): peers.append(.init(kind: .chat, id: participants.chatId))
+      case .chatParticipants(let participants):
+        peers.append(.init(kind: .chat, id: participants.chatId))
+      case .chatParticipantsForbidden(let participants):
+        peers.append(.init(kind: .chat, id: participants.chatId))
       }
     case .updatePeerBlocked(let value): peers.append(PeerID(value.peerId))
     case .updatePeerSettings(let value): peers.append(PeerID(value.peer))
     case .updatePeerWallpaper(let value): peers.append(PeerID(value.peer))
     default: break
     }
-    if let id = ChannelUpdateFilter.hintedChannelID(of: update), !peers.contains(.init(kind: .channel, id: id)) {
+    if let id = ChannelUpdateFilter.hintedChannelID(of: update),
+      !peers.contains(.init(kind: .channel, id: id))
+    {
       peers.append(.init(kind: .channel, id: id))
     }
     return peers
@@ -62,7 +66,9 @@ public enum PeerSightings {
         address = .init(peer: PeerID(value.peerId), id: value.id)
         peers += [value.fromId, value.fwdFrom?.fromId].compactMap { $0.map(PeerID.init) }
         for entity in value.entities ?? [] {
-          if case .messageEntityMentionName(let mention) = entity { peers.append(.init(kind: .user, id: mention.userId)) }
+          if case .messageEntityMentionName(let mention) = entity {
+            peers.append(.init(kind: .user, id: mention.userId))
+          }
         }
       case .messageService(let value):
         address = .init(peer: PeerID(value.peerId), id: value.id)

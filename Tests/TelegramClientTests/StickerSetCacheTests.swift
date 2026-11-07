@@ -1,18 +1,22 @@
-#if canImport(FoundationEssentials)
-import FoundationEssentials
-#else
-import Foundation
-#endif
+import TelegramClient
 import TelegramSchema
 import Testing
-import TelegramClient
+
+#if canImport(FoundationEssentials)
+  import FoundationEssentials
+#else
+  import Foundation
+#endif
 
 @Suite struct StickerSetCacheTests {
   private actor Fetcher {
     var calls = 0
     var missing = false
     var fail = false
-    func configure(missing: Bool = false, fail: Bool = false) { self.missing = missing; self.fail = fail }
+    func configure(missing: Bool = false, fail: Bool = false) {
+      self.missing = missing
+      self.fail = fail
+    }
     func fetch(_ reference: TL.InputStickerSetType) throws -> TL.StickerSet? {
       calls += 1
       if fail { throw CancellationError() }
@@ -26,8 +30,10 @@ import TelegramClient
     let reference = TL.InputStickerSetType.inputStickerSetID(.init(id: 500, accessHash: 600))
     let now = Date()
     #expect(try await cache.value(for: reference, now: now)?.title == "Title 1")
-    #expect(try await cache.value(for: reference, now: now.addingTimeInterval(299))?.title == "Title 1")
-    #expect(try await cache.value(for: reference, now: now.addingTimeInterval(300))?.title == "Title 2")
+    #expect(
+      try await cache.value(for: reference, now: now.addingTimeInterval(299))?.title == "Title 1")
+    #expect(
+      try await cache.value(for: reference, now: now.addingTimeInterval(300))?.title == "Title 2")
     #expect(await fetcher.calls == 2)
   }
 
@@ -37,10 +43,14 @@ import TelegramClient
     let reference = TL.InputStickerSetType.inputStickerSetShortName(.init(shortName: "Pack"))
     let now = Date()
     await fetcher.configure(fail: true)
-    await #expect(throws: CancellationError.self) { try await cache.value(for: reference, now: now) }
+    await #expect(throws: CancellationError.self) {
+      try await cache.value(for: reference, now: now)
+    }
     await fetcher.configure(missing: true)
     #expect(try await cache.value(for: reference, now: now) == nil)
-    #expect(try await cache.value(for: .inputStickerSetShortName(.init(shortName: "PACK")), now: now) == nil)
+    #expect(
+      try await cache.value(for: .inputStickerSetShortName(.init(shortName: "PACK")), now: now)
+        == nil)
     #expect(await fetcher.calls == 2)
     await fetcher.configure()
     #expect(try await cache.value(for: reference, now: now.addingTimeInterval(301)) != nil)
@@ -52,12 +62,35 @@ import TelegramClient
     let fetcher = Fetcher()
     let cache = StickerSetCache { try await fetcher.fetch($0) }
     let now = Date()
-    let pack = try #require(try await cache.value(for: .inputStickerSetShortName(.init(shortName: "Pack")), now: now))
-    #expect(try await cache.value(for: .inputStickerSetID(.init(id: pack.id, accessHash: 0)), now: now) == pack)
+    let pack = try #require(
+      try await cache.value(for: .inputStickerSetShortName(.init(shortName: "Pack")), now: now))
+    #expect(
+      try await cache.value(for: .inputStickerSetID(.init(id: pack.id, accessHash: 0)), now: now)
+        == pack)
     #expect(await fetcher.calls == 1)
   }
+
+  @Test func configuredLifetimeAndAliasEvictionAreExplicit() async throws {
+    let fetcher = Fetcher()
+    let cache = StickerSetCache(lifetime: 10, capacity: 1) { try await fetcher.fetch($0) }
+    let now = Date(timeIntervalSince1970: 100)
+    let first = TL.InputStickerSetType.inputStickerSetShortName(.init(shortName: "First"))
+    let second = TL.InputStickerSetType.inputStickerSetShortName(.init(shortName: "Second"))
+    _ = try await cache.value(for: first, now: now)
+    #expect(await cache.cached(first, now: now.addingTimeInterval(9)) != nil)
+    #expect(await cache.cached(first, now: now.addingTimeInterval(10)) == nil)
+    _ = try await cache.value(for: second, now: now)
+    #expect(await cache.cached(first, now: now) == nil)
+    #expect(
+      await cache.cached(.inputStickerSetID(.init(id: 500, accessHash: 0)), now: now)?.title
+        == "Title 2")
+    #expect(await fetcher.calls == 2)
+  }
+
 }
 
-private func testStickerSet(id: Int64 = 500, title: String = "Sticker pack", shortName: String = "StickerPack") -> TL.StickerSet {
+private func testStickerSet(
+  id: Int64 = 500, title: String = "Sticker pack", shortName: String = "StickerPack"
+) -> TL.StickerSet {
   .init(id: id, accessHash: 600, title: title, shortName: shortName, count: 2, hash: 1)
 }
