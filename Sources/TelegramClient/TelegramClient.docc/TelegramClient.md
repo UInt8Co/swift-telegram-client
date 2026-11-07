@@ -297,4 +297,10 @@ projects gift text in source order with caller-selected filtering and input limi
 - ``RPCRequestSummary``
 - ``MessageContextPeer``
 - ``SavedGiftText``
+- ``TelegramPeerInfoMerging``
 - ``TelegramPeerInfoMerging/BasicGroupUpdate``
+- ``TelegramPeerInfoMerging/fullUser(_:applying:)``
+- ``TelegramPeerInfoMerging/fullChannel(_:applying:)``
+- ``TelegramPeerInfoMerging/basicGroup(_:applying:version:count:delta:)``
+- ``TelegramPeerInfoMerging/basicGroupParticipants(_:applying:previousVersion:version:)``
+- ``TelegramPeerInfoMerging/participantID(_:)``
