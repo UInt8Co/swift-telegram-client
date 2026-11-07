@@ -49,7 +49,7 @@ public enum ForumTopics {
     .inputReplyToMessage(.init(replyToMsgId: message ?? topic, topMsgId: topic))
   }
 
-  /// How reply headers are interpreted when locating a forum topic.
+  /// How non-creation reply headers are interpreted when locating a forum topic.
   public enum TopicIDPolicy: Sendable {
     /// Preserve raw header values, including scheduled/external and nonpositive IDs.
     case header
@@ -59,7 +59,8 @@ public enum ForumTopics {
 
   /// The topic a received message belongs to, when its header marks a forum reply.
   /// Creation messages use their private-topic header ID or supergroup service ID.
-  /// This preserves header values without validating scheduled or external replies.
+  /// The default policy preserves header values without validating scheduled or external replies.
+  /// Topic creation IDs are handled identically under both policies.
   public static func topicID(of message: TL.MessageType, policy: TopicIDPolicy = .header) -> Int32? {
     let header: TL.MessageReplyHeaderType?
     switch message {
