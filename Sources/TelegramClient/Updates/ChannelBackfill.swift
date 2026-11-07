@@ -27,16 +27,17 @@ public enum ChannelBackfill {
   }
 
   /// The floor to read above, or nil to walk back to the creation cutoff.
-  /// A new channel reads its newest IDs only. A gap after downtime reads
-  /// above the newest message already retained for the channel: retained
-  /// messages arrive in PTS order, so everything at or below it was handled.
+  /// An initial snapshot is capped by the caller-selected ID count (negative means zero).
+  /// Otherwise the supplied retained ID is returned unchanged. Callers must establish
+  /// that work at or below their chosen floor has already been handled.
   public static func floor(topID: Int32, initialSnapshot: Bool, newestRetainedID: Int32?, initialMessageLimit: Int32) -> Int32? {
     guard initialSnapshot else { return newestRetainedID }
     return max(0, Int32(clamping: Int64(topID) - Int64(max(0, initialMessageLimit))), newestRetainedID ?? 0)
   }
 
   /// Reads oldest first above a floor, or newest pages first until the creation cutoff.
-  /// Empty pages do not stop traversal. Recent edits on the boundary page are included.
+  /// Pages contain at most 100 IDs. Empty pages do not stop traversal. Recent edits
+  /// on the boundary page are included.
   /// Flood waits retry the current page; cancellation and other failures escape. Callbacks
   /// must cooperate with cancellation. IDs at the Int32 boundaries do not overflow.
   public static func read(topID: Int32, cutoff: Int32, floorID: Int32? = nil,

@@ -8,7 +8,7 @@ import TelegramSchema
 
 /// Pending includes the running head, which can retain its captures during retries.
 /// Byte estimates describe retained work, not RSS: shared payloads can appear in
-/// both chat and delivery lanes, and allocator/task overhead is approximate.
+/// multiple lanes, and allocator/task overhead is approximate.
 public struct WorkMetrics: Sendable, Equatable {
   /// Total pending work, including running heads.
   public var depth = 0
@@ -43,4 +43,3 @@ public enum DecodedSizeEstimate {
     return 16 + mirror.children.reduce(0) { $0 + bytes($1.value) }
   }
 }
-
