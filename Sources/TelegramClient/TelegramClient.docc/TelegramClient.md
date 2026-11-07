@@ -220,11 +220,13 @@ filenames; ``SessionInspection`` reports stored-session status without credentia
 
 - ``OrderedWorkQueue``
 - ``WorkReceipt``
+- ``WorkReceipt/Completion``
 - ``ConcurrencyPermitPool``
 - ``WorkMetrics``
 - ``DecodedSizeEstimate``
 - ``ChannelBackfill``
 - ``ChannelRecovery``
+- ``ChannelRecovery/ReadResult``
 - ``RecoverySchedule``
 - ``CheckpointWriter``
 - ``FileKeyValueStore``
@@ -283,3 +285,16 @@ unsupported or incomplete media is reported separately from RPC rejection facts.
 
 ``MediaReferences`` converts received photos and documents to input references,
 preserving IDs, access hashes and file-reference bytes.
+
+### Pure request and peer projections
+
+`RPCRequestSummary` inspects known leading peer layouts without exposing payloads or
+access hashes. `MessageContextPeer` builds references from caller-validated history
+messages. `TelegramPeerInfoMerging` transforms full peer information and versioned
+basic-group participants; the caller owns persistence and invalidation. `SavedGiftText`
+projects gift text in source order with caller-selected filtering and input limits.
+
+- ``RPCRequestSummary``
+- ``MessageContextPeer``
+- ``SavedGiftText``
+- ``TelegramPeerInfoMerging/BasicGroupUpdate``

@@ -221,6 +221,7 @@ register additional top-level types for legacy JSON presentation.
 
 ```swift
 import TelegramArchive
+import TelegramSchema
 
 let payload = try TLArchive.payload(TL.PeerUser(userId: 42))
 let stored = try TLArchiveStorage.encode([payload])

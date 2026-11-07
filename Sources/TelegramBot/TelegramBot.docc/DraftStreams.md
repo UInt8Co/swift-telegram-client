@@ -6,12 +6,22 @@ Import `TelegramRichText` for the message builder and `TelegramSchema` for TL ty
 ## Button rows
 
 ```swift
+import TelegramBot
+import TelegramRichText
+import TelegramSchema
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#else
+import Foundation
+#endif
+
+let payload = Data("undo".utf8)
 let message = RichMessage {
-    Paragraph("An action was completed.")
-    ButtonRow {
-        RichButton.callback("Undo", data: payload, style: .primary)
-        RichButton.url("Details", "https://example.com/action")
-    }
+  Paragraph("An action was completed.")
+  ButtonRow {
+    RichButton.callback("Undo", data: payload, style: .primary)
+    RichButton.url("Details", "https://example.com/action")
+  }
 }
 ```
 

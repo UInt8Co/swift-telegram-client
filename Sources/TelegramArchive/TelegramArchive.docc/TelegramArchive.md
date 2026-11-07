@@ -61,6 +61,9 @@ Unsupported names, layers, versions, bytes, or mismatches return the stored JSON
 and register more TL types to extend presentation without global mutable state:
 
 ```swift
+import TelegramArchive
+import TelegramSchema
+
 var registry = TLArchiveRegistry.standard
 registry.register(TL.PeerUser.self)
 let payload = try TLArchive.payload(TL.PeerUser(userId: 42))
