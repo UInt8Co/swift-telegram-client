@@ -124,6 +124,13 @@ layer and none of the machinery above changes.
 
 ### Peers
 
+- ``PeerID``
+- ``MessageAddress``
+- ``ChatAdministrator``
+- ``ChatAdminLookup``
+- ``ChatAdminLookupError``
+- ``ForumTopics``
+
 - ``PeerResolver``
 - ``PeerCache``
 - ``PeerLookup``
@@ -133,6 +140,8 @@ layer and none of the machinery above changes.
 - ``ChannelKind``
 
 ### Updates
+
+- ``GroupMigration``
 
 - ``UpdateHub``
 - ``UpdateCursor``

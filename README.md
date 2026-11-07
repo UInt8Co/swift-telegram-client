@@ -30,13 +30,19 @@ Add both products to your target's dependencies:
 ```
 
 `TelegramClient` provides connections and helpers; `TelegramSchema` provides the
-Telegram API types and methods. Two optional products depend only on
-`TelegramSchema`:
+Telegram API types and methods. Optional products provide message composition,
+rendering and bot-account conveniences:
 
 | Product | Purpose |
 |---|---|
 | `TelegramRichText` | Compose outgoing rich messages with a result builder |
 | `TelegramMarkup` | Render received messages as compact HTML-style markup |
+| `TelegramBot` | Bot links, Stars subscriptions, private topics, buttons and draft streams |
+
+`TelegramBot` builds on `TelegramClient`, `TelegramSchema` and `TelegramRichText`.
+Its transport helpers use your `TLClient`; applications own persistence and retries.
+See [the module overview](Sources/TelegramBot/TelegramBot.docc/TelegramBot.md) and
+[native buttons and draft streams](Sources/TelegramBot/TelegramBot.docc/DraftStreams.md).
 
 ## Quick start
 
