@@ -66,3 +66,7 @@ These helpers decode events without granting access or asserting current members
 
 - ``BotGroupAdditionEvent``
 - ``RequestedPeerPicker``
+
+### Reusing message content and context
+
+- ``EphemeralReplies``

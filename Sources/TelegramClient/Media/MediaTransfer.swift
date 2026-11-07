@@ -210,10 +210,7 @@ public final class MediaTransfer: Sendable {
     guard case .messageMediaDocument(let value) = stored,
       case .document(let document) = value.document
     else { throw MediaTransferError.invalidResult }
-    return .inputDocument(
-      TL.InputDocument(
-        id: document.id, accessHash: document.accessHash,
-        fileReference: document.fileReference))
+    return MediaReferences.document(.document(document))!
   }
 
   /// Copies one source object into the destination and names it the way a
@@ -342,28 +339,10 @@ public final class MediaTransfer: Sendable {
 
   private func storedInputMedia(_ media: TL.MessageMediaType) throws -> TL.InputMediaType {
     switch media {
-    case .messageMediaPhoto(let value):
-      guard case .photo(let photo) = value.photo else { throw MediaTransferError.invalidResult }
-      return .inputMediaPhoto(
-        TL.InputMediaPhoto(
-          spoiler: value.spoiler,
-          id: .inputPhoto(
-            TL.InputPhoto(
-              id: photo.id, accessHash: photo.accessHash,
-              fileReference: photo.fileReference))))
-    case .messageMediaDocument(let value):
-      guard case .document(let document) = value.document else {
-        throw MediaTransferError.invalidResult
-      }
-      return .inputMediaDocument(
-        TL.InputMediaDocument(
-          spoiler: value.spoiler,
-          id: .inputDocument(
-            TL.InputDocument(
-              id: document.id, accessHash: document.accessHash,
-              fileReference: document.fileReference))))
-    default:
-      throw MediaTransferError.invalidResult
+    case .messageMediaPhoto, .messageMediaDocument:
+      guard case .success(let input) = ReusableMedia.convert(media) else { throw MediaTransferError.invalidResult }
+      return input
+    default: throw MediaTransferError.invalidResult
     }
   }
 

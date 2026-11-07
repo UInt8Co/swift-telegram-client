@@ -137,3 +137,11 @@ let message = RichMessage {
 - ``Cell``
 - ``RowBuilder``
 - ``CellBuilder``
+
+### Reusing message content and context
+
+- ``InlineQuotation``
+- ``UploadedDocument``
+- ``UploadedDocumentError``
+- ``ReceivedRichMessageError``
+- ``MessageLink``

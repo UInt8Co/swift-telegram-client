@@ -264,3 +264,21 @@ and capacities. Featured-pack traversal requires a user account and performs onl
 Inspect received TL service messages for joins and membership refresh signals.
 
 - ``GroupServiceEvents``
+
+### Reusing message content and context
+
+`SentMessages` correlates request random IDs with send/forward receipts and
+exposes freshness only as an explicitly tolerant heuristic. `MessageReplies`
+constructs replies from caller-selected source and destination context.
+`ReusableMedia` converts supported received resources without fetching them;
+unsupported or incomplete media is reported separately from RPC rejection facts.
+
+- ``SentMessages``
+- ``SentMessageError``
+- ``MessageReplies``
+- ``ReusableMedia``
+- ``MediaReuseError``
+- ``MessageContentRejection``
+
+`MediaReferences` in TelegramSchema shares photo/document reference conversion
+with TelegramRichText, preserving IDs, access hashes and file-reference bytes.
