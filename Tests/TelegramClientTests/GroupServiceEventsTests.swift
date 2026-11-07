@@ -23,6 +23,7 @@ import Testing
       (.messageActionChatDeleteUser(.init(userId: 12)), false, true),
       (.messageActionChatJoinedByLink(.init(inviterId: 11)), true, true),
       (.messageActionChatJoinedByRequest(.init()), true, true),
+      (.messageActionChatJoinedViaCommunity(.init(communityId: 60)), true, false),
       (.messageActionChatEditTitle(.init(title: "New title")), false, false)
     ]
     for (action, join, refresh) in actions {
