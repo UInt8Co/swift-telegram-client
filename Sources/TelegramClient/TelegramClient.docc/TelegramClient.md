@@ -258,3 +258,9 @@ and capacities. Featured-pack traversal requires a user account and performs onl
 - ``EmojiStatus``
 - ``TrendingStickerSet``
 - ``TrendingStickerSource``
+
+### Group service events
+
+Inspect received TL service messages for joins and membership refresh signals.
+
+- ``GroupServiceEvents``

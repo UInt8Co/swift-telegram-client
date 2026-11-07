@@ -44,3 +44,25 @@ errors and cancellation; returned updates remain the caller’s responsibility.
 - ``DraftStreamTransport``
 - ``DraftStreamOperation``
 - ``DraftStreamer``
+
+### Commands and menus
+
+Command parsing preserves argument text. Publication plans accept caller-owned keys,
+signatures and receipts; callers resolve scopes, execute RPCs and persist successful
+results. Synchronization coalesces requests with configurable refresh and retry delays.
+Menu writes serialize per key; overlapping calls return before the active publisher finishes.
+
+- ``BotCommandParser``
+- ``ParsedBotCommand``
+- ``BotCommandList``
+- ``BotCommandPublication``
+- ``BotCommandSynchronization``
+- ``BotCommandMenuState``
+- ``BotCommandMenus``
+
+### Group additions and peer selection
+
+These helpers decode events without granting access or asserting current membership.
+
+- ``BotGroupAdditionEvent``
+- ``RequestedPeerPicker``
