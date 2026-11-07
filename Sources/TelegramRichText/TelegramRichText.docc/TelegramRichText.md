@@ -140,6 +140,14 @@ let message = RichMessage {
 
 ### Reusing message content and context
 
+`RichMessage.inputMessage(received:)` rejects partial resource tables and converts
+received blocks and references through the same validation as authored messages.
+`UploadedDocument` is a block component: its caller chooses the caption and where
+it appears, then includes its `document` in the input resource table.
+`InlineQuotation.clip(_:limit:)` removes local references and clips at documented
+word/CJK boundaries with an explicit character budget.
+
+- ``RichMessage/inputMessage(received:)``
 - ``InlineQuotation``
 - ``UploadedDocument``
 - ``UploadedDocumentError``

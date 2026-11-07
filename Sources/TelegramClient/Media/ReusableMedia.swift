@@ -53,7 +53,6 @@ public enum ReusableMedia {
     }
   }
 
-
   private static func inputGeo(_ value: TL.GeoPointType) -> TL.InputGeoPointType? {
     guard case .geoPoint(let point) = value else { return nil }
     return .inputGeoPoint(.init(lat: point.lat, long: point.long, accuracyRadius: point.accuracyRadius))

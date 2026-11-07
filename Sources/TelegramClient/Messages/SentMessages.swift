@@ -41,7 +41,6 @@ public enum SentMessages {
     return .init(peer: destination, id: message.id)
   }
 
-
   /// A heuristic, not proof of a new server-side execution. A matching message
   /// must be unedited and no older than the later local/envelope date minus
   /// `dateTolerance` seconds. Short results use the local date only. Negative
@@ -66,13 +65,12 @@ public enum SentMessages {
       default: continue
       }
       guard case .message(let value) = message, value.id == address.id,
-         PeerID(value.peerId) == address.peer else { continue }
+        PeerID(value.peerId) == address.peer else { continue }
       // A reply that is built anew carries the server's current date.
       return value.editDate == nil && Int64(value.date) >= Int64(max(sentAt, replied)) - Int64(dateTolerance)
     }
     return false
   }
-
 
   /// Correlates source IDs with destination addresses. Explicit mappings may be
   /// partial. Without mappings, all outgoing destination messages must be present;
@@ -81,9 +79,9 @@ public enum SentMessages {
   /// Duplicate identical mapping updates are harmless. No ordering is promised
   /// by the returned dictionary. Input source and random IDs must each be unique.
   public static func forwardedAddresses(_ result: TL.UpdatesType, ids: [Int32], destination: PeerID,
-                 randomIDs: [Int64]) throws -> [Int32: MessageAddress] {
+    randomIDs: [Int64]) throws -> [Int32: MessageAddress] {
     guard ids.count == randomIDs.count, Set(ids).count == ids.count,
-       Set(randomIDs).count == randomIDs.count else { throw SentMessageError.invalidBatch }
+      Set(randomIDs).count == randomIDs.count else { throw SentMessageError.invalidBatch }
     let updates: [TL.UpdateType]
     switch result {
     case .updateShortSentMessage(let value):
@@ -94,7 +92,7 @@ public enum SentMessages {
     case .updateShort(let value): updates = [value.update]
     default: throw SentMessageError.missingMapping
     }
-    let sources = Dictionary(zip(randomIDs, ids), uniquingKeysWith: { first, _ in first })
+    let sources = Dictionary(uniqueKeysWithValues: zip(randomIDs, ids))
     var receipts: [Int32: MessageAddress] = [:]
     for case .updateMessageID(let mapping) in updates {
       if let source = sources[mapping.randomId] {
@@ -113,7 +111,7 @@ public enum SentMessages {
       default: return nil
       }
       guard case .message(let value) = message, value.out, PeerID(value.peerId) == destination,
-         !mapped.contains(value.id) else { return nil }
+        !mapped.contains(value.id) else { return nil }
       return value.id
     }.sorted()
     if unmapped.isEmpty { return receipts }
