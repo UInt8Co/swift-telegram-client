@@ -34,6 +34,7 @@ public enum ChannelRecovery {
 
   /// Recovers gaps before delivery, then commits only after delivery succeeds. Known push
   /// payloads are delivered even when recovery advances beyond them; callers must deduplicate.
+  /// The `recover` callback returns the recovered channel PTS, not a polling timeout.
   /// A nil recovered position suppresses checkpoint recreation. Cancellation prevents commit.
   public static func push(_ id: Int64, position: Int32?, updates: [UpdateSequence],
           recover: @Sendable (Int32) async throws -> Int32?,
@@ -66,6 +67,13 @@ public enum ChannelRecovery {
     if current != nil, let next = positions.channels[id] { try await commit(next) }
   }
 
+  /// The final page's polling hint after all handled pages have been committed.
+  public struct ReadResult: Sendable, Equatable {
+    /// Suggested delay in seconds until another read, or nil when Telegram supplies none.
+    /// This is a polling timeout, never a channel PTS. Committed PTS values go to `commit`.
+    public let timeout: Int32?
+  }
+
   /// Drains differences and commits each handled page. Invalid/empty stored positions other
   /// than one reset to one; replication failures escape unchanged. Incomplete snapshots never commit.
   /// Gap reports omit cancellation and injected transient failures. Retried work may replay
@@ -77,7 +85,7 @@ public enum ChannelRecovery {
           backfill: @Sendable (Int32) async throws -> ChannelBackfill.Coverage,
           commit: @Sendable (Int32) async throws -> Void,
           rejected: @Sendable (Int32) async -> Void = { _ in },
-          reportGap: @Sendable (Gap) async -> Void = { _ in }) async throws -> Int32? {
+          reportGap: @Sendable (Gap) async -> Void = { _ in }) async throws -> ReadResult {
     var position = start
     var resetAfterRejection = false
     while true {
@@ -118,7 +126,7 @@ public enum ChannelRecovery {
         throw error
       }
       if batch.skippedGap { await reportGap(gap) }
-      if batch.isFinal { return batch.timeout }
+      if batch.isFinal { return ReadResult(timeout: batch.timeout) }
     }
   }
 }

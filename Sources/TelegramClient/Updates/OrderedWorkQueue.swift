@@ -7,7 +7,7 @@ public actor OrderedWorkQueue<Key: Hashable & Sendable> {
   public typealias Operation = @Sendable () async throws -> Void
   private struct Job {
     var operation: Operation
-    var receipt: WorkReceipt
+    var receipt: WorkReceipt.Completion
     var received: ContinuousClock.Instant
     var estimatedBytes: Int
   }
@@ -46,24 +46,25 @@ public actor OrderedWorkQueue<Key: Hashable & Sendable> {
     self.failed = failed
   }
 
-  /// Enqueues work. A barrier waits for the last receipt in each selected lane; subsequent
-  /// selected work waits for that barrier. Unselected lanes remain independent. Submissions
+  /// Enqueues work. A barrier waits for all earlier barriers and the last receipt in each selected lane; subsequent
+  /// selected work waits for that barrier. Unselected non-barrier work remains independent. Submissions
   /// after stop return failed receipts. Cancelling a receipt waiter does not cancel its work.
   public func submit(_ key: Key, received: ContinuousClock.Instant = .now,
         estimatedBytes: Int = 0, barrier isBarrier: Bool = false, _ operation: @escaping Operation) -> WorkReceipt {
-    let receipt = WorkReceipt()
-    // Barriers depend only on selected lanes.
-    let dependencies = isBarrier ? lanes.filter { barrierIncludes($0.key) }.values.compactMap { $0.jobs.last.flatMap { $0 }?.receipt }
+    let completion = WorkReceipt.Completion()
+    let receipt = completion.receipt
+    // Chain barriers even when their own lanes are excluded.
+    let dependencies = isBarrier ? lanes.filter { barrierIncludes($0.key) }.values.compactMap { $0.jobs.last.flatMap { $0 }?.receipt.receipt } + [barrier].compactMap { $0 }
       : (barrierIncludes(key) ? [barrier].compactMap { $0 } : [])
     // Approximate receipt/closure storage plus retained dependency references.
     let job = Job(operation: {
       for dependency in dependencies { try await dependency.wait() }
       try Task.checkCancellation()
       try await operation()
-    }, receipt: receipt, received: received,
+    }, receipt: completion, received: received,
      estimatedBytes: max(0, estimatedBytes) + MemoryLayout<Job>.stride + 96 + dependencies.count * 8)
     if stopped {
-      Task { await receipt.finish(.failure(CancellationError())) }
+      Task { await completion.finish(.failure(CancellationError())) }
       return receipt
     }
     if isBarrier { barrier = receipt }

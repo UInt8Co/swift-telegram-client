@@ -13,7 +13,7 @@ private actor AdminPages {
     -> TL.Channels.ChannelParticipantsType
   {
     requests.append((filter, offset, limit))
-    guard requests.count <= pages.count else { throw ChatAdminLookupError.incompleteMembership }
+    guard requests.count <= pages.count else { throw ParticipantLookupError.incompleteMembership }
     return pages[requests.count - 1]
   }
 }
@@ -108,7 +108,7 @@ private actor AdminPages {
       [page([admin(1)], count: 0, users: [.user(.init(id: 1))])],
     ]
     for pages in broken {
-      await #expect(throws: ChatAdminLookupError.self) { try await AdminPages(pages).list() }
+      await #expect(throws: ParticipantLookupError.self) { try await AdminPages(pages).list() }
     }
     await #expect(throws: CancellationError.self) {
       try await ChatAdminLookup.channel { _, _, _ in throw CancellationError() }
@@ -148,7 +148,7 @@ private actor AdminPages {
           id: 100, about: "",
           participants: .chatParticipantsForbidden(.init(chatId: 100)), notifySettings: .init())),
       chats: [], users: [])
-    #expect(throws: ChatAdminLookupError.self) { try ChatAdminLookup.basic(result) }
+    #expect(throws: ParticipantLookupError.self) { try ChatAdminLookup.basic(result) }
   }
 
   @Test func rightsChangesInvalidateTheGroupEvenWhenTheUserRemainsAnAdmin() {

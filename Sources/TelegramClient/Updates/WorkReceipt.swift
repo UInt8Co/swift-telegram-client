@@ -10,8 +10,23 @@ public actor WorkReceipt {
   private var result: Result<Void, any Error>?
   private var waiters: [UUID: CheckedContinuation<Void, any Error>] = [:]
 
-  /// Creates an unfinished receipt.
-  public init() {}
+  private init() {}
+
+  /// Producer authority for an independently completed receipt. Share only `receipt`
+  /// with consumers; retaining this token permits the producer to finish the work.
+  public struct Completion: Sendable {
+    /// The wait-only handle. Cancelling a waiter never completes or cancels shared work.
+    public let receipt: WorkReceipt
+
+    /// Creates an unfinished receipt and its completion authority.
+    public init() { receipt = WorkReceipt() }
+
+    /// Completes current and future waiters. Only the first completion takes effect.
+    /// This does not cancel the producer operation; the producer owns its lifecycle.
+    public func finish(_ result: Result<Void, any Error>) async {
+      await receipt.finish(result)
+    }
+  }
 
   /// Waits for completion, or promptly throws when this waiter is cancelled.
   public func wait() async throws {
@@ -27,7 +42,7 @@ public actor WorkReceipt {
   }
 
   /// Completes all current and future waiters. Only the first completion has an effect.
-  public func finish(_ result: Result<Void, any Error>) {
+  private func finish(_ result: Result<Void, any Error>) {
     guard self.result == nil else { return }
     self.result = result
     for waiter in waiters.values { waiter.resume(with: result) }

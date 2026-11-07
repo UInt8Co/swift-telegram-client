@@ -112,4 +112,12 @@ import Testing
     #expect(restored[0].fullJSON() == payload.json)
   }
 
+  @Test func escapedSlotKeysStillRequireASidecar() throws {
+    for json in [#"{"raw\u0053lot":0}"#, #"[{"nested":{"\u0072awSlot":null}}]"#] {
+      #expect(throws: (any Error).self) { try TLArchiveStorage.unpack(json, raw: nil) }
+    }
+    for json in [#" { "value": "raw\u0053lot" } "#, #"{"raw\\u0053lot":0}"#, #"{"title":"\u2603"}"#] {
+      #expect(try TLArchiveStorage.unpack(json, raw: nil) == json)
+    }
+  }
 }

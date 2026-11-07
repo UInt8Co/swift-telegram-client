@@ -1,3 +1,5 @@
+import TelegramClient
+
 /// A tokenized explicit bot command. Arguments preserve their interior whitespace.
 public struct ParsedBotCommand: Equatable, Sendable {
   /// Lowercase command name without the slash or username suffix.
@@ -25,12 +27,9 @@ public enum BotCommandParser {
   public static func parse(
     _ text: String, botUsername: String, guestMentions: GuestMentions = .disabled
   ) -> ParsedBotCommand? {
-    let candidate = botUsername.hasPrefix("@") ? String(botUsername.dropFirst()) : botUsername
+    guard let candidate = TelegramUsername.normalized(botUsername) else { return nil }
     func letter(_ byte: UInt8) -> Bool { (65...90).contains(byte) || (97...122).contains(byte) }
-    guard (1...32).contains(candidate.utf8.count), let firstByte = candidate.utf8.first,
-      letter(firstByte), candidate.utf8.allSatisfy({ letter($0) || (48...57).contains($0) || $0 == 95 })
-    else { return nil }
-    let mention = "@" + candidate.lowercased()
+    let mention = "@" + candidate
     var tokens = text.split(whereSeparator: \.isWhitespace)[...]
     if guestMentions == .adjacentAndTrailing, tokens.first?.lowercased() == mention { tokens.removeFirst() }
     guard let first = tokens.first, first.hasPrefix("/") else { return nil }

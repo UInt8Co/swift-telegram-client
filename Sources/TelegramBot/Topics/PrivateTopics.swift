@@ -11,8 +11,6 @@ import TelegramSchema
 public enum PrivateTopicError: Error, Equatable {
   /// `messages.createForumTopic` answered without the topic's service message.
   case topicNotCreated
-  /// A title is invalid; current client methods sanitize titles instead of throwing this case.
-  case invalidTitle
 }
 
 /// Topics in a bot's private chat with a user, which @BotFather enables per
@@ -83,16 +81,16 @@ public enum PrivateTopics {
 /// A topic the bot opened in a private chat, found by its creation message.
 public struct CreatedPrivateTopic: Sendable, Hashable {
   /// The private-chat user ID.
-  public let user: Int64
+  public let userID: Int64
   /// The creation service-message ID, which may differ from the topic ID.
-  public let message: Int32
+  public let creationMessageID: Int32
   /// The topic ID used in reply and draft headers.
-  public let topic: Int32
+  public let topicID: Int32
   /// Creates a topic record without validating its IDs.
-  public init(user: Int64, message: Int32, topic: Int32) {
-    self.user = user
-    self.message = message
-    self.topic = topic
+  public init(userID: Int64, creationMessageID: Int32, topicID: Int32) {
+    self.userID = userID
+    self.creationMessageID = creationMessageID
+    self.topicID = topicID
   }
 }
 
@@ -186,7 +184,7 @@ public struct PrivateTopicClient: Sendable {
         else { continue }
         topics.append(
           .init(
-            user: peer.userId, message: service.id, topic: ForumTopics.createdTopicID(of: service)))
+            userID: peer.userId, creationMessageID: service.id, topicID: ForumTopics.createdTopicID(of: service)))
       case .messageEmpty: continue
       }
     }

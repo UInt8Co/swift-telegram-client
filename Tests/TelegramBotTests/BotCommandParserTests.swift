@@ -36,4 +36,12 @@ import Testing
     #expect(BotCommandParser.parse("/help @sample", botUsername: "sample")?.arguments == "@sample")
     #expect(BotCommandParser.parse("/help@other", botUsername: "sample") == nil)
   }
+  @Test func usernameValidationKeepsShortAndMaximumLengthNames() {
+    for name in ["a", "@A", "Z_9", String(repeating: "a", count: 32)] {
+      #expect(BotCommandParser.parse("/help", botUsername: name)?.command == "help")
+    }
+    for name in ["", "@", "@@a", "1a", "_a", "a-b", "é", " a", String(repeating: "a", count: 33)] {
+      #expect(BotCommandParser.parse("/help", botUsername: name) == nil)
+    }
+  }
 }

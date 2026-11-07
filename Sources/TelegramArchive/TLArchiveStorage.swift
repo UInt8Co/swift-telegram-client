@@ -194,7 +194,7 @@ public enum TLArchiveStorage {
   /// emits sorted JSON. Synchronous; no cancellation checks are performed.
   public static func unpack(_ json: String, raw: Data?) throws -> String {
     guard let raw else {
-      if json.contains("\"rawSlot\"") {
+      if json.contains("\"rawSlot\"") || json.contains("\\u") {
         func hasReference(_ value: ArchiveJSON) -> Bool {
           switch value {
           case .object(let fields): fields["rawSlot"] != nil || fields.values.contains(where: hasReference)

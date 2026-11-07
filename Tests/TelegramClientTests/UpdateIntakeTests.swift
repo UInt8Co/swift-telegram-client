@@ -254,7 +254,7 @@ import Testing
       #expect(String(gap.coverage?.reachedCutoff ?? false) == "true")
       await state.record("gap reported")
     })
-    #expect(timeout == 123)
+    #expect(timeout.timeout == 123)
     #expect(await state.events == ["snapshot", "backfill", "commit:90", "gap reported"])
   }
 

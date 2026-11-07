@@ -25,6 +25,11 @@ public enum SentMessages {
       guard case .updateMessageID(let mapping) = update, mapping.randomId == randomID else { return nil }
       return mapping.id
     })
+    let otherIDs = Set(updates.compactMap { update -> Int32? in
+      guard case .updateMessageID(let mapping) = update, mapping.randomId != randomID else { return nil }
+      return mapping.id
+    })
+    guard mapped.isDisjoint(with: otherIDs) else { throw SentMessageError.missingMapping }
     guard mapped.count <= 1 else { throw SentMessageError.missingMapping }
     if let id = mapped.first { return .init(peer: destination, id: id) }
     let messages = updates.compactMap { update -> TL.Message? in
@@ -34,7 +39,8 @@ public enum SentMessages {
       case .updateNewChannelMessage(let value): message = value.message
       default: return nil
       }
-      guard case .message(let value) = message, value.out, PeerID(value.peerId) == destination else { return nil }
+      guard case .message(let value) = message, value.out, PeerID(value.peerId) == destination,
+        !otherIDs.contains(value.id) else { return nil }
       return value
     }
     guard messages.count == 1, let message = messages.first else { throw SentMessageError.missingMapping }
@@ -93,6 +99,10 @@ public enum SentMessages {
     default: throw SentMessageError.missingMapping
     }
     let sources = Dictionary(uniqueKeysWithValues: zip(randomIDs, ids))
+    let otherIDs = Set(updates.compactMap { update -> Int32? in
+      guard case .updateMessageID(let mapping) = update, sources[mapping.randomId] == nil else { return nil }
+      return mapping.id
+    })
     var receipts: [Int32: MessageAddress] = [:]
     for case .updateMessageID(let mapping) in updates {
       if let source = sources[mapping.randomId] {
@@ -102,7 +112,7 @@ public enum SentMessages {
       }
     }
     let mapped = Set(receipts.values.map(\.id))
-    guard mapped.count == receipts.count else { throw SentMessageError.missingMapping }
+    guard mapped.count == receipts.count, mapped.isDisjoint(with: otherIDs) else { throw SentMessageError.missingMapping }
     let unmapped = updates.compactMap { update -> Int32? in
       let message: TL.MessageType
       switch update {
@@ -111,7 +121,7 @@ public enum SentMessages {
       default: return nil
       }
       guard case .message(let value) = message, value.out, PeerID(value.peerId) == destination,
-        !mapped.contains(value.id) else { return nil }
+        !mapped.contains(value.id), !otherIDs.contains(value.id) else { return nil }
       return value.id
     }.sorted()
     if unmapped.isEmpty { return receipts }

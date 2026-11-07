@@ -98,6 +98,24 @@ import TelegramClient
       }
     }
   }
+  @Test func fallbacksExcludeMessagesAssignedToOtherRequests() throws {
+    let foreign = updates([mapping(40, 99), message(40)])
+    #expect(throws: SentMessageError.missingMapping) {
+      try SentMessages.sentAddress(foreign, destination: chat, randomID: 10)
+    }
+    #expect(try SentMessages.forwardedAddresses(foreign, ids: [1], destination: chat, randomIDs: [10]).isEmpty)
+    let mixed = updates([mapping(40, 99), message(40), message(50)])
+    #expect(try SentMessages.sentAddress(mixed, destination: chat, randomID: 10).id == 50)
+    #expect(try SentMessages.forwardedAddresses(mixed, ids: [1], destination: chat, randomIDs: [10])[1]?.id == 50)
+    let conflict = updates([mapping(40, 10), mapping(40, 99), message(40)])
+    #expect(throws: SentMessageError.missingMapping) {
+      try SentMessages.sentAddress(conflict, destination: chat, randomID: 10)
+    }
+    #expect(throws: SentMessageError.missingMapping) {
+      try SentMessages.forwardedAddresses(conflict, ids: [1], destination: chat, randomIDs: [10])
+    }
+  }
+
   @Test func shortForwardAndExtremeDates() throws {
     let short = TL.UpdatesType.updateShortSentMessage(.init(out: true, id: 40, pts: 1, ptsCount: 1, date: .min))
     #expect(try SentMessages.forwardedAddresses(short, ids: [7], destination: chat, randomIDs: [1])[7]?.id == 40)

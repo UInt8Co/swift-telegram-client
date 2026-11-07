@@ -10,38 +10,38 @@ import Testing
 
 @Suite(.timeLimit(.minutes(1))) struct IntakeContractTests {
   @Test func cancellingReceiptWaiterDoesNotFinishSharedWork() async throws {
-    let receipt = WorkReceipt()
-    let started = WorkReceipt()
+    let receipt = WorkReceipt.Completion()
+    let started = WorkReceipt.Completion()
     let cancelled = Task {
       await started.finish(.success(()))
-      try await receipt.wait()
+      try await receipt.receipt.wait()
     }
-    try await started.wait()
+    try await started.receipt.wait()
     cancelled.cancel()
     // Must finish while the shared receipt is still unresolved.
     await #expect(throws: CancellationError.self) { try await cancelled.value }
-    let other = Task { try await receipt.wait() }
+    let other = Task { try await receipt.receipt.wait() }
     await receipt.finish(.success(()))
     try await other.value
     await receipt.finish(.failure(CancellationError()))
-    try await receipt.wait()
+    try await receipt.receipt.wait()
   }
 
   @Test func cancelledPermitWaiterDoesNotNeedTheHolderToRelease() async throws {
     let pool = ConcurrencyPermitPool(1)
-    let started = WorkReceipt(), release = WorkReceipt(), queued = WorkReceipt()
+    let started = WorkReceipt.Completion(), release = WorkReceipt.Completion(), queued = WorkReceipt.Completion()
     let holder = Task {
       try await pool.run {
         await started.finish(.success(()))
-        try await release.wait()
+        try await release.receipt.wait()
       }
     }
-    try await started.wait()
+    try await started.receipt.wait()
     let waiter = Task {
       await queued.finish(.success(()))
       try await pool.run { Issue.record("Cancelled operation ran"); return () }
     }
-    try await queued.wait()
+    try await queued.receipt.wait()
     waiter.cancel()
     await #expect(throws: CancellationError.self) { try await waiter.value }
     await release.finish(.success(()))
@@ -56,12 +56,12 @@ import Testing
 
   @Test func shutdownCancelsAWorkerWaitingForExternalReceipt() async throws {
     let queue = OrderedWorkQueue<Int>(retry: { _, _ in nil }, failed: { _ in })
-    let external = WorkReceipt(), started = WorkReceipt()
+    let external = WorkReceipt.Completion(), started = WorkReceipt.Completion()
     let job = await queue.submit(1) {
       await started.finish(.success(()))
-      try await external.wait()
+      try await external.receipt.wait()
     }
-    try await started.wait()
+    try await started.receipt.wait()
     await queue.stop()
     await #expect(throws: CancellationError.self) { try await job.wait() }
     let afterStop = await queue.submit(1) { Issue.record("Stopped work ran") }
@@ -71,8 +71,8 @@ import Testing
 
   @Test func selectiveBarrierLeavesUnselectedKeysIndependent() async throws {
     let queue = OrderedWorkQueue<Int>(barrierIncludes: { $0 < 10 }, retry: { _, _ in nil }, failed: { _ in })
-    let release = WorkReceipt()
-    let first = await queue.submit(1) { try await release.wait() }
+    let release = WorkReceipt.Completion()
+    let first = await queue.submit(1) { try await release.receipt.wait() }
     let barrier = await queue.submit(0, barrier: true) {}
     let after = await queue.submit(2) {}
     let independent = await queue.submit(10) {}
@@ -80,6 +80,30 @@ import Testing
     #expect(await queue.metrics().depth >= 3)
     await release.finish(.success(()))
     try await first.wait(); try await barrier.wait(); try await after.wait()
+    await queue.stop()
+  }
+
+  @Test func selectiveBarriersChainEvenWhenTheirKeysAreExcluded() async throws {
+    let queue = OrderedWorkQueue<Int>(barrierIncludes: { $0 < 10 }, retry: { _, _ in nil }, failed: { _ in })
+    let release = WorkReceipt.Completion()
+    actor Events {
+      var values: [Int] = []
+      func add(_ value: Int) { values.append(value) }
+    }
+    let events = Events()
+    let first = await queue.submit(10, barrier: true) {
+      try await release.receipt.wait()
+      await events.add(10)
+    }
+    let second = await queue.submit(11, barrier: true) { await events.add(11) }
+    let selected = await queue.submit(1) { await events.add(1) }
+    let independent = await queue.submit(12) { await events.add(12) }
+    try await independent.wait()
+    try await Task.sleep(for: .milliseconds(20))
+    #expect(await events.values == [12])
+    await release.finish(.success(()))
+    try await first.wait(); try await second.wait(); try await selected.wait()
+    #expect(await events.values == [12, 10, 11, 1])
     await queue.stop()
   }
 

@@ -6,9 +6,6 @@ public enum ParticipantLookupError: Error, Equatable {
   case incompleteMembership
 }
 
-/// Compatibility name for the shared participant completeness error.
-public typealias ChatAdminLookupError = ParticipantLookupError
-
 /// The user and rights from an administrator entry, without application policy.
 public struct ChatAdministrator: Sendable, Equatable {
   /// The resolved user; bots and deleted users are retained.
@@ -54,7 +51,7 @@ public enum ChatAdminLookup {
       guard case .channelParticipants(let result) = response,
         result.count >= 0, expectedCount == nil || result.count == expectedCount
       else {
-        throw ChatAdminLookupError.incompleteMembership
+        throw ParticipantLookupError.incompleteMembership
       }
       expectedCount = result.count
       let users = usersByID(result.users)
@@ -71,16 +68,16 @@ public enum ChatAdminLookup {
           id = value.userId
           creator = false
           rights = value.adminRights
-        default: throw ChatAdminLookupError.incompleteMembership
+        default: throw ParticipantLookupError.incompleteMembership
         }
-        guard seen.insert(id).inserted else { throw ChatAdminLookupError.incompleteMembership }
+        guard seen.insert(id).inserted else { throw ParticipantLookupError.incompleteMembership }
         if let user = users[id] {
           admins.append(.init(user: user, isCreator: creator, rights: rights))
         }
       }
-      guard seen.count <= Int(result.count) else { throw ChatAdminLookupError.incompleteMembership }
+      guard seen.count <= Int(result.count) else { throw ParticipantLookupError.incompleteMembership }
       if seen.count == Int(result.count) { return admins }
-      guard !result.participants.isEmpty else { throw ChatAdminLookupError.incompleteMembership }
+      guard !result.participants.isEmpty else { throw ParticipantLookupError.incompleteMembership }
     }
   }
 
@@ -91,7 +88,7 @@ public enum ChatAdminLookup {
     guard case .chatFull(let full) = result.fullChat,
       case .chatParticipants(let list) = full.participants
     else {
-      throw ChatAdminLookupError.incompleteMembership
+      throw ParticipantLookupError.incompleteMembership
     }
     let users = usersByID(result.users)
     var seen: Set<Int64> = []
