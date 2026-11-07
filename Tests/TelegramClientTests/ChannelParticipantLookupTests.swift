@@ -254,4 +254,31 @@ actor ParticipantLookupFixture {
       #expect(await lookup.requests.count == 1)
     }
   }
+  @Test func groupMembershipDistinguishesRestrictedMembersFromAbsentUsers() {
+    let user: Int64 = 7
+    let peer = TL.PeerType.peerUser(.init(userId: user))
+    let members: [TL.ChannelParticipantType] = [
+      .channelParticipant(.init(userId: user, date: 0)),
+      .channelParticipantSelf(.init(userId: user, inviterId: 1, date: 0)),
+      .channelParticipantAdmin(.init(userId: user, promotedBy: 1, date: 0, adminRights: .init())),
+      .channelParticipantCreator(.init(userId: user, adminRights: .init())),
+      .channelParticipantBanned(
+        .init(
+          peer: peer, kickedBy: 1, date: 0,
+          bannedRights: .init(sendMessages: true, untilDate: 0))),
+    ]
+    for participant in members { #expect(ChannelParticipantLookup.memberID(participant) == user) }
+    let absent: [TL.ChannelParticipantType] = [
+      .channelParticipantLeft(.init(peer: peer)),
+      .channelParticipantBanned(
+        .init(
+          left: true, peer: peer, kickedBy: 1, date: 0,
+          bannedRights: .init(sendMessages: true, untilDate: 0))),
+      .channelParticipantBanned(
+        .init(
+          peer: peer, kickedBy: 1, date: 0,
+          bannedRights: .init(viewMessages: true, untilDate: 0))),
+    ]
+    for participant in absent { #expect(ChannelParticipantLookup.memberID(participant) == nil) }
+  }
 }
