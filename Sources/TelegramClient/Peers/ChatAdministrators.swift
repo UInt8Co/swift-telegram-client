@@ -1,10 +1,13 @@
 import TelegramSchema
 
 /// An administrator response could not establish a complete participant traversal.
-public enum ChatAdminLookupError: Error, Equatable {
+public enum ParticipantLookupError: Error, Equatable {
   /// Participants are hidden, repeated, missing, inconsistent or unavailable.
   case incompleteMembership
 }
+
+/// Compatibility name for the shared participant completeness error.
+public typealias ChatAdminLookupError = ParticipantLookupError
 
 /// The user and rights from an administrator entry, without application policy.
 public struct ChatAdministrator: Sendable, Equatable {

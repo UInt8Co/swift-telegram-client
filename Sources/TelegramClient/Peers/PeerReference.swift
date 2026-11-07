@@ -90,7 +90,7 @@ public enum PeerLocator: Equatable, Sendable, CustomStringConvertible {
   public init?(_ text: String) {
     if text.first == "@" {
       let username = String(text.dropFirst())
-      guard !username.isEmpty, username.allSatisfy(Self.isUsernameCharacter) else {
+      guard TelegramUsername.isValid(username) else {
         return nil
       }
       self = .username(username.lowercased())
@@ -110,7 +110,4 @@ public enum PeerLocator: Equatable, Sendable, CustomStringConvertible {
     }
   }
 
-  private static func isUsernameCharacter(_ character: Character) -> Bool {
-    character.isASCII && (character.isLetter || character.isNumber || character == "_")
-  }
 }

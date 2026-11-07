@@ -230,3 +230,31 @@ filenames; ``SessionInspection`` reports stored-session status without credentia
 - ``FileKeyValueStore``
 - ``FileIOExecutor``
 - ``SessionInspection``
+
+### Peer observations and link destinations
+
+`PeerSightings` provides partial reactive observations and message access contexts.
+`ChannelParticipantLookup` proves absence only after a complete participant traversal.
+`ForumTopics.TopicIDPolicy` distinguishes raw headers from validated reply targets.
+Link parsing separates destination recognition from application URL canonicalization.
+
+- ``PeerSightings``
+- ``ChannelParticipantLookup``
+- ``ParticipantLookupError``
+- ``ReplyResolver``
+- ``TelegramUsername``
+- ``TelegramLink``
+- ``TelegramLinkDestination``
+- ``ProfileMusic``
+- ``PeerDisplayText``
+
+### Stickers and emoji
+
+Metadata caches retain lightweight projections and support caller-selected lifetimes
+and capacities. Featured-pack traversal requires a user account and performs only reads.
+
+- ``StickerSetCache``
+- ``CustomEmojiCache``
+- ``EmojiStatus``
+- ``TrendingStickerSet``
+- ``TrendingStickerSource``

@@ -1,4 +1,5 @@
 import TelegramSchema
+import TelegramClient
 
 #if canImport(FoundationEssentials)
   import FoundationEssentials
@@ -103,7 +104,7 @@ public enum BotLink {
 
   private static func username(_ value: String) -> String? {
     let username = value.hasPrefix("@") ? String(value.dropFirst()) : value
-    return !username.isEmpty && username.utf8.allSatisfy({ ascii($0) && $0 != 45 }) ? username : nil
+    return TelegramUsername.isValid(username) ? username : nil
   }
 
   private static func validParameter(_ parameter: String) -> Bool {

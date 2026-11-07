@@ -49,10 +49,18 @@ public enum ForumTopics {
     .inputReplyToMessage(.init(replyToMsgId: message ?? topic, topMsgId: topic))
   }
 
+  /// How reply headers are interpreted when locating a forum topic.
+  public enum TopicIDPolicy: Sendable {
+    /// Preserve raw header values, including scheduled/external and nonpositive IDs.
+    case header
+    /// Reject scheduled and nonpositive IDs. External replies require an explicit top ID.
+    case localReply
+  }
+
   /// The topic a received message belongs to, when its header marks a forum reply.
   /// Creation messages use their private-topic header ID or supergroup service ID.
   /// This preserves header values without validating scheduled or external replies.
-  public static func topicID(of message: TL.MessageType) -> Int32? {
+  public static func topicID(of message: TL.MessageType, policy: TopicIDPolicy = .header) -> Int32? {
     let header: TL.MessageReplyHeaderType?
     switch message {
     case .message(let value): header = value.replyTo
@@ -62,7 +70,21 @@ public enum ForumTopics {
     case .messageEmpty: return nil
     }
     guard case .messageReplyHeader(let reply)? = header, reply.forumTopic else { return nil }
-    return reply.replyToTopId ?? reply.replyToMsgId
+    switch policy {
+    case .header: return reply.replyToTopId ?? reply.replyToMsgId
+    case .localReply:
+      guard !reply.replyToScheduled else { return nil }
+      if let id = reply.replyToTopId { return id > 0 ? id : nil }
+      let peer: TL.PeerType
+      switch message {
+      case .message(let value): peer = value.peerId
+      case .messageService(let value): peer = value.peerId
+      case .messageEmpty: return nil
+      }
+      guard reply.replyToPeerId == nil || reply.replyToPeerId == peer,
+        let id = reply.replyToMsgId, id > 0 else { return nil }
+      return id
+    }
   }
 
   /// The topic a `messageActionTopicCreate` service message opened: its

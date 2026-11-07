@@ -67,3 +67,11 @@ import Testing
         adminRights: [.banUsers]) != nil)
   }
 }
+
+@Suite struct BotLinkUsernameCompatibilityTests {
+  @Test func permissiveUsernamesRemainAccepted() {
+    for name in ["_name", "123", String(repeating: "a", count: 33)] {
+      #expect(BotLink.startURL(botUsername: name, parameter: "ok") != nil)
+    }
+  }
+}
