@@ -31,13 +31,14 @@ Add both products to your target's dependencies:
 
 `TelegramClient` provides connections and helpers; `TelegramSchema` provides the
 Telegram API types and methods. Optional products provide message composition,
-rendering and bot-account conveniences:
+rendering, bot-account conveniences and TL archival:
 
 | Product | Purpose |
 |---|---|
 | `TelegramRichText` | Compose outgoing rich messages with a result builder |
 | `TelegramMarkup` | Render received messages as compact HTML-style markup |
 | `TelegramBot` | Bot links, Stars subscriptions, private topics, buttons and draft streams |
+| `TelegramArchive` | Retain boxed TL bytes, compact JSON views, and binary sidecars |
 
 `TelegramBot` builds on `TelegramClient`, `TelegramSchema` and `TelegramRichText`.
 Its transport helpers use your `TLClient`; applications own persistence and retries.
@@ -210,6 +211,26 @@ print(output.markup)  // <b>Hello</b> <a href="https://example.com">world</a>
 Opaque fields such as callback data and file references are never rendered.
 See the [TelegramMarkup documentation][markup].
 
+## Archiving TL values
+
+`TelegramArchive` retains original TL bytes alongside compact reflected JSON,
+including exact integer values. `TLArchiveStorage` packs nested Codable archives
+into JSON plus validated binary sidecars. Retained-layer decoding supports an
+explicit compatibility table; callers can extend constructor substitutions and
+register additional top-level types for legacy JSON presentation.
+
+```swift
+import TelegramArchive
+
+let payload = try TLArchive.payload(TL.PeerUser(userId: 42))
+let stored = try TLArchiveStorage.encode([payload])
+let restored = try TLArchiveStorage.decode(
+  [TLArchivePayload].self, json: stored.json, raw: stored.raw)
+```
+
+See the [TelegramArchive documentation][archive] for storage formats, supported
+historical layouts, and the required compatibility checks on every layer bump.
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
@@ -219,3 +240,5 @@ MIT. See [LICENSE](LICENSE).
 [methods]: https://core.telegram.org/methods
 [rich-text]: Sources/TelegramRichText/TelegramRichText.docc/TelegramRichText.md
 [markup]: Sources/TelegramMarkup/TelegramMarkup.docc/TelegramMarkup.md
+
+[archive]: Sources/TelegramArchive/TelegramArchive.docc/TelegramArchive.md
