@@ -14,6 +14,7 @@ public actor RequestLimiter {
   private var inFlight = 0
   private var waiters: [(UUID, CheckedContinuation<Void, any Error>)] = []
   private var nextStart = ContinuousClock.now
+
   /// Creates a limiter. The interval is between operation starts, not completions.
   /// Nonpositive concurrency limits are clamped to one.
   public init(interval: Duration, concurrencyLimit: Int = 1) {
@@ -47,10 +48,9 @@ public actor RequestLimiter {
       throw error
     }
   }
+
   private func cancel(_ id: UUID) {
     guard let index = waiters.firstIndex(where: { $0.0 == id }) else { return }
     waiters.remove(at: index).1.resume(throwing: CancellationError())
   }
-
 }
-
