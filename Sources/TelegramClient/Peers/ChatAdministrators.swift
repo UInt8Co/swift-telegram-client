@@ -1,6 +1,6 @@
 import TelegramSchema
 
-/// An administrator response could not establish a complete participant traversal.
+/// A participant response could not establish a complete membership traversal.
 public enum ParticipantLookupError: Error, Equatable {
   /// Participants are hidden, repeated, missing, inconsistent or unavailable.
   case incompleteMembership

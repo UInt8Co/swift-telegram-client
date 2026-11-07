@@ -28,14 +28,14 @@ public struct PeerDisplayText: Equatable, Sendable {
     businessAddress = user.businessLocation?.address
   }
 
-  /// Projects a basic group or channel title. Empty chats have no title.
+  /// Projects a basic group or channel title. Other constructors have no title.
   public init(_ chat: TL.ChatType) {
     switch chat {
     case .chat(let value): title = value.title
     case .chatForbidden(let value): title = value.title
     case .channel(let value): title = value.title
     case .channelForbidden(let value): title = value.title
-    case .chatEmpty: break
+    default: break
     }
   }
 }

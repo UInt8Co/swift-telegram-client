@@ -11,6 +11,7 @@ import Testing
   @Test func expiredStatusEmojiIsNotDisplayed() {
     let now = Date(timeIntervalSince1970: 100)
     #expect(EmojiStatus.documentID(.emojiStatus(.init(documentId: 8, until: 99)), now: now) == nil)
+    #expect(EmojiStatus.documentID(.emojiStatus(.init(documentId: 8, until: 100)), now: now) == nil)
     #expect(EmojiStatus.documentID(.emojiStatus(.init(documentId: 8, until: 101)), now: now) == 8)
     #expect(EmojiStatus.documentID(.emojiStatus(.init(documentId: 8)), now: now) == 8)
     #expect(EmojiStatus.documentID(nil, now: now) == nil)
@@ -25,6 +26,7 @@ import Testing
     #expect(try await cache.attribute(documentID: 1)?.alt == "one")
     #expect(await cache.cachedSets(documentIDs: [1, 2]).count == 2)
     #expect(await fetcher.calls.count == 3)
+    #expect(await cache.cachedSets(documentIDs: [9_999]).isEmpty)
   }
 
   @Test func expiryCapacityMissingAndErrorsAreExplicit() async throws {
