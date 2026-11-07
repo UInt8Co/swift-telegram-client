@@ -10,6 +10,8 @@ let package = Package(
     .library(name: "TelegramClient", targets: ["TelegramClient"]),
     .library(name: "TelegramRichText", targets: ["TelegramRichText"]),
     .library(name: "TelegramMarkup", targets: ["TelegramMarkup"]),
+    .library(name: "TelegramBot", targets: ["TelegramBot"]),
+    .library(name: "TelegramArchive", targets: ["TelegramArchive"]),
   ],
   dependencies: [
     .package(url: "https://github.com/UInt8Co/swift-mtproto.git", from: "2.0.0"),
@@ -62,6 +64,31 @@ let package = Package(
     .testTarget(
       name: "TelegramMarkupTests",
       dependencies: ["TelegramMarkup", "TelegramSchema"]
+    ),
+    // What only a bot account can do: start links, Stars invoices and
+    // payments, topics in private chats, streamed drafts, native buttons,
+    // commands and the events that add a bot to a group.
+    .target(
+      name: "TelegramBot",
+      dependencies: ["TelegramClient", "TelegramSchema", "TelegramRichText"]
+    ),
+    .testTarget(
+      name: "TelegramBotTests",
+      dependencies: ["TelegramBot", "TelegramClient", "TelegramSchema", "TelegramRichText"]
+    ),
+    // Keeping received TL values: the original boxed bytes beside a compact,
+    // queryable JSON view, a binary sidecar format, and decoding of values
+    // stored under earlier layers.
+    .target(
+      name: "TelegramArchive",
+      dependencies: [
+        "TelegramSchema",
+        .product(name: "TLCoding", package: "swift-mtproto"),
+      ]
+    ),
+    .testTarget(
+      name: "TelegramArchiveTests",
+      dependencies: ["TelegramArchive", "TelegramSchema", .product(name: "TLCoding", package: "swift-mtproto")]
     ),
     // schema-modules:begin — Scripts/generate-package-targets.ts. Do not edit by hand.
     // The API schema is generated as one module per subdirectory, all
