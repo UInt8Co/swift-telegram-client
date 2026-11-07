@@ -144,11 +144,10 @@ import Testing
     #expect(secondMessage.id == 3)
   }
 
-  @Test("every PERSISTENT_TIMESTAMP error means the stored position is unusable")
+  @Test("only invalid or empty client timestamps reject the stored position")
   func recognisesRejectedTimestamps() {
     for message in [
       "PERSISTENT_TIMESTAMP_EMPTY", "PERSISTENT_TIMESTAMP_INVALID",
-      "PERSISTENT_TIMESTAMP_OUTDATED",
     ] {
       #expect(ChannelState.rejectsStoredPTS(MTProtoRPCError(code: 400, message: message)))
     }

@@ -203,3 +203,30 @@ to repeat.
 - ``PeerAccessFailure``
 - ``RPCServerFailure``
 - ``ServerTransientFailure``
+
+### Ordered intake and recovery
+
+``PushMailbox`` supports arrival-ordered bounded drains without bounding retained backlog.
+``OrderedWorkQueue`` serializes each key and supports selective barriers; ``WorkReceipt``
+waiters and ``ConcurrencyPermitPool`` waiters cancel independently. These are in-memory
+primitives, not a durable or exactly-once delivery system. Applications own deduplication,
+checkpoint schemas, retry policy and retention limits.
+
+``ChannelRecovery`` commits only after successful handling and verified backfill coverage.
+``ChannelBackfill`` reads exact IDs but cannot reconstruct deleted or intermediate events.
+``RecoverySchedule`` accepts application poll intervals, and ``CheckpointWriter`` coalesces
+revisioned snapshots. ``FileKeyValueStore`` persists opaque bytes with compatible hex-key
+filenames; ``SessionInspection`` reports stored-session status without credentials.
+
+- ``OrderedWorkQueue``
+- ``WorkReceipt``
+- ``ConcurrencyPermitPool``
+- ``WorkMetrics``
+- ``DecodedSizeEstimate``
+- ``ChannelBackfill``
+- ``ChannelRecovery``
+- ``RecoverySchedule``
+- ``CheckpointWriter``
+- ``FileKeyValueStore``
+- ``FileIOExecutor``
+- ``SessionInspection``

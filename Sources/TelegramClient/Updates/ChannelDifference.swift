@@ -145,11 +145,12 @@ public enum ChannelState {
     return channelFull.pts
   }
 
-  /// True for the `PERSISTENT_TIMESTAMP_*` errors, which all mean the same
-  /// thing: the `pts` being asked from is not one the server can serve.
+  /// True only for code 400 INVALID/EMPTY persistent timestamps. OUTDATED is a
+  /// temporary server replication failure and must not discard the stored position.
+  /// See <https://core.telegram.org/method/updates.getChannelDifference>.
   public static func rejectsStoredPTS(_ error: any Error) -> Bool {
-    guard let rpc = error as? MTProtoRPCError else { return false }
-    return rpc.message.hasPrefix("PERSISTENT_TIMESTAMP_")
+    guard let rpc = error as? MTProtoRPCError, rpc.code == 400 else { return false }
+    return rpc.message == "PERSISTENT_TIMESTAMP_INVALID" || rpc.message == "PERSISTENT_TIMESTAMP_EMPTY"
   }
 }
 
