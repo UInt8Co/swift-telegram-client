@@ -7,7 +7,7 @@ public actor OrderedWorkQueue<Key: Hashable & Sendable> {
   public typealias Operation = @Sendable () async throws -> Void
   private struct Job {
     var operation: Operation
-    var receipt: WorkReceipt.Completion
+    var completion: WorkReceipt.Completion
     var received: ContinuousClock.Instant
     var estimatedBytes: Int
   }
@@ -54,14 +54,14 @@ public actor OrderedWorkQueue<Key: Hashable & Sendable> {
     let completion = WorkReceipt.Completion()
     let receipt = completion.receipt
     // Chain barriers even when their own lanes are excluded.
-    let dependencies = isBarrier ? lanes.filter { barrierIncludes($0.key) }.values.compactMap { $0.jobs.last.flatMap { $0 }?.receipt.receipt } + [barrier].compactMap { $0 }
+    let dependencies = isBarrier ? lanes.filter { barrierIncludes($0.key) }.values.compactMap { $0.jobs.last.flatMap { $0 }?.completion.receipt } + [barrier].compactMap { $0 }
       : (barrierIncludes(key) ? [barrier].compactMap { $0 } : [])
     // Approximate receipt/closure storage plus retained dependency references.
     let job = Job(operation: {
       for dependency in dependencies { try await dependency.wait() }
       try Task.checkCancellation()
       try await operation()
-    }, receipt: completion, received: received,
+    }, completion: completion, received: received,
      estimatedBytes: max(0, estimatedBytes) + MemoryLayout<Job>.stride + 96 + dependencies.count * 8)
     if stopped {
       Task { await completion.finish(.failure(CancellationError())) }
@@ -94,15 +94,15 @@ public actor OrderedWorkQueue<Key: Hashable & Sendable> {
             wait = nextWait(wait)
           }
         }
-        await job.receipt.finish(.success(()))
+        await job.completion.finish(.success(()))
       } catch {
-        await job.receipt.finish(.failure(error))
+        await job.completion.finish(.failure(error))
         if !Task.isCancelled { await failed(error) }
         if let lane = lanes.removeValue(forKey: key) {
           depth -= lane.jobs.count - lane.head; bytes -= lane.estimatedBytes
           publishCounts()
           for job in lane.jobs.compactMap({ $0 }) {
-            await job.receipt.finish(.failure(error))
+            await job.completion.finish(.failure(error))
           }
         }
         return

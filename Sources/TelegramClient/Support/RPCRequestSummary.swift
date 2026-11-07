@@ -52,10 +52,10 @@ public enum RPCRequestSummary {
       guard let constructor = uint32(offset) else { return (method.name, nil) }
       let kind: String
       switch constructor {
-      case 0xdde8a54c, 0xf21158c6: kind = "user" // inputPeerUser, inputUser
-      case 0x27bcbbfc, 0xf35aec28: kind = "channel" // inputPeerChannel, inputChannel
-      case 0x35a95cb9: kind = "chat" // inputPeerChat
-      case 0x7da07ec9, 0xf7c1b13f: return (method.name, "self" + suffix)
+      case TL.InputPeerUser.tlConstructorID, TL.InputUser.tlConstructorID: kind = "user" // inputPeerUser, inputUser
+      case TL.InputPeerChannel.tlConstructorID, TL.InputChannel.tlConstructorID: kind = "channel" // inputPeerChannel, inputChannel
+      case TL.InputPeerChat.tlConstructorID: kind = "chat" // inputPeerChat
+      case TL.InputPeerSelf.tlConstructorID, TL.InputUserSelf.tlConstructorID: return (method.name, "self" + suffix)
       default: return (method.name, nil) // From-message and future constructors: inherited context instead.
       }
       return (method.name, int64(offset + 4).map { "\(kind):\($0)" + suffix })

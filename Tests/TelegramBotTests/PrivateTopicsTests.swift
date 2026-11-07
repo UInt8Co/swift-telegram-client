@@ -1,3 +1,8 @@
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#else
+import Foundation
+#endif
 import TelegramBot
 import TelegramClient
 import TelegramSchema
@@ -83,4 +88,20 @@ import Testing
     #expect(PrivateTopics.createdTopicID(in: updates([ordinary]), user: 7, randomID: 99) == nil)
   }
 
+  @Test func createdTopicRecordsDistinguishUserMessageAndTopicIDs() async throws {
+    struct Transport: TLClientTransport {
+      let response: Data
+      func send(_ requestBody: Data) async throws -> Data { response }
+    }
+    let message = TL.MessageType.messageService(.init(out: true, id: 23,
+      peerId: .peerUser(.init(userId: 7)),
+      replyTo: .messageReplyHeader(.init(forumTopic: true, replyToTopId: 300)), date: 10,
+      action: .messageActionTopicCreate(.init(title: "Topic", iconColor: 0))))
+    let response = TL.Messages.MessagesType.messages(.init(messages: [message], topics: [], chats: [], users: []))
+    let client = PrivateTopicClient(api: TLClient(transport: Transport(response: response.tlSerialized())))
+    let result = try await client.createdTopics(among: [23])
+    #expect(result.topics == [.init(userID: 7, creationMessageID: 23, topicID: 300)])
+    #expect(result.topics.first?.userID == 7 && result.topics.first?.creationMessageID == 23 && result.topics.first?.topicID == 300)
+    #expect(result.dates == [10])
+  }
 }
