@@ -15,9 +15,9 @@ extension RichMessage {
   public static func inputMessage(received: TL.RichMessage) throws -> TL.InputRichMessageType {
     let photos = received.photos.compactMap { photo -> TL.InputPhotoType? in
       guard case .photo(let value) = photo else { return nil }
-      return MediaReferences.photo(value)
+      return ReceivedReferences.photo(value)
     }
-    let documents = received.documents.compactMap(MediaReferences.document)
+    let documents = received.documents.compactMap(ReceivedReferences.document)
     guard !received.part, photos.count == received.photos.count,
       documents.count == received.documents.count else { throw ReceivedRichMessageError.incomplete }
     return try inputMessage(blocks: received.blocks, rtl: received.rtl,

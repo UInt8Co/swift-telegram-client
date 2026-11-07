@@ -21,7 +21,7 @@ public struct UploadedDocument: BlockContent {
   public init(_ media: TL.MessageMediaType, caption: some InlineContent,
     credit: some InlineContent = Text("")) throws {
     guard case .messageMediaDocument(let value) = media,
-      let received = value.document, let input = MediaReferences.document(received),
+      let received = value.document, let input = ReceivedReferences.document(received),
       case .document(let resource) = received else { throw UploadedDocumentError.missingDocument }
     document = input
     blocks = [.pageBlockDocument(.init(documentId: resource.id,

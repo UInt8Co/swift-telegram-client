@@ -278,7 +278,8 @@ unsupported or incomplete media is reported separately from RPC rejection facts.
 - ``MessageReplies``
 - ``ReusableMedia``
 - ``MediaReuseError``
+- ``MediaReferences``
 - ``MessageContentRejection``
 
-`MediaReferences` in TelegramSchema shares photo/document reference conversion
-with TelegramRichText, preserving IDs, access hashes and file-reference bytes.
+``MediaReferences`` converts received photos and documents to input references,
+preserving IDs, access hashes and file-reference bytes.

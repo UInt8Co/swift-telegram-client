@@ -1,5 +1,4 @@
-// Handwritten resource conversions shared by client and rich-message APIs.
-import TelegramSchemaSupport
+import TelegramSchema
 
 /// Converts complete received resources to input references without network IO.
 /// References retain their bytes verbatim and may subsequently expire or be

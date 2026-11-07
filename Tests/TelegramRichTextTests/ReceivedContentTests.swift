@@ -49,7 +49,8 @@ import TelegramRichText
     guard case .inputRichMessage(let rich) = converted,
        case .pageBlockDocument(let block) = rich.blocks[1] else { Issue.record("Missing attachment"); return }
     #expect(block.documentId == 33 && block.caption.text == Text("Download").richText)
-    #expect(rich.documents == [MediaReferences.document(document)!])
+    guard case .document(let full) = document else { Issue.record("expected a document"); return }
+    #expect(rich.documents == [.inputDocument(.init(id: full.id, accessHash: full.accessHash, fileReference: full.fileReference))])
     #expect(try TL.InputRichMessageType(tlData: converted.tlSerialized()) == converted)
   }
   @Test func uploadedAttachmentRejectsMissingDocument() {
