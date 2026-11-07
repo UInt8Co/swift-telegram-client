@@ -119,4 +119,12 @@ import Testing
   @Test func preservesCallerIsolationAndNonSendableResult() async throws {
     try await Owner().run()
   }
+
+  @Test func doublingPreservesAttosecondPrecisionAtTheCeiling() {
+    let unit = Duration(secondsComponent: 0, attosecondsComponent: 1)
+    #expect(ExponentialRetry.nextWait(after: unit, longestWait: unit * 3) == unit * 2)
+    #expect(ExponentialRetry.nextWait(after: unit * 2, longestWait: unit * 3) == unit * 3)
+    let large = Duration.seconds(Int64.max)
+    #expect(ExponentialRetry.nextWait(after: large, longestWait: large) == large)
+  }
 }

@@ -9,11 +9,14 @@ public enum ExponentialRetry {
   /// Doubles a nonnegative delay up to the configured ceiling without overflowing.
   public static func nextWait(after wait: Duration, longestWait: Duration = longestWait) -> Duration {
     precondition(wait >= .zero && longestWait >= .zero)
-    return wait >= longestWait / 2 ? longestWait : min(wait * 2, longestWait)
+    guard wait < longestWait else { return longestWait }
+    return wait >= longestWait - wait ? longestWait : wait * 2
   }
 
   /// Runs on the caller's actor, retrying only failures accepted by `shouldRetry`.
   /// Attempts are unlimited by default; `maximumAttempts` counts the initial call.
+  /// Delays must satisfy 0 <= firstWait <= longestWait, and a supplied attempt
+  /// limit must be positive; violating these preconditions traps.
   /// The observer runs before each sleep. Cancellation errors and sleep failures
   /// propagate immediately, regardless of the predicate. The operation and sleep
   /// must cooperate with task cancellation. No delay follows the final attempt.
