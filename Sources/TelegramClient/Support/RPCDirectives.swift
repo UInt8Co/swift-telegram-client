@@ -55,12 +55,25 @@ public enum FloodWait {
   public static func honoring<T>(
     _ label: String, log: TelegramLog = .silent, _ body: () async throws -> T
   ) async throws -> T {
+    try await honoring(onWait: { wait in
+      log.warning("\(label): waiting \(wait) as instructed")
+    }, body)
+  }
+
+  /// Serves flood directives on the caller's actor, observing each delay before
+  /// sleeping. Non-flood failures and cancellation from sleep propagate. The
+  /// operation must be safe to repeat after a server refusal; no attempt limit
+  /// is imposed. `onWait` runs synchronously and does not alter the server delay.
+  public static func honoring<T>(
+    isolation: isolated (any Actor)? = #isolation,
+    onWait: (Duration) -> Void,
+    _ body: () async throws -> T
+  ) async throws -> T {
     while true {
-      do {
-        return try await body()
-      } catch {
+      do { return try await body() }
+      catch {
         guard let wait = MTProtoDirective(error)?.wait else { throw error }
-        log.warning("\(label): waiting \(wait) as instructed")
+        onWait(wait)
         try await Task.sleep(for: wait)
       }
     }

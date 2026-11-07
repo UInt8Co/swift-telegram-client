@@ -175,3 +175,22 @@ layer and none of the machinery above changes.
 
 - ``TelegramLog``
 - ``TelegramSendRate``
+
+### Request admission and retry
+
+Share a ``FloodGate`` across transports for an account to reject calls during
+method flood holds. Its default exclusions assume destination writes are paced
+by ``TelegramSendRate``; pass an empty set if they are not. ``RequestLimiter``
+bounds concurrency and spaces starts. ``ExponentialRetry`` leaves repeatability
+and error selection to its caller; error facts alone do not make a mutation safe
+to repeat.
+
+- ``FloodGate``
+- ``FloodJitter``
+- ``RequestLimiter``
+- ``ExponentialRetry``
+- ``TargetUserDeactivated``
+- ``RequestRefusal``
+- ``PeerAccessFailure``
+- ``RPCServerFailure``
+- ``ServerTransientFailure``
