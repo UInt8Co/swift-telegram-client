@@ -8,7 +8,7 @@ import TelegramSchema
 /// Plain L1 JSON is readable independently of any Telegram decoder or layer.
 public enum TLArchiveStorage {
   /// Storage validation or top-level decoder lookup failed.
-  public enum Failure: Error {
+  public enum Failure: Error, Equatable {
     /// Compact JSON did not round-trip without changing its semantic value.
     case invalidArchive
     /// No decoder is registered for the stored constructor name.

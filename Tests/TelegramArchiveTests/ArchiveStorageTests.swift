@@ -8,6 +8,37 @@ import TelegramSchema
 import Testing
 
 @Suite struct ArchiveStorageTests {
+  @Test func everySupportedPayloadKindReconstructsItsLegacyView() throws {
+    let peer = TL.PeerType.peerUser(.init(userId: 42))
+    let message = TL.Message(id: 7, peerId: peer, date: 123, message: "A message")
+    let service = TL.MessageService(id: 8, peerId: peer, date: 124,
+      action: .messageActionChatAddUser(.init(users: [43])))
+    func check(_ value: some TLEncodable) throws {
+      let payload = try TLArchive.payload(value)
+      #expect(payload.fullJSON() == (try TLArchive.legacyJSON(value)))
+      #expect(try ArchiveJSON(payload.storageJSON)["_archive"] != nil)
+      #expect(!payload.storageJSON.contains("\"_type\""))
+      #expect(try TLArchiveStorage.compact(payload.fullJSON(), constructor: payload.constructor,
+        producingLayer: TelegramSchemaLayer.current) == payload.storageJSON)
+      #expect(payload.bytes == value.tlSerialized())
+    }
+    try check(message)
+    try check(service)
+    try check(TL.MessageType.message(message))
+    try check(TL.EphemeralMessage(id: 9, fromId: peer, receiverId: 43, date: 125, message: "Hello"))
+    try check(TL.MessageReplyHeader(replyToMsgId: 7))
+    try check(TL.Users.UserFull(fullUser: .init(id: 42, settings: .init(), notifySettings: .init(),
+      commonChatsCount: 0), chats: [], users: []))
+    try check(TL.Messages.ChatFull(fullChat: .chatFull(.init(id: 99, about: "About",
+      participants: .chatParticipantsForbidden(.init(chatId: 99)), notifySettings: .init())), chats: [], users: []))
+    try check(TL.Messages.MessagesType.messages(.init(messages: [], topics: [], chats: [], users: [])))
+    try check(TL.Payments.SavedStarGifts(count: 0, gifts: [], chats: [], users: []))
+    try check(TL.UserType.user(.init(id: 42, firstName: "Name")))
+    try check(TL.ChatType.channel(.init(id: 99, title: "Channel", photo: .chatPhotoEmpty(.init()), date: 1)))
+    try check(TL.User(id: 42, firstName: "Name"))
+    try check(TL.UpdateType.updateNewMessage(.init(message: .message(message), pts: 1, ptsCount: 1)))
+  }
+
   func message() throws -> TLArchivePayload {
     try TLArchive.payload(TL.Message(id: 7, peerId: .peerUser(.init(userId: Int64.max)),
       date: 123, message: "A message"))
@@ -47,7 +78,8 @@ import Testing
     impossibleCount.replaceSubrange(4..<8, with: [255, 255, 255, 255])
     #expect(throws: (any Error).self) { try TLArchiveStorage.unpack(body.json, raw: impossibleCount) }
     // Raw bytes and unknown metadata are readable without consulting a TL decoder.
-    let future = body.json.replacing( "\"version\":1", with: "\"version\":2")
+    let future = body.json.replacing(#"\"version\":1"#, with: #"\"version\":2"#)
+    #expect(future != body.json)
     #expect(try TLArchiveStorage.unpack(future, raw: raw).contains("version"))
     #expect(throws: (any Error).self) { try TLArchiveStorage.unpack(body.json, raw: nil) }
     var corrupt = raw; corrupt[corrupt.count - 1] ^= 1
