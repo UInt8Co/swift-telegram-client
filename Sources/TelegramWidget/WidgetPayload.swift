@@ -1,3 +1,5 @@
+import NIOMTProtoEncryption
+
 #if canImport(FoundationEssentials)
   import FoundationEssentials
 #else
@@ -27,6 +29,22 @@ public enum WidgetPayload {
   /// Inflates a payload into its HTML, refusing anything the server could not
   /// have produced.
   public static func html(fromPayload payload: Data) throws(DecodingError) -> String {
-    throw .corrupt
+    guard payload.count >= 2 else { throw .notZlib }
+    let header = Array(payload.prefix(2))
+    guard header[0] & 0x0f == 8, header[0] >> 4 <= 7,
+      (Int(header[0]) * 256 + Int(header[1])) % 31 == 0
+    else { throw .notZlib }
+    guard header[1] & 0x20 == 0 else { throw .corrupt }
+    let bytes: Data
+    do {
+      bytes = try MTProtoGzip.inflate(payload, maximumOutputSize: maximumHTMLByteCount)
+    } catch MTProtoGzip.Error.outputLimitExceeded {
+      throw .tooLarge
+    } catch {
+      throw .corrupt
+    }
+    guard let html = String(bytes: bytes, encoding: .utf8) else { throw .invalidUTF8 }
+    guard !bytes.contains(0) else { throw .containsNUL }
+    return html
   }
 }
