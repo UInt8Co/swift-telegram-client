@@ -12,6 +12,7 @@ let package = Package(
     .library(name: "TelegramMarkup", targets: ["TelegramMarkup"]),
     .library(name: "TelegramBot", targets: ["TelegramBot"]),
     .library(name: "TelegramArchive", targets: ["TelegramArchive"]),
+    .library(name: "TelegramWidget", targets: ["TelegramWidget"]),
   ],
   dependencies: [
     .package(url: "https://github.com/UInt8Co/swift-mtproto.git", from: "2.0.0"),
@@ -89,6 +90,19 @@ let package = Package(
     .testTarget(
       name: "TelegramArchiveTests",
       dependencies: ["TelegramArchive", "TelegramSchema", .product(name: "TLCoding", package: "swift-mtproto")]
+    ),
+    // Received HTML widgets: the payload decoded, and a static reading of
+    // what a widget shows and does without running its script.
+    .target(
+      name: "TelegramWidget",
+      dependencies: [
+        "TelegramSchema",
+        .product(name: "NIOMTProtoEncryption", package: "swift-nio-mtproto"),
+      ]
+    ),
+    .testTarget(
+      name: "TelegramWidgetTests",
+      dependencies: ["TelegramWidget", "TelegramSchema"]
     ),
     // schema-modules:begin — Scripts/generate-package-targets.ts. Do not edit by hand.
     // The API schema is generated as one module per subdirectory, all
