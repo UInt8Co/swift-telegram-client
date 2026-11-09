@@ -1,4 +1,5 @@
 import TelegramClient
+import TelegramSchema
 import Testing
 
 @Suite struct TelegramLinksTests {
@@ -63,5 +64,28 @@ import Testing
     #expect(
       !TelegramLink.destinations(inURL: url).contains { if case .user = $0 { true } else { false } }
     )
+  }
+
+  @Test func activeUsernamesPutTheMainNameFirst() {
+    #expect(TelegramUsername.active(of: .init(id: 1, username: "Single")) == ["Single"])
+    // With several names Telegram leaves `username` unset; the editable entry leads.
+    let several = TL.User(id: 1, usernames: [
+      .init(active: true, username: "Collectible"),
+      .init(active: false, username: "Hidden"),
+      .init(editable: true, active: true, username: "Editable"),
+      .init(active: true, username: "collectible"),
+      .init(active: true, username: "Other"),
+    ])
+    #expect(TelegramUsername.active(of: several) == ["Editable", "Collectible", "Other"])
+    let inactiveEditable = TL.User(id: 1, usernames: [
+      .init(editable: true, active: false, username: "Editable"),
+      .init(active: true, username: "Collectible"),
+    ])
+    #expect(TelegramUsername.active(of: inactiveEditable) == ["Collectible"])
+    #expect(TelegramUsername.active(of: .init(id: 1, username: "Main", usernames: [
+      .init(active: true, username: "Alias"), .init(editable: true, active: true, username: "MAIN"),
+    ])) == ["Main", "Alias"])
+    #expect(TelegramUsername.active(of: .init(id: 1)).isEmpty)
+    #expect(TelegramUsername.active(of: .init(id: 1, username: "", usernames: [.init(active: true, username: "1bad")])).isEmpty)
   }
 }

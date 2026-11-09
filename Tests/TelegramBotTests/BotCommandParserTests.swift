@@ -44,4 +44,24 @@ import Testing
       #expect(BotCommandParser.parse("/help", botUsername: name) == nil)
     }
   }
+
+  @Test func anyOfSeveralUsernamesAddressesTheBot() {
+    let names = ["OwnBot", "@SecondName"]
+    for text in [
+      "/help", "/help@OwnBot", "/help@secondname", "@SecondName /help", "/help @SecondName",
+      "@OwnBot /help@SecondName", "/help @OwnBot", "/help @secondname",
+    ] {
+      #expect(BotCommandParser.parse(text, botUsernames: names, guestMentions: .adjacentAndTrailing) == ParsedBotCommand(command: "help", arguments: nil))
+    }
+    #expect(BotCommandParser.parse("@SecondName /help reason text @OwnBot", botUsernames: names, guestMentions: .adjacentAndTrailing)?.arguments == "reason text")
+    #expect(BotCommandParser.parse("/help @OtherBot", botUsernames: names, guestMentions: .adjacentAndTrailing)?.arguments == "@OtherBot")
+    for text in ["/help@OtherBot", "@OtherBot /help", "/help@SecondNameX"] {
+      #expect(BotCommandParser.parse(text, botUsernames: names, guestMentions: .adjacentAndTrailing) == nil)
+    }
+    // A single name keeps its previous behaviour; invalid names are ignored.
+    #expect(BotCommandParser.parse("/help@SecondName", botUsername: "OwnBot") == nil)
+    #expect(BotCommandParser.parse("/help@OwnBot", botUsernames: ["not valid", "OwnBot"]) != nil)
+    #expect(BotCommandParser.parse("/help", botUsernames: ["not valid"]) == nil)
+    #expect(BotCommandParser.parse("/help", botUsernames: [String]()) == nil)
+  }
 }

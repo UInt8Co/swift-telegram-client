@@ -29,6 +29,25 @@ public enum TelegramUsername {
     else { return nil }
     return candidate.lowercased()
   }
+
+  /// A user's active usernames without `@`, main name first, deduplicated case-insensitively.
+  /// With one name Telegram sends `username`; with several it may leave `username` unset and
+  /// list every name in `usernames`. The editable entry, the name the account set itself
+  /// (for a bot, in BotFather), then leads, followed by the other active entries in
+  /// Telegram's order. Inactive and invalid names are skipped.
+  public static func active(of user: TL.User) -> [String] {
+    var names: [String] = []
+    var seen = Set<String>()
+    func add(_ name: String?) {
+      guard let name, let key = normalized(name), seen.insert(key).inserted else { return }
+      names.append(name.hasPrefix("@") ? String(name.dropFirst()) : name)
+    }
+    add(user.username)
+    let entries = (user.usernames ?? []).filter(\.active)
+    for entry in entries where entry.editable { add(entry.username) }
+    for entry in entries { add(entry.username) }
+    return names
+  }
 }
 
 /// Recognized public Telegram link destinations. This is not a complete deep-link router.

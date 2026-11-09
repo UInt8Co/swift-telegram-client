@@ -27,23 +27,34 @@ public enum BotCommandParser {
   public static func parse(
     _ text: String, botUsername: String, guestMentions: GuestMentions = .disabled
   ) -> ParsedBotCommand? {
-    guard let candidate = TelegramUsername.normalized(botUsername) else { return nil }
+    parse(text, botUsernames: [botUsername], guestMentions: guestMentions)
+  }
+
+  /// Parses a slash command for a bot with several usernames, such as those from
+  /// ``TelegramUsername/active(of:)``. A suffix or guest mention naming any of them
+  /// addresses the bot, so each mention position may use a different name.
+  /// Invalid names are ignored; without a valid name nothing parses.
+  public static func parse(
+    _ text: String, botUsernames: some Sequence<String>, guestMentions: GuestMentions = .disabled
+  ) -> ParsedBotCommand? {
+    let mentions = Set(botUsernames.compactMap { TelegramUsername.normalized($0).map { "@" + $0 } })
+    guard !mentions.isEmpty else { return nil }
     func letter(_ byte: UInt8) -> Bool { (65...90).contains(byte) || (97...122).contains(byte) }
-    let mention = "@" + candidate
+    func addresses(_ token: Substring?) -> Bool { token.map { mentions.contains($0.lowercased()) } ?? false }
     var tokens = text.split(whereSeparator: \.isWhitespace)[...]
-    if guestMentions == .adjacentAndTrailing, tokens.first?.lowercased() == mention { tokens.removeFirst() }
+    if guestMentions == .adjacentAndTrailing, addresses(tokens.first) { tokens.removeFirst() }
     guard let first = tokens.first, first.hasPrefix("/") else { return nil }
     var name = String(first.dropFirst()).lowercased()
     if let at = name.firstIndex(of: "@") {
-      guard name[at...] == mention else { return nil }
+      guard mentions.contains(String(name[at...])) else { return nil }
       name = String(name[..<at])
     }
     guard !name.isEmpty, name.utf8.allSatisfy({ letter($0) || (48...57).contains($0) || $0 == 95 || $0 == 45 })
     else { return nil }
     tokens.removeFirst()
     if guestMentions == .adjacentAndTrailing {
-      if tokens.first?.lowercased() == mention { tokens.removeFirst() }
-      if tokens.last?.lowercased() == mention { tokens.removeLast() }
+      if addresses(tokens.first) { tokens.removeFirst() }
+      if addresses(tokens.last) { tokens.removeLast() }
     }
     let arguments: String?
     if let start = tokens.first?.startIndex, let end = tokens.last?.endIndex {
