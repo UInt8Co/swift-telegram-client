@@ -12,11 +12,12 @@ import MTProtoBaseSchema
 
 extension TL.Channels {
 
-  /// TL: `channels.toggleForum#3ff75734 channel:InputChannel enabled:Bool tabs:Bool = Updates`
-  @TLObject(id: 0x3ff75734, returning: TL.UpdatesType.self)
+  /// TL: `channels.toggleForum#a2952b54 channel:InputChannel enabled:Bool tabs:Bool sidebar:Bool = Updates`
+  @TLObject(id: 0xa2952b54, returning: TL.UpdatesType.self)
   public struct ToggleForum: Equatable, Sendable {
     public var channel: TL.InputChannelType
     public var enabled: Bool
     public var tabs: Bool
+    public var sidebar: Bool
   }
 }

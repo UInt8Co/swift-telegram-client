@@ -1067,5 +1067,37 @@ extension TLClient {
     public func getShareThemeBackdrops(hash: Int32) async throws -> TL.ShareThemeBackdropsType {
       try await client.invoke(TL.Messages.GetShareThemeBackdrops(hash: hash))
     }
+    /// TL: `messages.getBotWidgetQueryAnswer#5c550579 peer:InputPeer msg_id:int query_type:WidgetQueryType data:bytes = messages.BotWidgetQueryAnswer`
+    public func getBotWidgetQueryAnswer(peer: TL.InputPeerType, msgId: Int32, queryType: TL.WidgetQueryTypeType, data: Data) async throws -> TL.Messages.BotWidgetQueryAnswer {
+      try await client.invoke(TL.Messages.GetBotWidgetQueryAnswer(peer: peer, msgId: msgId, queryType: queryType, data: data))
+    }
+    /// TL: `messages.setBotWidgetQueryAnswer#f8cdec6a flags:# query_id:long result:flags.0?string = Bool`
+    public func setBotWidgetQueryAnswer(queryId: Int64, result: String? = nil) async throws -> Bool {
+      try await client.invoke(TL.Messages.SetBotWidgetQueryAnswer(queryId: queryId, result: result))
+    }
+    /// TL: `messages.editMessageWidgetData#f624bc1e flags:# peer:InputPeer id:int public_data:flags.0?string chat_data:flags.1?string = Updates`
+    public func editMessageWidgetData(peer: TL.InputPeerType, id: Int32, publicData: String? = nil, chatData: String? = nil) async throws -> TL.UpdatesType {
+      try await client.invoke(TL.Messages.EditMessageWidgetData(peer: peer, id: id, publicData: publicData, chatData: chatData))
+    }
+    /// TL: `messages.editInlineBotMessageWidgetData#6396ce2b flags:# id:InputBotInlineMessageID public_data:flags.0?string chat_data:flags.1?string = Bool`
+    public func editInlineBotMessageWidgetData(id: TL.InputBotInlineMessageIDType, publicData: String? = nil, chatData: String? = nil) async throws -> Bool {
+      try await client.invoke(TL.Messages.EditInlineBotMessageWidgetData(id: id, publicData: publicData, chatData: chatData))
+    }
+    /// TL: `messages.editWidgetData#eac343c0 flags:# widget_id:long public_data:string cache_time:flags.0?int = Bool`
+    public func editWidgetData(widgetId: Int64, publicData: String, cacheTime: Int32? = nil) async throws -> Bool {
+      try await client.invoke(TL.Messages.EditWidgetData(widgetId: widgetId, publicData: publicData, cacheTime: cacheTime))
+    }
+    /// TL: `messages.getWidgetPublicData#6fc53181 peer:InputPeer msg_id:int hash:long = messages.WidgetPublicData`
+    public func getWidgetPublicData(peer: TL.InputPeerType, msgId: Int32, hash: Int64) async throws -> TL.Messages.WidgetPublicDataType {
+      try await client.invoke(TL.Messages.GetWidgetPublicData(peer: peer, msgId: msgId, hash: hash))
+    }
+    /// TL: `messages.transcribeAudioFile#072d2ef7 file:InputFile = messages.TranscribedAudio`
+    public func transcribeAudioFile(file: TL.InputFileType) async throws -> TL.Messages.TranscribedAudio {
+      try await client.invoke(TL.Messages.TranscribeAudioFile(file: file))
+    }
+    /// TL: `messages.getTranscriptionLangs#ba6cd9aa flags:# peer:flags.0?InputPeer = Vector<string>`
+    public func getTranscriptionLangs(peer: TL.InputPeerType? = nil) async throws -> [String] {
+      try await client.invoke(TL.Messages.GetTranscriptionLangs(peer: peer))
+    }
   }
 }

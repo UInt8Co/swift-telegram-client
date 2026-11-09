@@ -66,6 +66,7 @@ extension Writer {
       }
     case .messageMediaUnsupported: void("tg-media", [.init("type", "unsupported")])
     case .messageMediaVideoStream: void("tg-media", [.init("type", "live-stream")])
+    case .messageMediaWidget: void("tg-media", [.init("type", "widget")])
     }
   }
 

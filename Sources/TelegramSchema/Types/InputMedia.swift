@@ -11,7 +11,7 @@ import MTProtoBaseSchema
 
 extension TL {
 
-  /// The TL type `InputMedia` (20 constructors).
+  /// The TL type `InputMedia` (22 constructors).
   @TLType
   public indirect enum InputMediaType: Equatable, Sendable {
     /// `inputMediaEmpty#9664f57f = InputMedia`
@@ -54,6 +54,10 @@ extension TL {
     case inputMediaTodo(TL.InputMediaTodo)
     /// `inputMediaStakeDice#f3a9244a game_hash:string ton_amount:long client_seed:bytes = InputMedia`
     case inputMediaStakeDice(TL.InputMediaStakeDice)
+    /// `inputMediaWidget#44f6c04e flags:# allow_queries:flags.0?true shared_widget:flags.1?true width:int height:int html:string public_data:flags.2?string chat_data:flags.3?string = InputMedia`
+    case inputMediaWidget(TL.InputMediaWidget)
+    /// `inputMediaWidgetId#7c855cb5 flags:# widget_id:long chat_data:flags.0?string = InputMedia`
+    case inputMediaWidgetId(TL.InputMediaWidgetId)
   }
 
   /// TL: `inputMediaEmpty#9664f57f = InputMedia`
@@ -258,5 +262,28 @@ extension TL {
     public var gameHash: String
     public var tonAmount: Int64
     public var clientSeed: Data
+  }
+
+  /// TL: `inputMediaWidget#44f6c04e flags:# allow_queries:flags.0?true shared_widget:flags.1?true width:int height:int html:string public_data:flags.2?string chat_data:flags.3?string = InputMedia`
+  @TLObject(id: 0x44f6c04e)
+  @TLFlagsEquatable
+  public struct InputMediaWidget: Equatable, Sendable {
+    @TLFlags public var flags: UInt32 = 0
+    @TLConditional("flags", bit: 0) public var allowQueries: Bool = false
+    @TLConditional("flags", bit: 1) public var sharedWidget: Bool = false
+    public var width: Int32
+    public var height: Int32
+    public var html: String
+    @TLConditional("flags", bit: 2) public var publicData: String? = nil
+    @TLConditional("flags", bit: 3) public var chatData: String? = nil
+  }
+
+  /// TL: `inputMediaWidgetId#7c855cb5 flags:# widget_id:long chat_data:flags.0?string = InputMedia`
+  @TLObject(id: 0x7c855cb5)
+  @TLFlagsEquatable
+  public struct InputMediaWidgetId: Equatable, Sendable {
+    @TLFlags public var flags: UInt32 = 0
+    public var widgetId: Int64
+    @TLConditional("flags", bit: 0) public var chatData: String? = nil
   }
 }

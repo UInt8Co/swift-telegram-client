@@ -180,6 +180,15 @@ import Testing
         == "<audio voice/>")
   }
 
+  @Test func widgetsKeepTheirPayloadAndDataOpaque() {
+    let output = MarkupRenderer().render(
+      .messageMediaWidget(.init(width: 320, height: 200,
+        payload: Data("<script>payload</script>".utf8),
+        publicData: "public secret", publicDataHash: 1, chatData: "chat secret", widgetId: 42)))
+    #expect(output.markup == #"<tg-media type="widget"/>"#)
+    #expect(output.isComplete)
+  }
+
   @Test func pollsMarkAnswersAddedByOthers() {
     let poll = TL.MessageMediaType.messageMediaPoll(
       .init(

@@ -11,7 +11,7 @@ import MTProtoBaseSchema
 
 extension TL {
 
-  /// The TL type `BotInlineMessage` (8 constructors).
+  /// The TL type `BotInlineMessage` (9 constructors).
   @TLType
   public indirect enum BotInlineMessageType: Equatable, Sendable {
     /// `botInlineMessageMediaAuto#764cf810 flags:# invert_media:flags.3?true message:string entities:flags.1?Vector<MessageEntity> reply_markup:flags.2?ReplyMarkup = BotInlineMessage`
@@ -30,6 +30,8 @@ extension TL {
     case botInlineMessageMediaWebPage(TL.BotInlineMessageMediaWebPage)
     /// `botInlineMessageRichMessage#0a617e7b flags:# reply_markup:flags.2?ReplyMarkup rich_message:RichMessage = BotInlineMessage`
     case botInlineMessageRichMessage(TL.BotInlineMessageRichMessage)
+    /// `botInlineMessageWidget#baa17834 flags:# invert_media:flags.5?true width:int height:int payload:bytes public_data:flags.0?string public_data_hash:flags.0?long chat_data:flags.1?string reply_markup:flags.2?ReplyMarkup widget_id:flags.3?long message:string entities:flags.4?Vector<MessageEntity> = BotInlineMessage`
+    case botInlineMessageWidget(TL.BotInlineMessageWidget)
   }
 
   /// TL: `botInlineMessageMediaAuto#764cf810 flags:# invert_media:flags.3?true message:string entities:flags.1?Vector<MessageEntity> reply_markup:flags.2?ReplyMarkup = BotInlineMessage`
@@ -131,5 +133,23 @@ extension TL {
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 2) public var replyMarkup: TL.ReplyMarkupType? = nil
     public var richMessage: TL.RichMessage
+  }
+
+  /// TL: `botInlineMessageWidget#baa17834 flags:# invert_media:flags.5?true width:int height:int payload:bytes public_data:flags.0?string public_data_hash:flags.0?long chat_data:flags.1?string reply_markup:flags.2?ReplyMarkup widget_id:flags.3?long message:string entities:flags.4?Vector<MessageEntity> = BotInlineMessage`
+  @TLObject(id: 0xbaa17834)
+  @TLFlagsEquatable
+  public struct BotInlineMessageWidget: Equatable, Sendable {
+    @TLFlags public var flags: UInt32 = 0
+    @TLConditional("flags", bit: 5) public var invertMedia: Bool = false
+    public var width: Int32
+    public var height: Int32
+    public var payload: Data
+    @TLConditional("flags", bit: 0) public var publicData: String? = nil
+    @TLConditional("flags", bit: 0) public var publicDataHash: Int64? = nil
+    @TLConditional("flags", bit: 1) public var chatData: String? = nil
+    @TLConditional("flags", bit: 2) public var replyMarkup: TL.ReplyMarkupType? = nil
+    @TLConditional("flags", bit: 3) public var widgetId: Int64? = nil
+    public var message: String
+    @TLConditional("flags", bit: 4) public var entities: [TL.MessageEntityType]? = nil
   }
 }

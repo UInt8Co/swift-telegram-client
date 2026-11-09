@@ -109,6 +109,10 @@ public enum ChannelUpdateFilter {
     case .updatePinnedChannelMessages(let update): update.channelId
     case .updateMessageReactions(let update):
       if case .peerChannel(let channel) = update.peer { channel.channelId } else { nil }
+    case .updateMessageWidgetData(let update):
+      if case .peerChannel(let channel) = update.peer { channel.channelId } else { nil }
+    case .updateEditForumTopic(let update):
+      if case .peerChannel(let channel) = update.peer { channel.channelId } else { nil }
     default: nil
     }
   }

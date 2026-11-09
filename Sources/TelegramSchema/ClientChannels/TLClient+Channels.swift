@@ -187,9 +187,9 @@ extension TLClient {
     public func deactivateAllUsernames(channel: TL.InputChannelType) async throws -> Bool {
       try await client.invoke(TL.Channels.DeactivateAllUsernames(channel: channel))
     }
-    /// TL: `channels.toggleForum#3ff75734 channel:InputChannel enabled:Bool tabs:Bool = Updates`
-    public func toggleForum(channel: TL.InputChannelType, enabled: Bool, tabs: Bool) async throws -> TL.UpdatesType {
-      try await client.invoke(TL.Channels.ToggleForum(channel: channel, enabled: enabled, tabs: tabs))
+    /// TL: `channels.toggleForum#a2952b54 channel:InputChannel enabled:Bool tabs:Bool sidebar:Bool = Updates`
+    public func toggleForum(channel: TL.InputChannelType, enabled: Bool, tabs: Bool, sidebar: Bool) async throws -> TL.UpdatesType {
+      try await client.invoke(TL.Channels.ToggleForum(channel: channel, enabled: enabled, tabs: tabs, sidebar: sidebar))
     }
     /// TL: `channels.toggleAntiSpam#68f3e4eb channel:InputChannel enabled:Bool = Updates`
     public func toggleAntiSpam(channel: TL.InputChannelType, enabled: Bool) async throws -> TL.UpdatesType {

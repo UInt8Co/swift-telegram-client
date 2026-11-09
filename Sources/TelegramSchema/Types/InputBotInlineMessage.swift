@@ -11,7 +11,7 @@ import MTProtoBaseSchema
 
 extension TL {
 
-  /// The TL type `InputBotInlineMessage` (9 constructors).
+  /// The TL type `InputBotInlineMessage` (11 constructors).
   @TLType
   public indirect enum InputBotInlineMessageType: Equatable, Sendable {
     /// `inputBotInlineMessageMediaAuto#3380c786 flags:# invert_media:flags.3?true message:string entities:flags.1?Vector<MessageEntity> reply_markup:flags.2?ReplyMarkup = InputBotInlineMessage`
@@ -32,6 +32,10 @@ extension TL {
     case inputBotInlineMessageMediaWebPage(TL.InputBotInlineMessageMediaWebPage)
     /// `inputBotInlineMessageRichMessage#b43df56c flags:# reply_markup:flags.2?ReplyMarkup rich_message:InputRichMessage = InputBotInlineMessage`
     case inputBotInlineMessageRichMessage(TL.InputBotInlineMessageRichMessage)
+    /// `inputBotInlineMessageWidget#f597a3f0 flags:# allow_queries:flags.0?true shared_widget:flags.1?true invert_media:flags.6?true width:int height:int html:string public_data:flags.2?string chat_data:flags.3?string reply_markup:flags.4?ReplyMarkup message:string entities:flags.5?Vector<MessageEntity> = InputBotInlineMessage`
+    case inputBotInlineMessageWidget(TL.InputBotInlineMessageWidget)
+    /// `inputBotInlineMessageWidgetId#fe8b792b flags:# invert_media:flags.3?true widget_id:long chat_data:flags.0?string reply_markup:flags.1?ReplyMarkup message:string entities:flags.2?Vector<MessageEntity> = InputBotInlineMessage`
+    case inputBotInlineMessageWidgetId(TL.InputBotInlineMessageWidgetId)
   }
 
   /// TL: `inputBotInlineMessageMediaAuto#3380c786 flags:# invert_media:flags.3?true message:string entities:flags.1?Vector<MessageEntity> reply_markup:flags.2?ReplyMarkup = InputBotInlineMessage`
@@ -140,5 +144,36 @@ extension TL {
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 2) public var replyMarkup: TL.ReplyMarkupType? = nil
     public var richMessage: TL.InputRichMessageType
+  }
+
+  /// TL: `inputBotInlineMessageWidget#f597a3f0 flags:# allow_queries:flags.0?true shared_widget:flags.1?true invert_media:flags.6?true width:int height:int html:string public_data:flags.2?string chat_data:flags.3?string reply_markup:flags.4?ReplyMarkup message:string entities:flags.5?Vector<MessageEntity> = InputBotInlineMessage`
+  @TLObject(id: 0xf597a3f0)
+  @TLFlagsEquatable
+  public struct InputBotInlineMessageWidget: Equatable, Sendable {
+    @TLFlags public var flags: UInt32 = 0
+    @TLConditional("flags", bit: 0) public var allowQueries: Bool = false
+    @TLConditional("flags", bit: 1) public var sharedWidget: Bool = false
+    @TLConditional("flags", bit: 6) public var invertMedia: Bool = false
+    public var width: Int32
+    public var height: Int32
+    public var html: String
+    @TLConditional("flags", bit: 2) public var publicData: String? = nil
+    @TLConditional("flags", bit: 3) public var chatData: String? = nil
+    @TLConditional("flags", bit: 4) public var replyMarkup: TL.ReplyMarkupType? = nil
+    public var message: String
+    @TLConditional("flags", bit: 5) public var entities: [TL.MessageEntityType]? = nil
+  }
+
+  /// TL: `inputBotInlineMessageWidgetId#fe8b792b flags:# invert_media:flags.3?true widget_id:long chat_data:flags.0?string reply_markup:flags.1?ReplyMarkup message:string entities:flags.2?Vector<MessageEntity> = InputBotInlineMessage`
+  @TLObject(id: 0xfe8b792b)
+  @TLFlagsEquatable
+  public struct InputBotInlineMessageWidgetId: Equatable, Sendable {
+    @TLFlags public var flags: UInt32 = 0
+    @TLConditional("flags", bit: 3) public var invertMedia: Bool = false
+    public var widgetId: Int64
+    @TLConditional("flags", bit: 0) public var chatData: String? = nil
+    @TLConditional("flags", bit: 1) public var replyMarkup: TL.ReplyMarkupType? = nil
+    public var message: String
+    @TLConditional("flags", bit: 2) public var entities: [TL.MessageEntityType]? = nil
   }
 }

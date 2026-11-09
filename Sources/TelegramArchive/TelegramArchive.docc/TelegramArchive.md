@@ -36,6 +36,8 @@ the JSON views. These formats and ordering rules are compatibility contracts.
 ``TLArchive/legacyConstructors`` currently supports six layer-231 layouts whose
 layer-232 successors only added optional fields: `channel`, `channelFull`,
 `inputReplyToMessage`, `messageReplyHeader`, `userFull`, and `wallet.nftItem`.
+Layer 233 retains those constructor IDs and layouts; its new user and channel
+sidebar flags require no additional substitutions.
 Only words rejected by the TL reader as constructors are substituted; matching
 integer values inside ordinary fields are unchanged. The original bytes are
 never rewritten. Unknown layouts still throw; this is not a general decoder

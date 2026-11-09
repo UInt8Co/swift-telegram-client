@@ -11,7 +11,7 @@ import MTProtoBaseSchema
 
 extension TL {
 
-  /// The TL type `Update` (170 constructors).
+  /// The TL type `Update` (176 constructors).
   @TLType
   public indirect enum UpdateType: Equatable, Sendable {
     /// `updateNewMessage#1f2b0afd message:Message pts:int pts_count:int = Update`
@@ -354,6 +354,18 @@ extension TL {
     case updateWalletTonConnectSession(TL.UpdateWalletTonConnectSession)
     /// `updateWalletTonConnectPendingDisconnect#d1ee8199 session_ids:Vector<long> = Update`
     case updateWalletTonConnectPendingDisconnect(TL.UpdateWalletTonConnectPendingDisconnect)
+    /// `updateEditForumTopic#2366665c flags:# peer:Peer topic_id:int title:flags.0?string icon_emoji_id:flags.1?long closed:flags.2?Bool hidden:flags.3?Bool = Update`
+    case updateEditForumTopic(TL.UpdateEditForumTopic)
+    /// `updateBotWidgetQuery#b373fe68 flags:# query_id:long query_type:WidgetQueryType user_id:long peer:Peer msg_id:int chat_instance:long chat_type:string data:bytes widget_id:flags.0?long wallet_card:flags.1?wallet.Card = Update`
+    case updateBotWidgetQuery(TL.UpdateBotWidgetQuery)
+    /// `updateInlineBotWidgetQuery#a5f07e08 flags:# query_id:long query_type:WidgetQueryType user_id:long inline_message_id:InputBotInlineMessageID chat_instance:long chat_type:string data:bytes widget_id:flags.0?long wallet_card:flags.1?wallet.Card = Update`
+    case updateInlineBotWidgetQuery(TL.UpdateInlineBotWidgetQuery)
+    /// `updateBotWidgetCopyQuery#fa89bef7 flags:# query_id:long query_type:WidgetQueryType user_id:long data:bytes widget_id:long wallet_card:flags.1?wallet.Card = Update`
+    case updateBotWidgetCopyQuery(TL.UpdateBotWidgetCopyQuery)
+    /// `updateMessageWidgetData#bbb078dd flags:# peer:Peer msg_id:int public_data:flags.0?string public_data_hash:flags.0?long chat_data:flags.1?string pts:int pts_count:int = Update`
+    case updateMessageWidgetData(TL.UpdateMessageWidgetData)
+    /// `updateTranscribedAudioFile#734c2e7b flags:# pending:flags.0?true transcription_id:long text:string = Update`
+    case updateTranscribedAudioFile(TL.UpdateTranscribedAudioFile)
   }
 
   /// TL: `updateNewMessage#1f2b0afd message:Message pts:int pts_count:int = Update`
@@ -1765,5 +1777,88 @@ extension TL {
   @TLObject(id: 0xd1ee8199)
   public struct UpdateWalletTonConnectPendingDisconnect: Equatable, Sendable {
     public var sessionIds: [Int64]
+  }
+
+  /// TL: `updateEditForumTopic#2366665c flags:# peer:Peer topic_id:int title:flags.0?string icon_emoji_id:flags.1?long closed:flags.2?Bool hidden:flags.3?Bool = Update`
+  @TLObject(id: 0x2366665c)
+  @TLFlagsEquatable
+  public struct UpdateEditForumTopic: Equatable, Sendable {
+    @TLFlags public var flags: UInt32 = 0
+    public var peer: TL.PeerType
+    public var topicId: Int32
+    @TLConditional("flags", bit: 0) public var title: String? = nil
+    @TLConditional("flags", bit: 1) public var iconEmojiId: Int64? = nil
+    @TLConditional("flags", bit: 2) public var closed: Bool? = nil
+    @TLConditional("flags", bit: 3) public var hidden: Bool? = nil
+  }
+
+  /// TL: `updateBotWidgetQuery#b373fe68 flags:# query_id:long query_type:WidgetQueryType user_id:long peer:Peer msg_id:int chat_instance:long chat_type:string data:bytes widget_id:flags.0?long wallet_card:flags.1?wallet.Card = Update`
+  @TLObject(id: 0xb373fe68)
+  @TLFlagsEquatable
+  public struct UpdateBotWidgetQuery: Equatable, Sendable {
+    @TLFlags public var flags: UInt32 = 0
+    public var queryId: Int64
+    public var queryType: TL.WidgetQueryTypeType
+    public var userId: Int64
+    public var peer: TL.PeerType
+    public var msgId: Int32
+    public var chatInstance: Int64
+    public var chatType: String
+    public var data: Data
+    @TLConditional("flags", bit: 0) public var widgetId: Int64? = nil
+    @TLConditional("flags", bit: 1) public var walletCard: TL.Wallet.Card? = nil
+  }
+
+  /// TL: `updateInlineBotWidgetQuery#a5f07e08 flags:# query_id:long query_type:WidgetQueryType user_id:long inline_message_id:InputBotInlineMessageID chat_instance:long chat_type:string data:bytes widget_id:flags.0?long wallet_card:flags.1?wallet.Card = Update`
+  @TLObject(id: 0xa5f07e08)
+  @TLFlagsEquatable
+  public struct UpdateInlineBotWidgetQuery: Equatable, Sendable {
+    @TLFlags public var flags: UInt32 = 0
+    public var queryId: Int64
+    public var queryType: TL.WidgetQueryTypeType
+    public var userId: Int64
+    public var inlineMessageId: TL.InputBotInlineMessageIDType
+    public var chatInstance: Int64
+    public var chatType: String
+    public var data: Data
+    @TLConditional("flags", bit: 0) public var widgetId: Int64? = nil
+    @TLConditional("flags", bit: 1) public var walletCard: TL.Wallet.Card? = nil
+  }
+
+  /// TL: `updateBotWidgetCopyQuery#fa89bef7 flags:# query_id:long query_type:WidgetQueryType user_id:long data:bytes widget_id:long wallet_card:flags.1?wallet.Card = Update`
+  @TLObject(id: 0xfa89bef7)
+  @TLFlagsEquatable
+  public struct UpdateBotWidgetCopyQuery: Equatable, Sendable {
+    @TLFlags public var flags: UInt32 = 0
+    public var queryId: Int64
+    public var queryType: TL.WidgetQueryTypeType
+    public var userId: Int64
+    public var data: Data
+    public var widgetId: Int64
+    @TLConditional("flags", bit: 1) public var walletCard: TL.Wallet.Card? = nil
+  }
+
+  /// TL: `updateMessageWidgetData#bbb078dd flags:# peer:Peer msg_id:int public_data:flags.0?string public_data_hash:flags.0?long chat_data:flags.1?string pts:int pts_count:int = Update`
+  @TLObject(id: 0xbbb078dd)
+  @TLFlagsEquatable
+  public struct UpdateMessageWidgetData: Equatable, Sendable {
+    @TLFlags public var flags: UInt32 = 0
+    public var peer: TL.PeerType
+    public var msgId: Int32
+    @TLConditional("flags", bit: 0) public var publicData: String? = nil
+    @TLConditional("flags", bit: 0) public var publicDataHash: Int64? = nil
+    @TLConditional("flags", bit: 1) public var chatData: String? = nil
+    public var pts: Int32
+    public var ptsCount: Int32
+  }
+
+  /// TL: `updateTranscribedAudioFile#734c2e7b flags:# pending:flags.0?true transcription_id:long text:string = Update`
+  @TLObject(id: 0x734c2e7b)
+  @TLFlagsEquatable
+  public struct UpdateTranscribedAudioFile: Equatable, Sendable {
+    @TLFlags public var flags: UInt32 = 0
+    @TLConditional("flags", bit: 0) public var pending: Bool = false
+    public var transcriptionId: Int64
+    public var text: String
   }
 }

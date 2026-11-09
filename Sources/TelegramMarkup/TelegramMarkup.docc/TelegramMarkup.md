@@ -47,6 +47,7 @@ answer someone other than the author added carries `added-by`), `tg-contact`,
 `tg-venue`, `tg-preview` for link previews, `tg-story`, `tg-game`,
 `tg-invoice`, `tg-dice`, `tg-giveaway`, `tg-paid-media`, `tg-todo`,
 `tg-keyboard` for reply keyboards, and `tg-media` for anything unsupported.
+Widgets render as `<tg-media type="widget"/>`; their payload and data stay opaque.
 
 ### Safety
 

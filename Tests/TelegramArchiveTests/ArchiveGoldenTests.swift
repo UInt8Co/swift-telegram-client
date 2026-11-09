@@ -13,7 +13,7 @@ import Testing
     let payload = try TLArchive.payload(value)
     #expect(payload.constructor == "PeerUser")
     #expect(payload.bytes == Data([0x22, 0x17, 0x51, 0x59, 1, 0, 0, 0, 0, 0, 0x20, 0]))
-    #expect(payload.json == #"{"_":"PeerUser","_archive":{"constructor":"PeerUser","layer":232,"version":1},"userId":9007199254740993}"#)
+    #expect(payload.json == #"{"_":"PeerUser","_archive":{"constructor":"PeerUser","layer":233,"version":1},"userId":9007199254740993}"#)
     #expect(try TLArchive.legacyJSON(value) == #"{"_type":"PeerUser","userId":9007199254740993}"#)
   }
 

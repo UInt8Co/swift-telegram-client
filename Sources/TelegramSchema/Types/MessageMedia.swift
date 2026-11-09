@@ -11,7 +11,7 @@ import MTProtoBaseSchema
 
 extension TL {
 
-  /// The TL type `MessageMedia` (19 constructors).
+  /// The TL type `MessageMedia` (20 constructors).
   @TLType
   public indirect enum MessageMediaType: Equatable, Sendable {
     /// `messageMediaEmpty#3ded6320 = MessageMedia`
@@ -52,6 +52,8 @@ extension TL {
     case messageMediaToDo(TL.MessageMediaToDo)
     /// `messageMediaVideoStream#ca5cab89 flags:# rtmp_stream:flags.0?true call:InputGroupCall = MessageMedia`
     case messageMediaVideoStream(TL.MessageMediaVideoStream)
+    /// `messageMediaWidget#2238f214 flags:# is_copy:flags.0?true can_query:flags.1?true background_query:flags.2?true width:int height:int payload:bytes public_data:flags.3?string public_data_hash:flags.3?long chat_data:flags.4?string widget_id:flags.5?long = MessageMedia`
+    case messageMediaWidget(TL.MessageMediaWidget)
   }
 
   /// TL: `messageMediaEmpty#3ded6320 = MessageMedia`
@@ -255,5 +257,22 @@ extension TL {
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var rtmpStream: Bool = false
     public var call: TL.InputGroupCallType
+  }
+
+  /// TL: `messageMediaWidget#2238f214 flags:# is_copy:flags.0?true can_query:flags.1?true background_query:flags.2?true width:int height:int payload:bytes public_data:flags.3?string public_data_hash:flags.3?long chat_data:flags.4?string widget_id:flags.5?long = MessageMedia`
+  @TLObject(id: 0x2238f214)
+  @TLFlagsEquatable
+  public struct MessageMediaWidget: Equatable, Sendable {
+    @TLFlags public var flags: UInt32 = 0
+    @TLConditional("flags", bit: 0) public var isCopy: Bool = false
+    @TLConditional("flags", bit: 1) public var canQuery: Bool = false
+    @TLConditional("flags", bit: 2) public var backgroundQuery: Bool = false
+    public var width: Int32
+    public var height: Int32
+    public var payload: Data
+    @TLConditional("flags", bit: 3) public var publicData: String? = nil
+    @TLConditional("flags", bit: 3) public var publicDataHash: Int64? = nil
+    @TLConditional("flags", bit: 4) public var chatData: String? = nil
+    @TLConditional("flags", bit: 5) public var widgetId: Int64? = nil
   }
 }

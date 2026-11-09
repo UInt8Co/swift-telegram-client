@@ -60,6 +60,28 @@ struct UpdateSequenceTests {
     #expect(saved.channels == [7: 103])
   }
 
+  @Test func widgetDataAdvancesTheOwningSequence() {
+    let channel = TL.UpdateType.updateMessageWidgetData(
+      .init(peer: .peerChannel(.init(channelId: 7)), msgId: 1, chatData: "changed",
+        pts: 101, ptsCount: 1))
+    let account = TL.UpdateType.updateMessageWidgetData(
+      .init(peer: .peerUser(.init(userId: 2)), msgId: 1, chatData: "changed",
+        pts: 11, ptsCount: 1))
+    #expect(ChannelUpdateFilter.updates([account, channel], forChannelID: 7) == [channel])
+    var saved = Self.positions()
+    #expect(saved.advance(past: [.init(updates: [channel, account].compactMap(UpdateSequence.of))]).isEmpty)
+    #expect(saved.channels[7] == 101)
+    #expect(saved.account.pts == 11)
+  }
+
+  @Test func forumTopicEditsHintAtTheirChannelWithoutAdvancingPTS() {
+    let update = TL.UpdateType.updateEditForumTopic(
+      .init(peer: .peerChannel(.init(channelId: 7)), topicId: 10, title: "Renamed"))
+    #expect(ChannelUpdateFilter.hintedChannelID(of: update) == 7)
+    #expect(ChannelUpdateFilter.updates([update], forChannelID: 7) == [update])
+    #expect(UpdateSequence.of(update) == nil)
+  }
+
   @Test func aGapKeepsItsSequenceWhereItWas() {
     var saved = Self.positions(channels: [7: 100, 8: 20])
     let gaps = saved.advance(past: [
