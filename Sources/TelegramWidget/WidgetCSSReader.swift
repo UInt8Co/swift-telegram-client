@@ -5,10 +5,17 @@ struct WidgetCSSReader: Sendable {
   var isTruncated = false
   private var input: [Unicode.Scalar]
   private var index = 0
+  private var work: WidgetMarkupBudget
+  private var seen: Set<String> = []
+  private var textBytes = 0
 
-  init(_ source: String, attributes: [String: [String]], limits: WidgetInspection.Limits) {
-    input = Array(source.unicodeScalars)
-    while index < input.count {
+  init(_ source: String, attributes: [[String: String]], limits: WidgetInspection.Limits, budget: inout WidgetMarkupBudget) {
+    work = budget
+    let bounded = WidgetReading.prefix(source, bytes: work.remaining)
+    _ = work.charge(bounded.utf8.count)
+    if bounded != source { work.truncated = true }
+    input = Array(bounded.unicodeScalars)
+    while index < input.count, work.remaining > 0 {
       skipSpaceAndComments()
       guard index < input.count else { break }
       if input[index] == "\"" || input[index] == "'" { _ = string(); continue }
@@ -27,6 +34,8 @@ struct WidgetCSSReader: Sendable {
         if name == "content" { content(attributes: attributes, limits: limits) }
       }
     }
+    isTruncated = isTruncated || work.truncated
+    budget = work
   }
 
   private mutating func take(_ c: Unicode.Scalar) -> Bool {
@@ -116,9 +125,9 @@ struct WidgetCSSReader: Sendable {
     return WidgetReading.trim(output)
   }
 
-  private mutating func content(attributes: [String: [String]], limits: WidgetInspection.Limits) {
-    var values = [""]
-    var hasPart = false
+  private mutating func content(attributes: [[String: String]], limits: WidgetInspection.Limits) {
+    // Parse once; each expansion uses exactly one element's attributes.
+    var parts: [(attribute: Bool, value: String)] = []
     var functions = 0
     while index < input.count {
       skipSpaceAndComments()
@@ -127,10 +136,7 @@ struct WidgetCSSReader: Sendable {
       if functions == 0, c == ";" || c == "}" { break }
       if c == "\"" || c == "'" {
         let part = string()
-        if functions == 0 {
-          hasPart = true
-          values = values.map { bounded($0 + part, limits: limits) }
-        }
+        if functions == 0 { parts.append((false, part)) }
         continue
       }
       if c == ")" { functions = max(0, functions - 1); index += 1; continue }
@@ -144,34 +150,40 @@ struct WidgetCSSReader: Sendable {
       } else if name == "attr", functions == 0 {
         skipSpaceAndComments()
         let attribute = identifier()
-        // The simple attr(name) form has no fallback or type annotation.
         skipSpaceAndComments()
-        if take(")") {
-          hasPart = true
-          let parts = attributes[attribute] ?? [""]
-          var expanded: [String] = []
-          var seen: Set<String> = []
-          for prefix in values {
-            for part in parts {
-              let value = bounded(prefix + part, limits: limits)
-              guard seen.insert(value).inserted else { continue }
-              if expanded.count < max(1, limits.maximumTexts) { expanded.append(value) }
-              else { isTruncated = true }
-            }
-          }
-          values = expanded
-        } else { functions += 1 }
+        if take(")") { parts.append((true, attribute)) }
+        else { functions += 1 }
       } else { functions += 1 }
     }
     if functions != 0 { features.insert(.malformed) }
-    if hasPart { texts += values }
-  }
-
-  private mutating func bounded(_ value: String, limits: WidgetInspection.Limits) -> String {
-    if value.utf8.count > max(0, limits.maximumTextBytes) {
-      isTruncated = true
-      return WidgetReading.prefix(value, bytes: limits.maximumTextBytes)
+    guard !parts.isEmpty else { return }
+    guard limits.maximumTexts > 0 else { isTruncated = true; return }
+    let hasAttributes = parts.contains { $0.attribute }
+    let elements = hasAttributes ? attributes : [[:]]
+    for element in elements {
+      guard work.charge(parts.count) else { isTruncated = true; return }
+      if hasAttributes && !parts.contains(where: { $0.attribute && element[$0.value] != nil }) { continue }
+      var value = ""
+      var bytes = 0
+      for part in parts {
+        let piece = part.attribute ? element[part.value, default: ""] : part.value
+        guard work.charge(bytes + piece.utf8.count + 1) else { isTruncated = true; return }
+        let combined = value + piece
+        value = WidgetReading.prefix(combined, bytes: limits.maximumTextBytes)
+        bytes = value.utf8.count
+        if value != combined { isTruncated = true; break }
+      }
+      guard !WidgetReading.trim(value).isEmpty else { continue }
+      guard work.charge(bytes), !seen.contains(value) else {
+        if work.truncated { isTruncated = true; return }
+        continue
+      }
+      guard texts.count < max(0, limits.maximumTexts), bytes <= max(0, limits.maximumTotalTextBytes) - textBytes else {
+        isTruncated = true; return
+      }
+      seen.insert(value)
+      texts.append(value)
+      textBytes += bytes
     }
-    return value
   }
 }

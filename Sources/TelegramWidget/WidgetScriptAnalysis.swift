@@ -6,6 +6,14 @@ struct WidgetScriptAnalysis: Equatable, Sendable {
   /// `.script(sink)` and `.scriptLiteral` candidates. Text written as HTML
   /// (`innerHTML` and the like) is not here: it is in `htmlFragments`.
   var texts: [WidgetInspection.Text] = []
+  enum Event: Equatable, Sendable {
+    case text(WidgetInspection.Text)
+    case fragment(HTMLFragment, nesting: Int)
+    case action(WidgetInspection.Action)
+    case dataURL(String)
+    case code(String, nesting: Int)
+  }
+  var events: [Event] = []
   /// Constant HTML the script writes, with the sink that writes it. The
   /// inspector reads each one as markup and gives its text that sink's origin.
   var htmlFragments: [HTMLFragment] = []
@@ -15,7 +23,7 @@ struct WidgetScriptAnalysis: Equatable, Sendable {
   var features: WidgetInspection.Features = []
   var isTruncated = false
 
-  struct HTMLFragment: Equatable, Sendable {
+  struct HTMLFragment: Hashable, Sendable {
     var html: String
     var sink: WidgetInspection.Sink
   }
@@ -35,13 +43,15 @@ extension WidgetScriptAnalysis {
   /// Reads one script's source. `isHandler` is true for an inline `on*`
   /// attribute's value (a function body).
   static func analyze(
-    _ source: String, isHandler: Bool, budget: inout WidgetScriptBudget, limits: WidgetInspection.Limits
+    _ source: String, isHandler: Bool, budget: inout WidgetScriptBudget, limits: WidgetInspection.Limits,
+    nesting: Int = 0, limitOutput: Bool = true, deferCode: Bool = false
   ) -> WidgetScriptAnalysis {
-    analyze(source, budget: &budget, limits: limits, nesting: 0)
+    analyze(source, budget: &budget, limits: limits, nesting: nesting, limitOutput: limitOutput, deferCode: deferCode)
   }
 
   private static func analyze(
-    _ source: String, budget: inout WidgetScriptBudget, limits: WidgetInspection.Limits, nesting: Int
+    _ source: String, budget: inout WidgetScriptBudget, limits: WidgetInspection.Limits,
+    nesting: Int, limitOutput: Bool, deferCode: Bool
   ) -> WidgetScriptAnalysis {
     guard !source.isEmpty else { return .init() }
     var lexer = WidgetScriptLexer(source, tokens: budget.tokens)
@@ -49,7 +59,7 @@ extension WidgetScriptAnalysis {
     budget.tokens = lexed.remaining
     var syntax = WidgetScriptSyntax(lexed.tokens, incomplete: lexer.truncated)
     syntax.read()
-    let folder = WidgetConstantFolder(syntax, steps: budget.foldingSteps, limits: limits)
+    let folder = WidgetConstantFolder(syntax, steps: budget.foldingSteps, limits: limits, nesting: nesting)
     var reader = WidgetScriptSinks(folder: folder, limits: limits)
     reader.read(tokens: lexed.tokens)
     budget.foldingSteps = reader.folder.remaining
@@ -59,42 +69,49 @@ extension WidgetScriptAnalysis {
       analysis.features.insert(.malformed)
     }
     analysis.isTruncated = analysis.isTruncated || lexer.truncated || syntax.truncated
-    for source in reader.dynamicSources {
-      guard nesting < max(0, limits.maximumNesting), nesting < 96,
-        budget.tokens > 0, budget.foldingSteps > 0 else {
-        analysis.isTruncated = true
-        continue
-      }
-      let nested = analyze(source, budget: &budget, limits: limits, nesting: nesting + 1)
-      for text in nested.texts where !analysis.texts.contains(text) { analysis.texts.append(text) }
-      for fragment in nested.htmlFragments where !analysis.htmlFragments.contains(fragment) { analysis.htmlFragments.append(fragment) }
-      for action in nested.actions where !analysis.actions.contains(action) { analysis.actions.append(action) }
-      for url in nested.dataURLs where !analysis.dataURLs.contains(url) { analysis.dataURLs.append(url) }
-      analysis.features.formUnion(nested.features)
-      analysis.isTruncated = analysis.isTruncated || nested.isTruncated
+    analysis.events = []
+    for event in reader.orderedEvents.sorted(by: { ($0.position, $0.sequence) < ($1.position, $1.sequence) }) {
+      if case .code(let source, let depth) = event.value, !deferCode {
+        guard depth < max(0, limits.maximumNesting), depth < 96,
+          budget.tokens > 0, budget.foldingSteps > 0 else {
+          analysis.isTruncated = true
+          continue
+        }
+        let nested = analyze(source, budget: &budget, limits: limits, nesting: depth + 1, limitOutput: false, deferCode: false)
+        analysis.events += nested.events
+        analysis.features.formUnion(nested.features)
+        analysis.isTruncated = analysis.isTruncated || nested.isTruncated
+      } else { analysis.events.append(event.value) }
     }
-    // Recursion shares work budgets; its combined candidates also share the
-    // output limits instead of receiving a fresh allowance at every level.
-    if analysis.texts.count > max(0, limits.maximumTexts) {
-      analysis.texts = Array(analysis.texts.prefix(max(0, limits.maximumTexts)))
-      analysis.isTruncated = true
-    }
-    if analysis.actions.count > max(0, limits.maximumActions) {
-      analysis.actions = Array(analysis.actions.prefix(max(0, limits.maximumActions)))
-      analysis.isTruncated = true
-    }
-    if analysis.htmlFragments.count > max(0, limits.maximumTexts) {
-      analysis.htmlFragments = Array(analysis.htmlFragments.prefix(max(0, limits.maximumTexts)))
-      analysis.isTruncated = true
-    }
+    analysis.texts = []
+    analysis.actions = []
+    analysis.htmlFragments = []
+    analysis.dataURLs = []
+    var seen: Set<WidgetInspection.Text> = []
     var bytes = 0
-    analysis.texts = analysis.texts.compactMap { text in
-      guard text.value.utf8.count <= max(0, limits.maximumTotalTextBytes) - bytes else {
-        analysis.isTruncated = true
-        return nil
+    analysis.events = analysis.events.compactMap { event in
+      switch event {
+      case .text(let text):
+        if !limitOutput { analysis.texts.append(text); return event }
+        if seen.contains(text) { return nil }
+        let available = min(max(0, limits.maximumTextBytes), max(0, limits.maximumTotalTextBytes) - bytes)
+        let value = WidgetReading.prefix(text.value, bytes: available)
+        if value != text.value { analysis.isTruncated = true }
+        let kept = WidgetInspection.Text(value, origin: text.origin)
+        guard !WidgetReading.trim(value).isEmpty, !seen.contains(kept) else { return nil }
+        guard analysis.texts.count < max(0, limits.maximumTexts) else { analysis.isTruncated = true; return nil }
+        seen.insert(kept)
+        bytes += value.utf8.count
+        analysis.texts.append(kept)
+        return .text(kept)
+      case .fragment(let fragment, _): analysis.htmlFragments.append(fragment)
+      case .action(let action):
+        if limitOutput && analysis.actions.count >= max(0, limits.maximumActions) { analysis.isTruncated = true; return nil }
+        analysis.actions.append(action)
+      case .dataURL(let url): analysis.dataURLs.append(url)
+      case .code: break
       }
-      bytes += text.value.utf8.count
-      return text
+      return event
     }
     return analysis
   }

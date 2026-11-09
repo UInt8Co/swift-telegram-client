@@ -4,6 +4,7 @@ struct WidgetInspector: Sendable {
   let limits: WidgetInspection.Limits
   var result = WidgetInspection()
   private var budget: WidgetScriptBudget
+  private var markupBudget = WidgetMarkupBudget()
   private var seen: Set<WidgetInspection.Text> = []
   private var textBytes = 0
   private var imageBytes = 0
@@ -18,10 +19,15 @@ struct WidgetInspector: Sendable {
     process(scripts, nesting: 0)
     state(publicData, field: .publicData)
     state(chatData, field: .chatData)
+    result.isTruncated = result.isTruncated || markupBudget.truncated
   }
 
   private mutating func text(_ candidate: WidgetInspection.Text) {
-    guard !WidgetReading.trim(candidate.value).isEmpty, seen.insert(candidate).inserted else { return }
+    if candidate.value.contains(WidgetReading.hole) {
+      for part in candidate.value.split(separator: "\u{fffc}") { text(.init(String(part), origin: candidate.origin)) }
+      return
+    }
+    guard !WidgetReading.trim(candidate.value).isEmpty, !seen.contains(candidate) else { return }
     guard result.texts.count < max(0, limits.maximumTexts) else { result.isTruncated = true; return }
     let available = min(max(0, limits.maximumTextBytes), max(0, limits.maximumTotalTextBytes) - textBytes)
     let value = WidgetReading.prefix(candidate.value, bytes: available)
@@ -29,17 +35,21 @@ struct WidgetInspector: Sendable {
     guard !WidgetReading.trim(value).isEmpty else { return }
     let kept = WidgetInspection.Text(value, origin: candidate.origin)
     // Distinct long values may become identical after cutting them.
-    guard !result.texts.contains(kept) else { return }
+    guard seen.insert(kept).inserted else { return }
     textBytes += value.utf8.count
     result.texts.append(kept)
   }
 
   private mutating func action(_ value: WidgetInspection.Action) {
+    var value = value
+    if value.target?.contains(WidgetReading.hole) == true { value.target = nil; result.features.insert(.unresolvedAction) }
+    value.label = value.label.map { $0.split(separator: "\u{fffc}").joined(separator: " ") }
     if result.actions.count < max(0, limits.maximumActions) { result.actions.append(value) }
     else { result.isTruncated = true }
   }
 
   private mutating func image(_ source: String) {
+    guard !source.contains(WidgetReading.hole) else { return }
     let url = WidgetReading.trim(source)
     guard url.prefix(5).lowercased() == "data:" else { return }
     guard result.images.count < max(0, limits.maximumImages) else { result.isTruncated = true; return }
@@ -76,7 +86,7 @@ struct WidgetInspector: Sendable {
           for leaf in json.leaves { text(.init(leaf.value, origin: .scriptLiteral)) }
         } else { text(.init(source, origin: .scriptLiteral)) }
       case .code(let source, let handler):
-        let analysis = WidgetScriptAnalysis.analyze(source, isHandler: handler, budget: &budget, limits: limits)
+        let analysis = WidgetScriptAnalysis.analyze(source, isHandler: handler, budget: &budget, limits: limits, nesting: nesting, limitOutput: false, deferCode: true)
         merge(analysis, nesting: nesting)
       }
     }
@@ -87,14 +97,25 @@ struct WidgetInspector: Sendable {
   mutating func merge(_ analysis: WidgetScriptAnalysis, nesting: Int) {
     result.features.formUnion(analysis.features)
     result.isTruncated = result.isTruncated || analysis.isTruncated
-    for candidate in analysis.texts { text(candidate) }
-    for value in analysis.actions { action(value) }
-    for url in analysis.dataURLs { image(url) }
-    for fragment in analysis.htmlFragments {
-      guard nesting < max(0, limits.maximumNesting) else { result.isTruncated = true; continue }
-      let handlers = markup(fragment.html, origin: .script(fragment.sink), scriptsAllowed: false)
-      process(handlers, nesting: nesting + 1)
+    let events = analysis.events.isEmpty
+      ? analysis.texts.map { .text($0) } + analysis.actions.map { .action($0) }
+        + analysis.dataURLs.map { .dataURL($0) } + analysis.htmlFragments.map { .fragment($0, nesting: nesting) }
+      : analysis.events
+    for event in events {
+      switch event {
+      case .text(let candidate): text(candidate)
+      case .action(let value): action(value)
+      case .dataURL(let url): image(url)
+      case .fragment(let fragment, let depth):
+        guard depth < max(0, limits.maximumNesting), depth < 96 else { result.isTruncated = true; continue }
+        let handlers = markup(fragment.html, origin: .script(fragment.sink), scriptsAllowed: false)
+        process(handlers, nesting: depth + 1)
+      case .code(let source, let depth):
+        guard depth < max(0, limits.maximumNesting), depth < 96 else { result.isTruncated = true; continue }
+        process([.code(source, handler: false)], nesting: depth + 1)
+      }
     }
+    result.isTruncated = result.isTruncated || markupBudget.truncated
   }
 
   private struct Candidate: Sendable {
@@ -109,30 +130,35 @@ struct WidgetInspector: Sendable {
     var anchor: Int?
   }
   private struct Anchor: Sendable {
-    var target: String
+    var target: String?
     var label = ""
   }
 
   private mutating func markup(
     _ html: String, origin: WidgetInspection.Origin?, scriptsAllowed: Bool
   ) -> [Script] {
-    let reader = WidgetHTMLReader(html)
+    let bounded = WidgetReading.prefix(html, bytes: markupBudget.remaining)
+    _ = markupBudget.charge(bounded.utf8.count)
+    if bounded != html { markupBudget.truncated = true }
+    let reader = WidgetHTMLReader(bounded)
     if reader.malformed { result.features.insert(.malformed) }
-    var attributes: [String: [String]] = [:]
+    var attributes: [[String: String]] = []
     for token in reader.tokens {
       if case .start(let tag) = token, tag.name != "noscript" {
-        for attribute in tag.attributes { attributes[attribute.name, default: []].append(attribute.value) }
+        attributes.append(Dictionary(uniqueKeysWithValues: tag.attributes.map { ($0.name, $0.value) }))
       }
     }
     var candidates: [Candidate] = []
     var scripts: [Script] = []
     var elements: [Element] = []
+    var openNames: [String: Int] = [:]
     var anchors: [Anchor] = []
     var activeAnchors: [Int] = []
     var block = ""
     var blockPosition = 0
     var hasBlockText = false
     func candidate(_ value: String, _ candidateOrigin: WidgetInspection.Origin, _ position: Int) {
+      guard markupBudget.charge(value.utf8.count + 1) else { return }
       candidates.append(.init(position: position, sequence: candidates.count,
         text: .init(value, origin: origin ?? candidateOrigin)))
     }
@@ -143,18 +169,34 @@ struct WidgetInspector: Sendable {
       hasBlockText = false
     }
     func append(_ value: String, _ position: Int) {
+      guard markupBudget.charge(value.utf8.count + 1) else { return }
+      if value.contains(WidgetReading.hole) {
+        let parts = value.split(separator: "\u{fffc}", omittingEmptySubsequences: false)
+        for (index, part) in parts.enumerated() {
+          if index > 0 { boundary() }
+          append(String(part), position)
+        }
+        return
+      }
       if !hasBlockText, !WidgetReading.trim(value).isEmpty {
         blockPosition = position
         hasBlockText = true
       }
       block += value
-      for index in activeAnchors { anchors[index].label += value }
+      for index in activeAnchors {
+        guard markupBudget.charge(value.utf8.count + 1) else { break }
+        anchors[index].label += value
+      }
     }
     func boundary() {
       flush()
-      for index in activeAnchors { anchors[index].label += " " }
+      for index in activeAnchors {
+        guard markupBudget.charge() else { break }
+        anchors[index].label += " "
+      }
     }
     for (position, token) in reader.tokens.enumerated() {
+      guard markupBudget.charge() else { break }
       switch token {
       case .text(let value):
         append(value, position)
@@ -177,8 +219,8 @@ struct WidgetInspector: Sendable {
               scripts.append(.code(attribute.value, handler: true))
             }
             if attribute.name == "style" {
-              let ownAttributes = Dictionary(uniqueKeysWithValues: tag.attributes.map { ($0.name, [$0.value]) })
-              let css = WidgetCSSReader(attribute.value, attributes: ownAttributes, limits: limits)
+              let ownAttributes = Dictionary(uniqueKeysWithValues: tag.attributes.map { ($0.name, $0.value) })
+              let css = WidgetCSSReader(attribute.value, attributes: [ownAttributes], limits: limits, budget: &markupBudget)
               for value in css.texts { candidate(WidgetReading.collapse(value), .styleContent, position) }
               for url in css.dataURLs { image(url) }
               result.features.formUnion(css.features)
@@ -189,9 +231,11 @@ struct WidgetInspector: Sendable {
             let target = WidgetReading.trim(href)
             if anchors.count < max(0, limits.maximumActions) - result.actions.count {
               anchor = anchors.count
-              anchors.append(.init(target: target))
+              let unresolved = target.contains(WidgetReading.hole)
+              if unresolved { result.features.insert(.unresolvedAction) }
+              anchors.append(.init(target: unresolved ? nil : target))
             } else { result.isTruncated = true }
-            if target.prefix(11).lowercased() == "javascript:" {
+            if !target.contains(WidgetReading.hole), target.prefix(11).lowercased() == "javascript:" {
               result.features.insert(.script)
               scripts.append(.code(String(target.dropFirst(11)), handler: true))
             }
@@ -205,12 +249,16 @@ struct WidgetInspector: Sendable {
           }
         }
         if !tag.selfClosing, !WidgetHTMLReader.voids.contains(tag.name) {
+          openNames[tag.name, default: 0] += 1
           elements.append(.init(name: tag.name, hidden: hidden, scriptType: tag.value("type"), anchor: anchor))
           if let anchor { activeAnchors.append(anchor) }
         }
       case .end(let name):
         if WidgetHTMLReader.blocks.contains(name) { boundary() }
-        if let index = elements.lastIndex(where: { $0.name == name }) {
+        if openNames[name, default: 0] > 0,
+          let index = elements.lastIndex(where: { $0.name == name }) {
+          guard markupBudget.charge(elements.count - index) else { break }
+          for element in elements[index...] { openNames[element.name, default: 0] -= 1 }
           let closingAnchors = elements[index...].compactMap(\.anchor)
           if !closingAnchors.isEmpty { activeAnchors.removeAll { closingAnchors.contains($0) } }
           elements.removeSubrange(index...)
@@ -225,7 +273,7 @@ struct WidgetInspector: Sendable {
             "application/ecmascript", "application/x-javascript", "text/jscript", "text/livescript"].contains(type)
           scripts.append(javaScript && scriptsAllowed ? .code(source, handler: false) : .literal(source))
         case "style":
-          let css = WidgetCSSReader(source, attributes: attributes, limits: limits)
+          let css = WidgetCSSReader(source, attributes: attributes, limits: limits, budget: &markupBudget)
           for value in css.texts { candidate(WidgetReading.collapse(value), .styleContent, position) }
           for url in css.dataURLs { image(url) }
           result.features.formUnion(css.features)

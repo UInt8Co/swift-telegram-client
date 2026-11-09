@@ -1,6 +1,9 @@
 // Small shared operations for the static readers. No browser or script engine
 // is involved; each reader makes forward progress over its input.
 enum WidgetReading: Sendable {
+  // Reserved internally for an unknown segment of a recovered HTML value.
+  static let hole = "\u{fffc}"
+
   static func string(_ scalars: ArraySlice<Unicode.Scalar>) -> String {
     String(String.UnicodeScalarView(scalars))
   }
@@ -57,6 +60,13 @@ enum WidgetReading: Sendable {
     "AMP": "&", "LT": "<", "GT": ">", "QUOT": "\"",
   ]
 
+  private static let legacyReferences: [UInt32] = [
+    0x20ac, 0x81, 0x201a, 0x192, 0x201e, 0x2026, 0x2020, 0x2021,
+    0x2c6, 0x2030, 0x160, 0x2039, 0x152, 0x8d, 0x17d, 0x8f,
+    0x90, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2013, 0x2014,
+    0x2dc, 0x2122, 0x161, 0x203a, 0x153, 0x9d, 0x17e, 0x178,
+  ]
+
   static func referencesDecoded(_ value: String) -> String {
     let s = Array(value.unicodeScalars)
     var i = 0
@@ -75,8 +85,9 @@ enum WidgetReading: Sendable {
           number = min(0x110000, number * UInt32(radix) + UInt32(digit))
           i += 1
         }
-        if i > digits {
+        if i > digits, i == s.count || s[i] != "\u{fffc}" {
           if i < s.count, s[i] == ";" { i += 1 }
+          if (0x80...0x9f).contains(number) { number = legacyReferences[Int(number - 0x80)] }
           let scalar = number == 0 ? nil : Unicode.Scalar(number)
           output.unicodeScalars.append(scalar ?? "\u{fffd}")
           continue
@@ -97,5 +108,18 @@ enum WidgetReading: Sendable {
       i = start + 1
     }
     return output
+  }
+}
+
+// Independent of script work: markup and CSS, including recovered fragments,
+// share a finite allowance for scanning, expansion, hashing and label copies.
+struct WidgetMarkupBudget: Sendable {
+  var remaining = 1_000_000
+  var truncated = false
+
+  mutating func charge(_ count: Int = 1) -> Bool {
+    guard count <= remaining else { remaining = 0; truncated = true; return false }
+    remaining -= count
+    return true
   }
 }

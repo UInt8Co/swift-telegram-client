@@ -12,12 +12,14 @@ struct WidgetScriptNode: Sendable {
     case template([Int])
     case call(Int, [Int])
     case arrow(String, Int)
+    case conditional(Int, Int, Int)
     case unknown([Int])
   }
   var form: Form
   var children: [Int] {
     switch form {
     case .literal, .name: []
+    case .conditional(let condition, let yes, let no): [condition, yes, no]
     case .member(let base, _), .unary(_, let base), .arrow(_, let base): [base]
     case .index(let a, let b), .binary(_, let a, let b): [a, b]
     case .array(let items), .template(let items), .unknown(let items): items
@@ -78,7 +80,18 @@ struct WidgetScriptSyntax: Sendable {
           else { mutatedBindings.insert(root) }
         }
       case .call(let callee, _):
-        if case .member(let base, let method) = nodes[callee].form,
+        let property: (Int, String)?
+        switch nodes[callee].form {
+        case .member(let base, let name): property = (base, name)
+        case .index(let base, let key):
+          if case .literal(let value) = nodes[key].form, let name = value.string { property = (base, name) }
+          else {
+            if let root = rootName(base) { mutatedBindings.insert(root) }
+            property = nil
+          }
+        default: property = nil
+        }
+        if let (base, method) = property,
           ["push", "pop", "shift", "unshift", "splice", "sort", "reverse", "fill", "copyWithin"].contains(method),
           let root = rootName(base) {
           mutatedBindings.insert(root)
@@ -111,7 +124,7 @@ struct WidgetScriptSyntax: Sendable {
     // Propagate object mutation through simple aliases in both directions.
     var links: [String: [String]] = [:]
     for (name, id) in bindings {
-      if case .name(let other) = nodes[id].form {
+      if let other = rootName(id) {
         links[name, default: []].append(other)
         links[other, default: []].append(name)
       }
@@ -288,7 +301,7 @@ struct WidgetScriptSyntax: Sendable {
         let yes = expression() ?? add(.unknown([]))
         require(":")
         let no = expression(2) ?? add(.unknown([]))
-        left = add(.unknown([left, yes, no]))
+        left = add(.conditional(left, yes, no))
       } else if let precedence = precedence(symbol()), precedence >= minimum {
         let op = symbol()
         position += 1

@@ -79,6 +79,8 @@ struct WidgetHTMLReader: Sendable {
       while i < s.count, nameCharacter(s[i]) { i += 1 }
       let name = WidgetReading.string(lower[start..<i])
       var attributes: [Attribute] = []
+      var attributeNames: Set<String> = []
+      var structuralHole = name.contains(WidgetReading.hole)
       var selfClosing = false
       var ended = false
       while i < s.count {
@@ -92,6 +94,7 @@ struct WidgetHTMLReader: Sendable {
         while i < s.count, nameCharacter(s[i]) { i += 1 }
         if i == attributeStart { malformed = true; i += 1; continue }
         let attributeName = WidgetReading.string(lower[attributeStart..<i])
+        structuralHole = structuralHole || attributeName.contains(WidgetReading.hole)
         while i < s.count, WidgetReading.space(s[i]) { i += 1 }
         var value = ""
         if i < s.count, s[i] == "=" {
@@ -110,11 +113,18 @@ struct WidgetHTMLReader: Sendable {
             if valueStart == i { malformed = true }
           }
         }
-        if !attributes.contains(where: { $0.name == attributeName }) {
-          attributes.append(.init(name: attributeName, value: WidgetReading.referencesDecoded(value)))
+        if !attributeName.contains(WidgetReading.hole), attributeNames.insert(attributeName).inserted {
+          let decoded = WidgetReading.referencesDecoded(value)
+          if !decoded.contains(WidgetReading.hole) || attributeName == "href" {
+            attributes.append(.init(name: attributeName, value: decoded))
+          }
         }
       }
       if !ended { malformed = true }
+      if structuralHole {
+        tokens.append(.text(WidgetReading.hole))
+        continue
+      }
       if closing { tokens.append(.end(name)); continue }
       tokens.append(.start(Tag(name: name, attributes: attributes, selfClosing: selfClosing)))
       if ["script", "style", "textarea", "title", "noscript"].contains(name), !selfClosing {

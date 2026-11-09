@@ -70,6 +70,7 @@ struct WidgetScriptLexer: Sendable {
     guard depth < 96 else { truncated = true; position = input.count; return }
     var braces = 0
     var objectBraces: [Bool] = []
+    var bodies: [(braces: Int, parentheses: Int, expression: Bool)] = []
     while position < input.count && !truncated {
       guard let c = scalar() else { break }
       if c.properties.isWhitespace || c.value == 0xFEFF {
@@ -125,6 +126,16 @@ struct WidgetScriptLexer: Sendable {
             position += 1
           }
         }
+        if word == "function" || word == "class" {
+          let previous = tokens.last?.text == "async" && tokens.count >= 2
+            ? tokens[tokens.count - 2].text : tokens.last?.text ?? ""
+          let expression = [
+            "=", "(", "[", ",", ":", "return", "${", "=>", "?", "+", "-", "*", "/", "%", "**",
+            "||", "&&", "??", "!", "~", "&", "|", "^", "==", "!=", "===", "!==", "<", ">", "<=", ">=",
+            "<<", ">>", ">>>", "typeof", "void", "delete", "new", "throw", "yield", "await", "case", "in", "instanceof",
+          ].contains(previous)
+          bodies.append((braces, controlParentheses.count, expression))
+        }
         emit(valid ? .word : .invalid, word)
         expectsOperand = ["return", "throw", "case", "delete", "void", "typeof", "new", "in", "of", "yield", "await", "else", "do"].contains(word)
         continue
@@ -145,7 +156,12 @@ struct WidgetScriptLexer: Sendable {
       if op == "{" {
         braces += 1
         let previous = tokens.last?.text ?? ""
-        objectBraces.append(["=", "(", "[", ",", ":", "return", "${"].contains(previous))
+        if let body = bodies.last, body.braces == braces - 1, body.parentheses == controlParentheses.count {
+          objectBraces.append(body.expression)
+          bodies.removeLast()
+        } else {
+          objectBraces.append(["=", "(", "[", ",", ":", "return", "${", "=>"].contains(previous))
+        }
       }
       let objectEnd = op == "}" ? (objectBraces.popLast() ?? false) : false
       if op == "}" { braces = max(0, braces - 1) }

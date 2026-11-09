@@ -64,15 +64,29 @@ struct WidgetConstantFolder: Sendable {
   let invalidBindings: Set<String>
   let mutatedBindings: Set<String>
   let declarations: Set<String>
-  let maximumBytes: Int
+  var maximumBytes: Int
   let maximumItems: Int
   var remaining: Int
   var truncated = false
   var cache: [Int: WidgetScriptValue] = [:]
   var unknown: Set<Int> = []
   private var evaluating: Set<Int> = []
+  let baseNesting: Int
+  let maximumNesting: Int
+  var decodingDepth: Int
+  var decodedDepths: [Int: Int] = [:]
+  private var localDepths: [String: Int] = [:]
+  static let maximumValueDepth = 64
 
-  init(_ syntax: WidgetScriptSyntax, steps: Int, limits: WidgetInspection.Limits) {
+  struct Size: Sendable {
+    var items = 1
+    var bytes = 0
+  }
+
+  init(_ syntax: WidgetScriptSyntax, steps: Int, limits: WidgetInspection.Limits, nesting: Int = 0) {
+    baseNesting = nesting
+    maximumNesting = min(96, max(0, limits.maximumNesting))
+    decodingDepth = nesting
     nodes = syntax.nodes
     bindings = syntax.bindings
     invalidBindings = syntax.invalidBindings
@@ -92,14 +106,22 @@ struct WidgetConstantFolder: Sendable {
   mutating func evaluate(_ id: Int, locals: [String: WidgetScriptValue] = [:], depth: Int = 0) -> WidgetScriptValue? {
     guard depth < 96 else { truncated = true; return nil }
     if locals.isEmpty {
-      if let value = cache[id] { return value }
+      if let value = cache[id] {
+        decodingDepth = max(decodingDepth, decodedDepths[id] ?? baseNesting)
+        return value
+      }
       if unknown.contains(id) { return nil }
     }
     guard step(), evaluating.insert(id).inserted else { return nil }
+    let parentDepth = decodingDepth
+    decodingDepth = baseNesting
     let value = evaluateForm(id, locals: locals, depth: depth)
     evaluating.remove(id)
     let checked = value.flatMap { bounded($0) ? $0 : nil }
+    let valueDepth = decodingDepth
+    decodingDepth = max(parentDepth, valueDepth)
     if locals.isEmpty {
+      decodedDepths[id] = valueDepth
       if let checked { cache[id] = checked } else { unknown.insert(id) }
     }
     return checked
@@ -110,7 +132,10 @@ struct WidgetConstantFolder: Sendable {
     switch nodes[id].form {
     case .literal(let value): return value
     case .name(let name):
-      if let value = locals[name] { return value }
+      if let value = locals[name] {
+        decodingDepth = max(decodingDepth, localDepths[name] ?? baseNesting)
+        return value
+      }
       guard !invalidBindings.contains(name) else { return nil }
       if let binding = bindings[name] {
         guard let value = evaluate(binding, depth: next) else { return nil }
@@ -149,19 +174,30 @@ struct WidgetConstantFolder: Sendable {
     case .array(let items):
       guard items.count <= maximumItems else { truncated = true; return nil }
       var result: [WidgetScriptValue] = []
+      var size = Size()
       for item in items {
         guard let value = evaluate(item, locals: locals, depth: next), value.isConstant else { return nil }
         if case .unary("...", _) = nodes[item].form {
           guard case .array(let values) = value, result.count + values.count <= maximumItems else { truncated = true; return nil }
-          result += values
-        } else { result.append(value) }
+          for value in values {
+            guard account(value, size: &size, depth: 1) else { return nil }
+            result.append(value)
+          }
+        } else {
+          guard account(value, size: &size, depth: 1) else { return nil }
+          result.append(value)
+        }
       }
       return .array(result)
     case .object(let items):
       guard items.count <= maximumItems else { truncated = true; return nil }
       var result: [String: WidgetScriptValue] = [:]
+      var size = Size()
       for (key, item) in items {
         guard let value = evaluate(item, locals: locals, depth: next), value.isConstant else { return nil }
+        guard key.utf8.count <= maximumBytes - size.bytes else { truncated = true; return nil }
+        size.bytes += key.utf8.count
+        guard account(value, size: &size, depth: 1) else { return nil }
         result[key] = value
       }
       return .object(result)
@@ -176,10 +212,21 @@ struct WidgetConstantFolder: Sendable {
         case .arrow(let name, let body) = nodes[arguments[0]].form,
         let value = evaluate(base, locals: locals, depth: next), case .array(let array) = value {
         var result: [WidgetScriptValue] = []
+        var size = Size()
+        let receiverDepth = decodingDepth
+        let previousLocalDepth = localDepths[name]
+        defer { localDepths[name] = previousLocalDepth }
+        localDepths[name] = receiverDepth
         for item in array {
+          guard size.items <= maximumItems else { truncated = true; return nil }
           var scope = locals
           scope[name] = item
-          guard let output = evaluate(body, locals: scope, depth: next), output.isConstant else { return nil }
+          // Reduce the construction allowance before evaluating another callback.
+          let allowance = maximumBytes
+          maximumBytes -= size.bytes
+          let output = evaluate(body, locals: scope, depth: next)
+          maximumBytes = allowance
+          guard let output, output.isConstant, account(output, size: &size, depth: 1) else { return nil }
           result.append(output)
         }
         return .array(result)
@@ -191,12 +238,19 @@ struct WidgetConstantFolder: Sendable {
           case .reference(["DOMParserInstance"]) = receiver { return .fragment(first) }
       }
       var args: [WidgetScriptValue] = []
+      var size = Size()
       for argument in arguments {
         guard let value = evaluate(argument, locals: locals, depth: next) else { return nil }
         if case .unary("...", _) = nodes[argument].form {
           guard case .array(let array) = value, args.count + array.count <= maximumItems else { return nil }
-          args += array
-        } else { args.append(value) }
+          for value in array {
+            guard account(value, size: &size, depth: 1) else { return nil }
+            args.append(value)
+          }
+        } else {
+          guard account(value, size: &size, depth: 1) else { return nil }
+          args.append(value)
+        }
       }
       if case .member(let base, let method) = nodes[callee].form,
         let value = evaluate(base, locals: locals, depth: next), value.isConstant {
@@ -211,42 +265,62 @@ struct WidgetConstantFolder: Sendable {
         return globalCall(path, args)
       }
       return nil
-    case .arrow, .unknown: return nil
+    case .arrow, .conditional, .unknown: return nil
     }
   }
 
   mutating func bounded(_ value: WidgetScriptValue) -> Bool {
-    var pending = [value]
-    var items = 0
-    var bytes = 0
-    while let next = pending.popLast() {
-      items += 1
-      if items > maximumItems + 1 { truncated = true; return false }
+    var size = Size(items: 0)
+    return account(value, size: &size)
+  }
+
+  // Validate before retaining each piece, including already cached composites.
+  mutating func account(_ value: WidgetScriptValue, size: inout Size, depth: Int = 0) -> Bool {
+    var pending = [(value, depth)]
+    while let (next, depth) = pending.popLast() {
+      guard step(), depth < Self.maximumValueDepth, size.items <= maximumItems else {
+        truncated = true; return false
+      }
+      size.items += 1
       switch next {
       case .string(let units):
-        if units.count > maximumBytes { truncated = true; return false }
-        bytes += String(decoding: units, as: UTF16.self).utf8.count
-      case .array(let array): pending += array
+        guard units.count <= maximumBytes - size.bytes, step(units.count / 64) else {
+          truncated = true; return false
+        }
+        size.bytes += String(decoding: units, as: UTF16.self).utf8.count
+      case .array(let array):
+        guard array.count <= maximumItems - min(size.items - 1, maximumItems) else { truncated = true; return false }
+        pending += array.map { ($0, depth + 1) }
       case .object(let object):
-        bytes += object.keys.reduce(0) { $0 + $1.utf8.count }
-        pending += object.values
+        guard object.count <= maximumItems - min(size.items - 1, maximumItems) else { truncated = true; return false }
+        for (key, value) in object {
+          guard key.utf8.count <= maximumBytes - size.bytes else { truncated = true; return false }
+          size.bytes += key.utf8.count
+          pending.append((value, depth + 1))
+        }
+      case .reference(let path):
+        guard path.count < Self.maximumValueDepth, step(path.count) else { truncated = true; return false }
+        for key in path {
+          guard step(key.utf8.count / 64) else { return false }
+        }
       default: break
       }
-      if bytes > maximumBytes { truncated = true; return false }
+      if size.bytes > maximumBytes { truncated = true; return false }
     }
     return true
   }
 
   mutating func append(_ value: [UInt16], to output: inout [UInt16]) -> Bool {
-    guard value.count <= maximumBytes - output.count else { truncated = true; return false }
+    guard step(1 + value.count / 64), value.count <= maximumBytes - output.count else { truncated = true; return false }
     output += value
     return true
   }
 
-  mutating func coerce(_ value: WidgetScriptValue) -> [UInt16]? {
+  mutating func coerce(_ value: WidgetScriptValue, depth: Int = 0) -> [UInt16]? {
+    guard step(), depth < Self.maximumValueDepth else { truncated = true; return nil }
     if let units = value.units { return units }
     switch value {
-    case .array(let values): return join(values, separator: [44])
+    case .array(let values): return join(values, separator: [44], depth: depth + 1)
     case .object(let object):
       guard object["toString"] == nil && object["valueOf"] == nil else { return nil }
       return Array("[object Object]".utf16)
@@ -254,7 +328,8 @@ struct WidgetConstantFolder: Sendable {
     }
   }
 
-  mutating func join(_ values: [WidgetScriptValue], separator: [UInt16]) -> [UInt16]? {
+  mutating func join(_ values: [WidgetScriptValue], separator: [UInt16], depth: Int = 0) -> [UInt16]? {
+    guard depth < Self.maximumValueDepth else { truncated = true; return nil }
     var result: [UInt16] = []
     for (index, value) in values.enumerated() {
       guard step() else { return nil }
@@ -262,7 +337,7 @@ struct WidgetConstantFolder: Sendable {
       switch value {
       case .null, .undefined: break
       default:
-        guard let units = coerce(value), append(units, to: &result) else { return nil }
+        guard let units = coerce(value, depth: depth), append(units, to: &result) else { return nil }
       }
     }
     return result

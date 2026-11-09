@@ -91,7 +91,7 @@ struct WidgetJSONReader: Sendable {
       index += 1
       if consume("}") { return true }
       while true {
-        guard let key = string(), consume(":"), value(path: path.isEmpty ? key : path + "." + key, depth: depth + 1)
+        guard let key = string(), consume(":"), value(path: Self.path(path, key: key), depth: depth + 1)
         else { return false }
         if consume("}") { return true }
         guard consume(",") else { return false }
@@ -111,6 +111,32 @@ struct WidgetJSONReader: Sendable {
     case "n": return literal("null")
     default: return number()
     }
+  }
+
+  private static func path(_ parent: String, key: String) -> String {
+    let scalars = Array(key.unicodeScalars)
+    func start(_ scalar: Unicode.Scalar) -> Bool {
+      scalar == "_" || scalar == "$" || (65...90).contains(scalar.value) || (97...122).contains(scalar.value)
+    }
+    if let first = scalars.first, start(first), scalars.dropFirst().allSatisfy({ start($0) || (48...57).contains($0.value) }) {
+      return parent.isEmpty ? key : parent + "." + key
+    }
+    var escaped = ""
+    for scalar in scalars {
+      switch scalar {
+      case "\"": escaped += "\\\""
+      case "\\": escaped += "\\\\"
+      case "\n": escaped += "\\n"
+      case "\r": escaped += "\\r"
+      case "\t": escaped += "\\t"
+      default:
+        if scalar.value < 32 || scalar.value == 0xfffc {
+          let hex = String(scalar.value, radix: 16)
+          escaped += "\\u" + String(repeating: "0", count: 4 - hex.count) + hex
+        } else { escaped.unicodeScalars.append(scalar) }
+      }
+    }
+    return parent + "[\"" + escaped + "\"]"
   }
 
   private mutating func literal(_ word: String) -> Bool {

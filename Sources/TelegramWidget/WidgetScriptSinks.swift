@@ -5,10 +5,19 @@ struct WidgetScriptSinks: Sendable {
   let limits: WidgetInspection.Limits
   var result = WidgetScriptAnalysis()
   var attributed: Set<Int> = []
-  var texts: Set<WidgetInspection.Text> = []
   var actions: Set<WidgetInspection.Action> = []
-  var dynamicSources: [String] = []
-  private var totalTextBytes = 0
+  struct PositionedEvent: Sendable {
+    var position: Int
+    var sequence: Int
+    var value: WidgetScriptAnalysis.Event
+  }
+  var orderedEvents: [PositionedEvent] = []
+  private var position = 0
+
+  private mutating func emit(_ value: WidgetScriptAnalysis.Event) {
+    if case .code(let source, _) = value, !folder.step(1 + source.utf8.count / 64) { return }
+    orderedEvents.append(.init(position: position, sequence: orderedEvents.count, value: value))
+  }
 
   init(folder: WidgetConstantFolder, limits: WidgetInspection.Limits) {
     self.folder = folder
@@ -18,6 +27,7 @@ struct WidgetScriptSinks: Sendable {
   mutating func read(tokens: [WidgetScriptToken]) {
     features(tokens)
     for id in folder.nodes.indices {
+      position = id
       switch folder.nodes[id].form {
       case .binary(let op, let left, let right) where op == "=" || op == "+=":
         if let property = property(left) {
@@ -30,6 +40,7 @@ struct WidgetScriptSinks: Sendable {
     // Only after all sinks have claimed their dependencies can we distinguish
     // a folded display value from an otherwise unproven script string.
     for id in folder.nodes.indices where !attributed.contains(id) {
+      position = id
       if let value = folder.evaluate(id), let string = value.string { text(string, .scriptLiteral) }
     }
     result.isTruncated = result.isTruncated || folder.truncated
@@ -145,7 +156,8 @@ struct WidgetScriptSinks: Sendable {
         if name == "eval" || name == "Function" { result.features.insert(.dynamicCode) }
         if let argument, let source = folder.evaluate(argument)?.string {
           result.features.insert(.dynamicCode)
-          dynamicSources.append(source)
+          emit(.code(source, nesting: folder.decodedDepths[argument] ?? folder.baseNesting))
+          claim(argument)
         }
       }
     }
@@ -153,7 +165,7 @@ struct WidgetScriptSinks: Sendable {
 
   private mutating func dataURL(_ id: Int) {
     if let value = folder.evaluate(id)?.string, value.lowercased().hasPrefix("data:") {
-      if !result.dataURLs.contains(value) { result.dataURLs.append(value) }
+      if !result.dataURLs.contains(value) { result.dataURLs.append(value); emit(.dataURL(value)) }
       claim(id)
     }
   }
@@ -167,21 +179,27 @@ struct WidgetScriptSinks: Sendable {
     }
     if target == nil { result.features.insert(.unresolvedAction) }
     let action = WidgetInspection.Action(kind: kind, target: target)
-    guard actions.insert(action).inserted else { return }
+    guard !actions.contains(action) else { return }
     guard result.actions.count < max(0, limits.maximumActions) else { result.isTruncated = true; return }
+    actions.insert(action)
     result.actions.append(action)
+    emit(.action(action))
     // A partial URL is not a destination. Its constant pieces remain unproven
     // script literals, since the public contract has no partial-action origin.
   }
 
   private mutating func output(_ id: Int, _ sink: WidgetInspection.Sink, html: Bool = false) {
     var pieces: [String] = []
+    var nesting = folder.baseNesting
     if let value = folder.evaluate(id), value.isConstant, let units = folder.coerce(value) {
       pieces = [String(decoding: units, as: UTF16.self)]
+      nesting = folder.decodedDepths[id] ?? folder.baseNesting
       claim(id)
     } else {
       result.features.insert(.unresolvedOutput)
-      pieces = partial(id)
+      let recovered = partial(id)
+      pieces = recovered.pieces
+      nesting = recovered.nesting
     }
     if html {
       var joined = ""
@@ -190,62 +208,185 @@ struct WidgetScriptSinks: Sendable {
         joined += piece
       }
       if !joined.isEmpty {
-        if result.htmlFragments.count >= max(0, limits.maximumTexts) { result.isTruncated = true; return }
+        guard folder.step(1 + joined.utf8.count / 64) else { return }
         let fragment = WidgetScriptAnalysis.HTMLFragment(html: joined, sink: sink)
-        if !result.htmlFragments.contains(fragment) { result.htmlFragments.append(fragment) }
+        result.htmlFragments.append(fragment)
+        emit(.fragment(fragment, nesting: nesting))
       }
-    } else { for piece in pieces { text(piece, .script(sink)) } }
+    } else { for piece in pieces where piece != WidgetReading.hole { text(piece, .script(sink)) } }
   }
 
-  private mutating func partial(_ root: Int) -> [String] {
-    var result: [String] = []
-    var pending = [root]
-    var visited: Set<Int> = []
-    while let id = pending.popLast() {
-      guard visited.insert(id).inserted, folder.step() else { continue }
-      if let value = folder.evaluate(id), let units = value.units {
-        result.append(String(decoding: units, as: UTF16.self))
+  // Only follow syntax whose content contributes to the output. Unknown
+  // segments stay explicit, especially when the result will be read as HTML.
+  private mutating func partial(_ root: Int) -> (pieces: [String], nesting: Int) {
+    var pieces: [String] = []
+    var nesting = folder.baseNesting
+    var pending: [(node: Int?, literal: String?, depth: Int, transforms: [String], joined: Bool)] = [(root, nil, 0, [], false)]
+    var bytes = 0
+    while let (node, literal, depth, transforms, joined) = pending.popLast() {
+      guard folder.step(), depth < 96 else { result.isTruncated = true; break }
+      if let literal { pieces.append(literal); continue }
+      guard let id = node else { pieces.append(WidgetReading.hole); continue }
+      if let value = folder.evaluate(id), let units = folder.coerce(value) {
+        nesting = max(nesting, folder.decodedDepths[id] ?? folder.baseNesting)
+        if joined {
+          switch value {
+          case .null, .undefined: claim(id); continue
+          default: break
+          }
+        }
+        var string = String(decoding: units, as: UTF16.self)
+        for transform in transforms {
+          guard folder.step(1 + string.utf8.count / 64) else { break }
+          switch transform {
+          case "toUpperCase": string = string.uppercased()
+          case "toLowerCase": string = string.lowercased()
+          case "trim", "trimStart", "trimEnd": string = WidgetReading.trim(string)
+          default: break
+          }
+        }
+        guard string.utf8.count <= folder.maximumBytes - bytes else { result.isTruncated = true; break }
+        bytes += string.utf8.count
+        pieces.append(string)
         claim(id)
-      } else {
-        // Resolve a constant binding's syntax too, when only part of its value
-        // was recoverable (for example an array joined around runtime state).
-        if case .name(let name) = folder.nodes[id].form,
-          !folder.invalidBindings.contains(name), !folder.mutatedBindings.contains(name), let binding = folder.bindings[name] {
-          pending.append(binding)
-        } else { pending += folder.nodes[id].children.reversed() }
+        continue
+      }
+      var children: [Int?] = []
+      var childTransforms = transforms
+      var childJoined = false
+      switch folder.nodes[id].form {
+      case .name(let name):
+        if !folder.invalidBindings.contains(name), !folder.mutatedBindings.contains(name), let binding = folder.bindings[name] {
+          children = [binding]
+        }
+      case .binary("+", let a, let b):
+        if stringCoercion(a) || stringCoercion(b) { children = [a, b] }
+      case .binary(let op, let a, let b) where op == "||" || op == "??":
+        children = folder.evaluate(a)?.isConstant == true ? [a, nil, b] : [nil, b]
+      case .conditional(_, let yes, let no): children = [nil, yes, nil, no, nil]
+      case .template(let items): children = items.map { $0 }
+      case .array(let items):
+        childJoined = true
+        for item in items {
+          if !children.isEmpty { children.append(nil) }
+          children.append(item)
+        }
+      case .unary("...", let value): children = [value]
+      case .call(let callee, let args):
+        if let member = property(callee), contentMethodAllowed(member.base, member.name) {
+          switch member.name {
+          case "join":
+            var base = member.base
+            var seen: Set<Int> = []
+            while seen.insert(base).inserted, case .name(let name) = folder.nodes[base].form,
+              !folder.invalidBindings.contains(name), !folder.mutatedBindings.contains(name), let binding = folder.bindings[name] {
+              base = binding
+            }
+            if case .array(let items) = folder.nodes[base].form {
+              var tasks: [(Int?, String?, Int, [String], Bool)] = []
+              for (index, item) in items.enumerated() {
+                if index > 0 {
+                  if let separator = args.first { tasks.append((separator, nil, depth + 1, transforms, false)) }
+                  else { tasks.append((nil, ",", depth + 1, transforms, false)) }
+                }
+                tasks.append((item, nil, depth + 1, transforms, true))
+              }
+              pending += tasks.reversed()
+              continue
+            }
+            // An unknown receiver may contain arbitrarily many items. Keep
+            // its result pieces and separator separated by unknown segments.
+            pending.append((nil, nil, depth + 1, transforms, false))
+            if let separator = args.first { pending.append((separator, nil, depth + 1, transforms, false)) }
+            pending.append((nil, nil, depth + 1, transforms, false))
+            pending.append((member.base, nil, depth + 1, transforms, true))
+            continue
+          case "concat":
+            children = [member.base]
+            let stringReceiver = folder.evaluate(member.base)?.string != nil
+            for argument in args {
+              if !stringReceiver { children.append(nil) }
+              children.append(argument)
+            }
+          case "map":
+            if args.count == 1, case .arrow(_, let body) = folder.nodes[args[0]].form {
+              children = [nil, body, nil]
+              childJoined = joined
+            }
+          case "trim", "trimStart", "trimEnd", "toUpperCase", "toLowerCase":
+            children = [member.base]
+            childTransforms = [member.name] + transforms
+          case "repeat": children = [member.base, nil]
+          case "padStart": children = args.dropFirst().prefix(1).map { $0 } + [nil, member.base]
+          case "padEnd": children = [member.base, nil] + args.dropFirst().prefix(1).map { $0 }
+          default: break
+          }
+        }
+      default: break
+      }
+      if children.isEmpty { pieces.append(WidgetReading.hole) }
+      else { pending += children.reversed().map { ($0, nil, depth + 1, childTransforms, childJoined) } }
+    }
+    if result.isTruncated { pieces.append(WidgetReading.hole) }
+    return (pieces, nesting)
+  }
+
+  private func contentMethodAllowed(_ base: Int, _ method: String) -> Bool {
+    if ["join", "map", "concat"].contains(method), folder.mutatedBindings.contains("Array") { return false }
+    if method != "join" && method != "map", folder.mutatedBindings.contains("String") { return false }
+    var current = base
+    for _ in 0..<96 {
+      switch folder.nodes[current].form {
+      case .name(let name):
+        return !folder.invalidBindings.contains(name) && !folder.mutatedBindings.contains(name)
+      case .member(let parent, _), .index(let parent, _): current = parent
+      case .object: return false
+      default: return true
       }
     }
-    return result
+    return false
+  }
+
+  private mutating func stringCoercion(_ root: Int) -> Bool {
+    var pending = [root]
+    var seen: Set<Int> = []
+    while let id = pending.popLast() {
+      guard folder.step() else { return false }
+      guard seen.insert(id).inserted else { continue }
+      if let value = folder.evaluate(id) {
+        switch value {
+        case .string, .array, .object: return true
+        default: break
+        }
+      }
+      switch folder.nodes[id].form {
+      case .template, .array, .object: return true
+      case .binary("+", let a, let b): pending += [a, b]
+      case .name(let name):
+        if !folder.invalidBindings.contains(name), !folder.mutatedBindings.contains(name), let binding = folder.bindings[name] {
+          pending.append(binding)
+        }
+      default: break
+      }
+    }
+    return false
   }
 
   private mutating func claim(_ root: Int) {
     var pending = [root]
     while let id = pending.popLast() {
       guard attributed.insert(id).inserted else { continue }
-      pending += folder.nodes[id].children
+      if case .index(let base, _) = folder.nodes[id].form { pending.append(base) }
+      else { pending += folder.nodes[id].children }
       if case .name(let name) = folder.nodes[id].form,
         !folder.invalidBindings.contains(name), !folder.mutatedBindings.contains(name), let binding = folder.bindings[name] { pending.append(binding) }
     }
   }
 
   private mutating func text(_ value: String, _ origin: WidgetInspection.Origin) {
-    guard value.unicodeScalars.contains(where: { !$0.properties.isWhitespace }) else { return }
-    let candidate = WidgetInspection.Text(value, origin: origin)
-    guard texts.insert(candidate).inserted else { return }
-    guard result.texts.count < max(0, limits.maximumTexts) else { result.isTruncated = true; return }
-    let available = min(max(0, limits.maximumTextBytes), max(0, limits.maximumTotalTextBytes) - totalTextBytes)
-    var output = ""
-    var bytes = 0
-    for scalar in value.unicodeScalars {
-      let size = scalar.utf8.count
-      if bytes + size > available { result.isTruncated = true; break }
-      output.unicodeScalars.append(scalar)
-      bytes += size
-    }
-    if !output.isEmpty {
-      totalTextBytes += bytes
-      result.texts.append(.init(output, origin: origin))
-    }
+    // Bound the inventory by work; final text limits are applied in event order.
+    guard folder.step(1 + value.utf8.count / 64), !WidgetReading.trim(value).isEmpty else { return }
+    emit(.text(.init(value, origin: origin)))
   }
 
   private mutating func features(_ tokens: [WidgetScriptToken]) {

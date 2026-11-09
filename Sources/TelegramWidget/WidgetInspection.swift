@@ -64,10 +64,15 @@ extension WidgetInspection {
     public var maximumImageBytes: Int
     /// Script tokens read across all scripts and handlers.
     public var maximumScriptTokens: Int
-    /// Evaluation steps the constant folder may spend across all scripts.
+    /// Evaluation and composite-validation work the constant folder may spend
+    /// across all scripts. String construction and copying also consume work.
     public var maximumFoldingSteps: Int
     /// Nested decodings (an HTML fragment inside a script string inside
     /// markup, a base64 string inside that) followed before giving up.
+    /// Top-level scripts and handlers start at zero. Each recovered script,
+    /// HTML fragment, script base64/URI decoding or `JSON.parse` consumes one level;
+    /// handlers in a fragment inherit its depth. Zero disables these decodings.
+    /// Structural and shared work limits may stop reading earlier.
     public var maximumNesting: Int
 
     public init(
@@ -87,8 +92,8 @@ extension WidgetInspection {
     }
   }
 
-  /// One candidate string. Values are plain text: entities and escapes are
-  /// decoded, markup is never included.
+  /// One candidate string. Displayed HTML is decoded to text. Unproven
+  /// ``Origin/scriptLiteral`` values may still contain markup syntax.
   public struct Text: Equatable, Hashable, Sendable {
     public var value: String
     public var origin: Origin
@@ -109,13 +114,17 @@ extension WidgetInspection {
     case styleContent
     /// A constant the script writes to a display sink. Text of an HTML
     /// fragment written with `innerHTML` and the like has this origin too.
+    /// Partial constants receive this origin only along operations that preserve
+    /// output content, such as concatenation, templates and joined array values.
+    /// Arguments to unknown calls, conditions, selectors and keys stay unproven.
     case script(Sink)
     /// A string literal of a script or inline handler that the inspection did
     /// not see reach a sink: possibly shown, possibly a selector, a key or an
     /// unused branch.
     case scriptLiteral
     /// A string in the widget's state: the whole value, or a JSON string leaf
-    /// with its path (`items[2].title`) when the state parses as JSON.
+    /// with its path (`items[2].title`) when the state parses as JSON. Keys
+    /// outside ASCII identifier syntax use escaped brackets (`["a.b"]`).
     case state(StateField, path: String?)
 
     /// Whether the candidate is known to be shown (or offered) to a viewer

@@ -40,9 +40,15 @@ extension WidgetConstantFolder {
         return i >= 0 && i < values.count ? values[i] : .undefined
       case "concat":
         var result = values
+        var size = Size(items: 0)
+        guard account(receiver, size: &size) else { return nil }
         for arg in args {
-          if case .array(let values) = arg { result += values } else { result.append(arg) }
-          if result.count > maximumItems { truncated = true; return nil }
+          let additions: [WidgetScriptValue]
+          if case .array(let values) = arg { additions = values } else { additions = [arg] }
+          for value in additions {
+            guard account(value, size: &size, depth: 1) else { return nil }
+            result.append(value)
+          }
         }
         return .array(result)
       default: return nil
@@ -238,6 +244,10 @@ extension WidgetConstantFolder {
       return .string(result)
     }
     guard let first = args.first, case .string(let units) = first else { return nil }
+    if [["atob"], ["decodeURI"], ["decodeURIComponent"], ["unescape"], ["JSON", "parse"]].contains(path) {
+      guard decodingDepth < maximumNesting else { truncated = true; return nil }
+      decodingDepth += 1
+    }
     let string = String(decoding: units, as: UTF16.self)
     switch path {
     case ["atob"]:

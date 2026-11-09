@@ -26,8 +26,8 @@ public enum WidgetPayload {
     case containsNUL
   }
 
-  /// Inflates a payload into its HTML, refusing anything the server could not
-  /// have produced.
+  /// Inflates the first complete zlib stream into its HTML. Bytes after that
+  /// stream are ignored, including any subsequent zlib streams.
   public static func html(fromPayload payload: Data) throws(DecodingError) -> String {
     guard payload.count >= 2 else { throw .notZlib }
     let header = Array(payload.prefix(2))
