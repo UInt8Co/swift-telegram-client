@@ -10,7 +10,7 @@ import TelegramSchema
 /// for (stickers, polls, contacts, link previews) uses `tg-*` tags. Text and
 /// attribute values are escaped, so participant text never becomes markup.
 /// Opaque payloads (callback data, file references, access hashes, binary
-/// fields) and media contents are never part of the output.
+/// fields) and media contents are omitted, except for opt-in widget summaries.
 public struct MarkupRenderer: Sendable {
   /// Display metadata for a sticker or custom-emoji pack.
   public struct Pack: Equatable, Sendable {
@@ -38,14 +38,18 @@ public struct MarkupRenderer: Sendable {
   /// Sticker set ID to its pack. Short-name references resolve through the
   /// same values.
   public var stickerSets: [Int64: Pack]
+  /// How received HTML widgets are represented. Defaults to an opaque marker.
+  public var widgets: WidgetRendering
   public var maximumDepth: Int
 
   public init(
-    customEmoji: [Int64: Pack] = [:], stickerSets: [Int64: Pack] = [:], maximumDepth: Int = 24
+    customEmoji: [Int64: Pack] = [:], stickerSets: [Int64: Pack] = [:], maximumDepth: Int = 24,
+    widgets: WidgetRendering = .marker
   ) {
     self.customEmoji = customEmoji
     self.stickerSets = stickerSets
     self.maximumDepth = maximumDepth
+    self.widgets = widgets
   }
 
   /// Text with entities, rich-message blocks, media, then the reply markup.

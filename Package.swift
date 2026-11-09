@@ -60,11 +60,11 @@ let package = Package(
     // Bot API's rich HTML, for reading, logging or a language model's input.
     .target(
       name: "TelegramMarkup",
-      dependencies: ["TelegramSchema"]
+      dependencies: ["TelegramSchema", "TelegramWidget"]
     ),
     .testTarget(
       name: "TelegramMarkupTests",
-      dependencies: ["TelegramMarkup", "TelegramSchema"]
+      dependencies: ["TelegramMarkup", "TelegramSchema", "TelegramWidget"]
     ),
     // What only a bot account can do: start links, Stars invoices and
     // payments, topics in private chats, streamed drafts, native buttons,

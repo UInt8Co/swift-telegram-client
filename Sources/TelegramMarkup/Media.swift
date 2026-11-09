@@ -1,8 +1,8 @@
 import TelegramSchema
 
 extension Writer {
-  /// Media contents are never available; tags state only what kind of media
-  /// was attached and its textual metadata.
+  /// Tags describe the attached media and its textual metadata. Widgets may
+  /// additionally include an opt-in static reading of their content.
   mutating func media(_ media: TL.MessageMediaType, author: TL.PeerType?, depth: Int) {
     guard guardDepth(depth) else { return }
     switch media {
@@ -66,7 +66,11 @@ extension Writer {
       }
     case .messageMediaUnsupported: void("tg-media", [.init("type", "unsupported")])
     case .messageMediaVideoStream: void("tg-media", [.init("type", "live-stream")])
-    case .messageMediaWidget: void("tg-media", [.init("type", "widget")])
+    case .messageMediaWidget(let value):
+      switch renderer.widgets {
+      case .marker: void("tg-media", [.init("type", "widget")])
+      case .summary(let limits): widget(value, limits: limits)
+      }
     }
   }
 

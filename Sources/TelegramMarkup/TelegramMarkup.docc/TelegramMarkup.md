@@ -47,14 +47,71 @@ answer someone other than the author added carries `added-by`), `tg-contact`,
 `tg-venue`, `tg-preview` for link previews, `tg-story`, `tg-game`,
 `tg-invoice`, `tg-dice`, `tg-giveaway`, `tg-paid-media`, `tg-todo`,
 `tg-keyboard` for reply keyboards, and `tg-media` for anything unsupported.
-Widgets render as `<tg-media type="widget"/>`; their payload and data stay opaque.
+Widgets default to `<tg-media type="widget"/>`. Enable a static summary with
+``MarkupRenderer/widgets`` as described below.
 
 ### Safety
 
 Text escapes `&`, `<` and `>`, and attribute values also escape `"`, so text
-from a message can never become markup. Media contents, callback data, file
-references, access hashes and other opaque fields are never rendered.
+from a message can never become markup. Callback data, file references, access
+hashes and other opaque fields are never rendered. Widget summaries include
+inspected content and state only when explicitly enabled.
 ``MarkupRenderer/visibleText(_:)`` recovers the text without tags.
+
+### Widget summaries
+
+Opt in when you want a bounded reading of a received widget, without running its
+script or rendering its HTML:
+
+```swift
+let renderer = MarkupRenderer(widgets: .summary(.init(
+  maximumCharacters: 4096, maximumValueCharacters: 512)))
+let output = renderer.render(message)
+```
+
+``WidgetSummaryLimits/inspection`` controls the underlying `WidgetInspection`.
+The reading collects candidates; runtime input and future state can change what
+a viewer sees. Feature flags describe source constructs and limits of the
+reading, and do not establish that a particular branch runs.
+
+The outer `tg-widget` element includes `id` for a shared widget, nonzero `width`
+and `height`, and the boolean flags `copy`, `can-query` and `background-query`
+when set. `features` lists inspection feature names in declaration order, using
+kebab case (for example, `script timers reads-state canvas-text`). Empty feature
+sets omit the attribute. An undecodable payload yields a self-closing element
+with `invalid` and the available identity, size and capability attributes.
+
+Children appear on separate lines, in this priority order:
+
+- `tg-widget-action`: `type` is `anchor`, `open-link`, `open-telegram-link`,
+  `copy-text`, `request`, `wallet-send-transaction` or `wallet-sign-data`.
+  A constant argument becomes `target`; otherwise the action has `unresolved`.
+  An anchor label becomes element text when available.
+- `tg-widget-text`: markup text has no extra attributes. Display attributes use
+  `from="attribute"` and `name`; CSS content uses `from="style"`; script display
+  sinks use `from="script"` and `sink` (for example, `inner-html`). These texts
+  retain inspection order.
+- `tg-widget-state`: `name` is `public-data` or `chat-data`; a JSON leaf also has
+  `path`, including an empty path for a top-level string.
+- `tg-widget-literal`: script strings whose display was not established. Values
+  equal to shown text, shorter than three characters, or without a letter or
+  number are omitted. The remaining strings retain inspection order.
+- `tg-widget-images`: `count` is the number of inspected embedded images;
+  `formats` lists their distinct format names in alphabetical order. Image
+  bytes are omitted.
+
+Content values collapse whitespace and are trimmed before cutting to
+``WidgetSummaryLimits/maximumValueCharacters`` characters, including a final
+`…` when cut. Text and attributes then use the renderer's usual escaping.
+Nonpositive value limits keep empty values. Limits count Swift characters,
+rather than UTF-8 bytes.
+
+``WidgetSummaryLimits/maximumCharacters`` counts the whole escaped element,
+including tags, newlines and the `truncated` attribute. The first child that
+would exceed the budget stops all remaining children. The header and closing
+tag are always written, even when their size alone exceeds the budget.
+`truncated` reports inspection limits, value cuts or the element budget.
+These flags do not change ``MarkupRenderer/Output/isComplete``.
 
 ### Packs
 
@@ -70,3 +127,8 @@ for example — is left to you.
 - ``MarkupRenderer``
 - ``MarkupRenderer/Output``
 - ``MarkupRenderer/Pack``
+
+### Widgets
+
+- ``WidgetRendering``
+- ``WidgetSummaryLimits``
