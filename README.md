@@ -31,12 +31,13 @@ Add both products to your target's dependencies:
 
 `TelegramClient` provides connections and helpers; `TelegramSchema` provides the
 Telegram API types and methods. Optional products provide message composition,
-rendering, bot-account conveniences and TL archival:
+rendering, received widgets, bot-account conveniences and TL archival:
 
 | Product | Purpose |
 |---|---|
 | `TelegramRichText` | Compose outgoing rich messages with a result builder |
 | `TelegramMarkup` | Render received messages as compact HTML-style markup |
+| `TelegramWidget` | Decode received HTML widgets and read what they show without running them |
 | `TelegramBot` | Bot links, commands, menus, peer pickers, group additions, Stars subscriptions, private topics, buttons and draft streams |
 | `TelegramArchive` | Retain boxed TL bytes, compact JSON views, and binary sidecars |
 
@@ -209,7 +210,27 @@ print(output.markup)  // <b>Hello</b> <a href="https://example.com">world</a>
 ```
 
 Opaque fields such as callback data and file references are never rendered.
-See the [TelegramMarkup documentation][markup].
+HTML widgets render as an opaque marker unless `widgets: .summary(...)` asks for a
+bounded static summary. See the [TelegramMarkup documentation][markup].
+
+## Reading HTML widgets
+
+`TelegramWidget` decodes `messageMediaWidget`'s zlib payload into its HTML, beside
+the widget's state and flags, and reads it statically: block text, displayed
+attributes, generated CSS content, constants the script provably writes to the
+page, links and copy actions, embedded images and state strings, each with its
+origin, plus facts about what the reading could not resolve. Nothing is executed
+and every step is bounded.
+
+```swift
+import TelegramWidget
+
+let content = try WidgetContent(media)  // a received TL.MessageMediaWidget
+let inspection = WidgetInspection(content)
+for text in inspection.texts where text.origin.isShown { print(text.value) }
+```
+
+See the [TelegramWidget documentation][widget].
 
 ## Archiving TL values
 
@@ -241,5 +262,6 @@ MIT. See [LICENSE](LICENSE).
 [methods]: https://core.telegram.org/methods
 [rich-text]: Sources/TelegramRichText/TelegramRichText.docc/TelegramRichText.md
 [markup]: Sources/TelegramMarkup/TelegramMarkup.docc/TelegramMarkup.md
+[widget]: Sources/TelegramWidget/TelegramWidget.docc/TelegramWidget.md
 
 [archive]: Sources/TelegramArchive/TelegramArchive.docc/TelegramArchive.md

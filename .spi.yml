@@ -16,4 +16,4 @@
 version: 1
 builder:
   configs:
-    - documentation_targets: [TelegramClient, TelegramRichText, TelegramMarkup, TelegramBot, TelegramArchive, TelegramSchema]
+    - documentation_targets: [TelegramClient, TelegramRichText, TelegramMarkup, TelegramWidget, TelegramBot, TelegramArchive, TelegramSchema]
