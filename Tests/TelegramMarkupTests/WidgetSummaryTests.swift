@@ -66,7 +66,7 @@ private enum SummaryFixtures {
       <tg-widget-text>"&gt;&lt;script&gt; &lt;/tg-widget&gt;</tg-widget-text>
       <tg-widget-text from="attribute" name="alt">"&gt;&lt;script&gt;</tg-widget-text>
       <tg-widget-text>&lt;/tg-widget&gt;</tg-widget-text>
-      <tg-widget-state name="public-data" path="&quot;&gt;&lt;script&gt;">&lt;/tg-widget&gt;</tg-widget-state>
+      <tg-widget-state name="public-data" path="[&quot;\\&quot;&gt;&lt;script&gt;&quot;]">&lt;/tg-widget&gt;</tg-widget-state>
       </tg-widget>
       """)
     #expect(output.isComplete)
