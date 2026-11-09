@@ -262,7 +262,20 @@ struct WidgetScriptSinks: Sendable {
       case .binary("+", let a, let b):
         if stringCoercion(a) || stringCoercion(b) { children = [a, b] }
       case .binary(let op, let a, let b) where op == "||" || op == "??":
-        children = folder.evaluate(a)?.isConstant == true ? [a, nil, b] : [nil, b]
+        if let value = folder.evaluate(a), value.isConstant {
+          if op == "||", let truthiness = value.truthiness {
+            children = truthiness ? [a] : [b]
+          } else {
+            switch value {
+            case .null, .undefined: children = [b]
+            default: children = [a]
+            }
+          }
+        } else {
+          // Only the fallback is known to contribute unchanged. Keep a hole
+          // for the runtime value rather than treating it as undefined.
+          children = [nil, b]
+        }
       case .conditional(_, let yes, let no): children = [nil, yes, nil, no, nil]
       case .template(let items): children = items.map { $0 }
       case .array(let items):

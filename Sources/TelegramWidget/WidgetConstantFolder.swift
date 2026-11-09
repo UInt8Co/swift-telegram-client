@@ -12,6 +12,19 @@ indirect enum WidgetScriptValue: Sendable {
     }
   }
 
+  // API references also stand for host properties whose values are unknown.
+  // Their presence in the folder does not establish JavaScript truthiness.
+  var truthiness: Bool? {
+    switch self {
+    case .reference, .fragment: nil
+    case .undefined, .null: false
+    case .boolean(let value): value
+    case .number(let value): value != 0 && !value.isNaN
+    case .string(let units): !units.isEmpty
+    case .array, .object: true
+    }
+  }
+
   var string: String? {
     if case .string(let units) = self { return String(decoding: units, as: UTF16.self) }
     return nil
@@ -168,6 +181,19 @@ struct WidgetConstantFolder: Sendable {
       case "~": return .number(Double(~int32(number)))
       default: return nil
       }
+    case .binary(let op, let a, let b) where op == "||" || op == "??":
+      guard let value = evaluate(a, locals: locals, depth: next), value.isConstant else { return nil }
+      let useFallback: Bool
+      if op == "||" {
+        guard let truthiness = value.truthiness else { return nil }
+        useFallback = !truthiness
+      } else {
+        switch value {
+        case .null, .undefined: useFallback = true
+        default: useFallback = false
+        }
+      }
+      return useFallback ? evaluate(b, locals: locals, depth: next) : value
     case .binary(let op, let a, let b):
       guard let a = evaluate(a, locals: locals, depth: next), let b = evaluate(b, locals: locals, depth: next) else { return nil }
       return binary(op, a, b)
@@ -349,6 +375,8 @@ struct WidgetConstantFolder: Sendable {
       if path == ["window"] && ["document", "TelegramWidget", "Telegram", "location", "String", "JSON", "atob", "decodeURI", "decodeURIComponent", "unescape", "eval", "Function", "setTimeout", "setInterval"].contains(key) {
         return .reference([key])
       }
+      // Retain paths for API recognition without claiming any host value,
+      // including properties that the static reader does not model.
       return .reference(path + [key])
     case .fragment(let source):
       return ["body", "documentElement", "firstChild"].contains(key) ? .fragment(source) : nil
