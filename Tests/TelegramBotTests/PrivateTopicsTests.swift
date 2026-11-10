@@ -9,6 +9,22 @@ import TelegramSchema
 import Testing
 
 @Suite struct PrivateTopicsTests {
+  @Test(arguments: [PrivateTopics.creationForbiddenError, PrivateTopics.wrongHomeError])
+  func creationRefusalsAreSeparateFromGoneTopicsAndUnreachableUsers(error: String) {
+    #expect(PrivateTopics.isCreationRefusal(errorMessage: error))
+    #expect(!ForumTopics.isTopicGone(errorMessage: error))
+    #expect(!PrivateTopics.isUserUnreachable(errorMessage: error))
+  }
+
+  @Test(arguments: [
+    "UNKNOWN", "TOPIC_DELETED", "TOPIC_ID_INVALID", "TOPIC_CLOSED", "MESSAGE_THREAD_INVALID",
+    "USER_IS_BLOCKED", "INPUT_USER_DEACTIVATED", "USER_DEACTIVATED", "USER_DEACTIVATED_BAN",
+    "PEER_ID_INVALID", "USER_BOT_INVALID", "BOT_CANNOT_INITIATE", "CHAT_WRITE_FORBIDDEN",
+  ])
+  func otherErrorsAreNotCreationRefusals(error: String) {
+    #expect(!PrivateTopics.isCreationRefusal(errorMessage: error))
+  }
+
   private func creation(_ id: Int32, user: Int64 = 7) -> TL.UpdateType {
     .updateNewMessage(
       .init(
