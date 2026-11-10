@@ -43,6 +43,9 @@ rendering, received widgets, bot-account conveniences and TL archival:
 
 `TelegramBot` builds on `TelegramClient`, `TelegramSchema` and `TelegramRichText`.
 Its transport helpers use your `TLClient`; applications own persistence and retries.
+`PrivateTopicClient.create` throws `PrivateTopicCreationRefusal` for the two recognized
+creation refusals; other errors propagate unchanged. `PrivateChatUnreachable` and
+`TelegramClient`'s `ForumTopicGone` parse RPC facts without changing thrown errors.
 See [the module overview](Sources/TelegramBot/TelegramBot.docc/TelegramBot.md) and
 [native buttons and draft streams](Sources/TelegramBot/TelegramBot.docc/DraftStreams.md).
 

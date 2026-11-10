@@ -1,8 +1,23 @@
+import MTProtoClientKit
 import TelegramClient
 import TelegramSchema
 import Testing
 
 @Suite struct ForumTopicsTests {
+  @Test(arguments: ForumTopicGone.allCases, [400, 403, 500])
+  func goneTopicsRoundTrip(fact: ForumTopicGone, code: Int32) {
+    #expect(ForumTopicGone(MTProtoRPCError(code: code, message: fact.rawValue)) == fact)
+    #expect(ForumTopicGone(fact as any Error) == fact)
+    #expect(ForumTopicGone(errorMessage: fact.rawValue) == fact)
+    #expect(String(describing: fact) == fact.rawValue)
+  }
+
+  @Test func goneTopicsRejectNonmembers() {
+    #expect(ForumTopicGone(errorMessage: "UNKNOWN") == nil)
+    #expect(ForumTopicGone(MTProtoRPCError(code: 400, message: "UNKNOWN")) == nil)
+    #expect(ForumTopicGone(CancellationError()) == nil)
+  }
+
   @Test func titlesCollapseWhitespaceAndAlwaysHaveANonemptyFallback() {
     #expect(ForumTopics.title("  Hello\n\t world\u{00a0} ") == "Hello world")
     #expect(ForumTopics.title("Group\u{0}Name\u{7}\u{1b}") == "Group Name")

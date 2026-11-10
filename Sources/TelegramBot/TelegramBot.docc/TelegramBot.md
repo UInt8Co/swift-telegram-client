@@ -23,6 +23,8 @@ errors and cancellation; returned updates remain the caller’s responsibility.
 - ``PrivateTopics``
 - ``PrivateTopicClient``
 - ``PrivateTopicError``
+- ``PrivateTopicCreationRefusal``
+- ``PrivateChatUnreachable``
 - ``CreatedPrivateTopic``
 
 ### Native buttons

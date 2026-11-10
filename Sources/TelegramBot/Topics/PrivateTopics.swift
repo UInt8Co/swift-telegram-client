@@ -62,37 +62,6 @@ public enum PrivateTopics {
     }
     return nil
   }
-
-  /// The RPC error message Telegram sends when it refuses topic creation in
-  /// this private chat. The @BotFather topic setting is one possible cause;
-  /// the same bot may still open topics for other users.
-  public static let creationForbiddenError = "BOT_FORUM_CREATE_FORBIDDEN"
-
-  /// The RPC error message Telegram sends when it refuses a bot's topic
-  /// creation in a private chat. Observed during 2026-11 for different bots
-  /// and users at every layer tried while other requests succeeded.
-  /// A refused request may still leave a topic-creation service message in
-  /// the chat, pointing at a topic that some clients show and that
-  /// `messages.deleteTopicHistory` rejects with `TOPIC_ID_INVALID`. Retrying
-  /// with the same random ID was refused again without leaving another one,
-  /// while a new random ID left another.
-  public static let wrongHomeError = "BOT_TOPIC_WRONG_HOME"
-
-  /// Whether Telegram refused topic creation in the private chat with one
-  /// of the observed creation-refusal error messages.
-  public static func isCreationRefusal(errorMessage: String) -> Bool {
-    errorMessage == creationForbiddenError || errorMessage == wrongHomeError
-  }
-
-  /// RPC error messages meaning the bot cannot write to the user at all
-  /// until they start or unblock it.
-  public static func isUserUnreachable(errorMessage: String) -> Bool {
-    [
-      "USER_IS_BLOCKED", "INPUT_USER_DEACTIVATED", "USER_DEACTIVATED", "USER_DEACTIVATED_BAN",
-      "PEER_ID_INVALID",
-      "USER_BOT_INVALID", "BOT_CANNOT_INITIATE", "CHAT_WRITE_FORBIDDEN",
-    ].contains(errorMessage)
-  }
 }
 
 /// A topic the bot opened in a private chat, found by its creation message.
@@ -112,7 +81,9 @@ public struct CreatedPrivateTopic: Sendable, Hashable {
 }
 
 /// Topic requests only; callers own peers, pacing, persistence and retries.
-/// Methods propagate transport errors and cancellation. Returned updates are not applied here.
+/// Methods propagate transport errors and cancellation, except for the creation
+/// refusals documented on ``create(with:userID:title:iconColor:randomID:)``.
+/// Returned updates are not applied here.
 public struct PrivateTopicClient: Sendable {
   private let api: TLClient
 
@@ -122,14 +93,22 @@ public struct PrivateTopicClient: Sendable {
   /// Opens a topic in the bot's private chat with `user`. Reusing
   /// `randomID` lets a retried request return the topic already created.
   /// The updates are returned for the caller to process normally.
+  /// Throws ``PrivateTopicCreationRefusal`` for the two recognized creation-refusal
+  /// RPC messages, regardless of RPC code. All other errors propagate unchanged.
   public func create(
     with user: TL.InputPeerType, userID: Int64, title: String, iconColor: Int32? = nil,
     randomID: Int64
   ) async throws -> (topicID: Int32, updates: TL.UpdatesType) {
     let title = ForumTopics.title(title)
-    let updates = try await api.messages.createForumTopic(
-      peer: user, title: title, iconColor: iconColor,
-      randomId: randomID)
+    let updates: TL.UpdatesType
+    do {
+      updates = try await api.messages.createForumTopic(
+        peer: user, title: title, iconColor: iconColor,
+        randomId: randomID)
+    } catch {
+      if let refusal = PrivateTopicCreationRefusal(error) { throw refusal }
+      throw error
+    }
     guard let id = PrivateTopics.createdTopicID(in: updates, user: userID, randomID: randomID)
     else {
       throw PrivateTopicError.topicNotCreated

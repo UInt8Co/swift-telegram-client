@@ -130,6 +130,7 @@ layer and none of the machinery above changes.
 - ``ChatAdminLookup``
 - ``ChatAdminLookupError``
 - ``ForumTopics``
+- ``ForumTopicGone``
 
 - ``PeerResolver``
 - ``PeerCache``

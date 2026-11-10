@@ -100,11 +100,4 @@ public enum ForumTopics {
     return service.id
   }
 
-  /// Recognizes topic errors for which a caller may choose to open a new topic.
-  /// Includes `TOPIC_CLOSED`, which can describe a closed but existing topic.
-  public static func isTopicGone(errorMessage: String) -> Bool {
-    ["TOPIC_DELETED", "TOPIC_ID_INVALID", "TOPIC_CLOSED", "MESSAGE_THREAD_INVALID"].contains(
-      errorMessage)
-  }
-
 }

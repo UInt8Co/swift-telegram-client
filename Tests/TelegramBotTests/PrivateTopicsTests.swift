@@ -3,26 +3,97 @@ import FoundationEssentials
 #else
 import Foundation
 #endif
+import MTProtoClientKit
 import TelegramBot
 import TelegramClient
 import TelegramSchema
 import Testing
 
 @Suite struct PrivateTopicsTests {
-  @Test(arguments: [PrivateTopics.creationForbiddenError, PrivateTopics.wrongHomeError])
-  func creationRefusalsAreSeparateFromGoneTopicsAndUnreachableUsers(error: String) {
-    #expect(PrivateTopics.isCreationRefusal(errorMessage: error))
-    #expect(!ForumTopics.isTopicGone(errorMessage: error))
-    #expect(!PrivateTopics.isUserUnreachable(errorMessage: error))
+  @Test(arguments: PrivateTopicCreationRefusal.allCases, [400, 403, 500])
+  func creationRefusalsRoundTrip(fact: PrivateTopicCreationRefusal, code: Int32) {
+    #expect(PrivateTopicCreationRefusal(MTProtoRPCError(code: code, message: fact.rawValue)) == fact)
+    #expect(PrivateTopicCreationRefusal(fact as any Error) == fact)
+    #expect(PrivateTopicCreationRefusal(errorMessage: fact.rawValue) == fact)
+    #expect(String(describing: fact) == fact.rawValue)
   }
 
-  @Test(arguments: [
-    "UNKNOWN", "TOPIC_DELETED", "TOPIC_ID_INVALID", "TOPIC_CLOSED", "MESSAGE_THREAD_INVALID",
-    "USER_IS_BLOCKED", "INPUT_USER_DEACTIVATED", "USER_DEACTIVATED", "USER_DEACTIVATED_BAN",
-    "PEER_ID_INVALID", "USER_BOT_INVALID", "BOT_CANNOT_INITIATE", "CHAT_WRITE_FORBIDDEN",
-  ])
-  func otherErrorsAreNotCreationRefusals(error: String) {
-    #expect(!PrivateTopics.isCreationRefusal(errorMessage: error))
+  @Test(arguments: PrivateChatUnreachable.allCases, [400, 403, 500])
+  func unreachableUsersRoundTrip(fact: PrivateChatUnreachable, code: Int32) {
+    #expect(PrivateChatUnreachable(MTProtoRPCError(code: code, message: fact.rawValue)) == fact)
+    #expect(PrivateChatUnreachable(fact as any Error) == fact)
+    #expect(PrivateChatUnreachable(errorMessage: fact.rawValue) == fact)
+    #expect(String(describing: fact) == fact.rawValue)
+  }
+
+  @Test func errorFactSetsAreDisjointAndRejectNonmembers() {
+    let refusals = Set(PrivateTopicCreationRefusal.allCases.map(\.rawValue))
+    let unreachable = Set(PrivateChatUnreachable.allCases.map(\.rawValue))
+    let gone = Set(ForumTopicGone.allCases.map(\.rawValue))
+    #expect(refusals.isDisjoint(with: unreachable))
+    #expect(refusals.isDisjoint(with: gone))
+    #expect(unreachable.isDisjoint(with: gone))
+    for message in refusals.union(unreachable).union(gone).union(["UNKNOWN", "", "FLOOD_WAIT_5"]) {
+      let rpc = MTProtoRPCError(code: 400, message: message)
+      #expect((PrivateTopicCreationRefusal(rpc) != nil) == refusals.contains(message))
+      #expect((PrivateChatUnreachable(rpc) != nil) == unreachable.contains(message))
+      #expect((ForumTopicGone(rpc) != nil) == gone.contains(message))
+    }
+    #expect(PrivateTopicCreationRefusal(CancellationError()) == nil)
+    #expect(PrivateChatUnreachable(CancellationError()) == nil)
+    #expect(PrivateTopicCreationRefusal(PrivateChatUnreachable.userIsBlocked) == nil)
+    #expect(PrivateChatUnreachable(PrivateTopicCreationRefusal.forbidden) == nil)
+    #expect(ForumTopicGone(PrivateTopicCreationRefusal.wrongHome) == nil)
+  }
+
+  private struct FailingTransport: TLClientTransport {
+    let error: any Error
+    func send(_ requestBody: Data) async throws -> Data { throw error }
+  }
+
+  @Test(arguments: PrivateTopicCreationRefusal.allCases, [400, 403, 500])
+  func createThrowsTypedRefusals(fact: PrivateTopicCreationRefusal, code: Int32) async throws {
+    let rpc = MTProtoRPCError(code: code, message: fact.rawValue)
+    let client = PrivateTopicClient(api: TLClient(transport: FailingTransport(error: rpc)))
+    await #expect(throws: fact) {
+      try await client.create(with: .inputPeerSelf(.init()), userID: 7, title: "Topic", randomID: 99)
+    }
+    // The same refusal on a non-creation operation remains the original RPC error.
+    do {
+      _ = try await client.rename(1, with: .inputPeerSelf(.init()), title: "Topic")
+      Issue.record("Expected rename to fail")
+    } catch {
+      let original = try #require(error as? MTProtoRPCError)
+      #expect(original.code == rpc.code && original.message == rpc.message)
+    }
+  }
+
+  @Test(arguments: PrivateChatUnreachable.allCases.map(\.rawValue)
+    + ForumTopicGone.allCases.map(\.rawValue) + ["INTERNAL", "UNKNOWN", "FLOOD_WAIT_5"])
+  func createPreservesOtherRPCErrors(message: String) async throws {
+    let rpc = MTProtoRPCError(code: 400, message: message)
+    let client = PrivateTopicClient(api: TLClient(transport: FailingTransport(error: rpc)))
+    do {
+      _ = try await client.create(with: .inputPeerSelf(.init()), userID: 7, title: "Topic", randomID: 99)
+      Issue.record("Expected creation to fail")
+    } catch {
+      let original = try #require(error as? MTProtoRPCError)
+      #expect(original.code == rpc.code && original.message == rpc.message)
+    }
+  }
+
+  @Test func createPreservesOtherErrorsByIdentityAndCancellation() async {
+    final class TransportFailure: Error {}
+    let failure = TransportFailure()
+    let client = PrivateTopicClient(api: TLClient(transport: FailingTransport(error: failure)))
+    do {
+      _ = try await client.create(with: .inputPeerSelf(.init()), userID: 7, title: "Topic", randomID: 99)
+      Issue.record("Expected creation to fail")
+    } catch { #expect(error as? TransportFailure === failure) }
+    let cancelled = PrivateTopicClient(api: TLClient(transport: FailingTransport(error: CancellationError())))
+    await #expect(throws: CancellationError.self) {
+      try await cancelled.create(with: .inputPeerSelf(.init()), userID: 7, title: "Topic", randomID: 99)
+    }
   }
 
   private func creation(_ id: Int32, user: Int64 = 7) -> TL.UpdateType {
