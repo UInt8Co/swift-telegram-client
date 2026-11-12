@@ -7,14 +7,14 @@ import TelegramSchema
   import Foundation
 #endif
 
-/// The users and chats one received value carried, exactly as Telegram sent them.
+/// The users and chats one received value carried, exactly as Telegram sent them,
+/// and what carried them.
 ///
 /// Telegram never answers an access hash on its own: a peer's hash arrives inside
 /// whatever happens to mention the peer — the `users`/`chats` of an RPC result or
 /// an update container, a channel block of an instant-view page, the bot of a
 /// login-URL request, a chat invite's chat. Every such position the schema has is
-/// read, at any depth, so a value with a peer in it is never handed on without
-/// its peers being here first.
+/// read, at any depth. See <doc:ObservingReceivedPeers>.
 ///
 /// The objects are not merged, deduplicated or cleaned up. The same peer can be
 /// listed twice — once in a result's `users` and again inside a message — and a
@@ -22,14 +22,52 @@ import TelegramSchema
 /// addresses the peer in the context it came with. A store must therefore never
 /// let a `min` object replace a hash it learned from a full one.
 /// <https://core.telegram.org/api/min>
-public struct ReceivedPeers: Sendable, Equatable {
-  /// Where the peers were received.
-  public enum Origin: Sendable, Equatable {
+public struct ReceivedPeers: Sendable {
+  /// What carried the peers.
+  public enum Origin: Sendable {
     /// An `Updates` container the server pushed outside any RPC.
-    case push
-    /// The result of an RPC, by TL method name (`messages.getHistory`). A method
-    /// sent inside a wrapper (`invokeWithoutUpdates`, …) is named itself.
-    case result(method: String)
+    case push(TL.UpdatesType)
+    /// The result of an RPC.
+    case result(Call)
+  }
+
+  /// One RPC whose result carried peers.
+  public struct Call: Sendable {
+    /// The TL method's name (`messages.getHistory`), for logs. A method sent
+    /// inside a wrapper (`invokeWithoutUpdates`, …) is named itself.
+    public var method: String
+    /// The request type; ``invokes(_:)`` compares it.
+    public var function: any TLFunction.Type
+    /// The decoded result the caller receives — a `TL.Users.UserFull`, a
+    /// `TL.Messages.MessagesType`, … — to tell what kind of reply it is by type.
+    public var result: any Sendable
+    /// What the caller attached with ``ReceivedPeers/withContext(_:operation:)``,
+    /// or `nil`.
+    public var context: (any Sendable)?
+    /// Whether throwing from the observer withholds this result from its caller.
+    ///
+    /// `false` when the caller already had the result before it was observed:
+    /// the RPCs a connection makes while connecting, and every result received
+    /// before an observer was attached (``ReceivedPeerObservation/attach(_:)``).
+    /// A failure to observe those is reported to the observation's failure
+    /// handler instead.
+    public var withholdsResultOnFailure: Bool
+
+    /// Whether the call was `function`: `call.invokes(TL.Users.GetFullUser.self)`.
+    public func invokes(_ function: (some TLFunction).Type) -> Bool {
+      ObjectIdentifier(self.function) == ObjectIdentifier(function)
+    }
+
+    public init(
+      method: String, function: any TLFunction.Type, result: any Sendable,
+      context: (any Sendable)? = nil, withholdsResultOnFailure: Bool
+    ) {
+      self.method = method
+      self.function = function
+      self.result = result
+      self.context = context
+      self.withholdsResultOnFailure = withholdsResultOnFailure
+    }
   }
 
   /// Every `User` in the value, in the order the value lists them.
@@ -55,15 +93,41 @@ public struct ReceivedPeers: Sendable, Equatable {
   public init(pushed updates: TL.UpdatesType) {
     var list = ReceivedPeerList()
     updates.collectReceivedPeers(into: &list)
-    self.init(users: list.users, chats: list.chats, origin: .push)
+    self.init(users: list.users, chats: list.chats, origin: .push(updates))
   }
 
   /// Whether nothing was received.
   public var isEmpty: Bool { users.isEmpty && chats.isEmpty }
+
+  /// The call, for peers that came with an RPC result.
+  public var call: Call? {
+    if case .result(let call) = origin { call } else { nil }
+  }
+
+  /// The pushed container, for peers that came with a push.
+  public var pushed: TL.UpdatesType? {
+    if case .push(let updates) = origin { updates } else { nil }
+  }
+
+  @TaskLocal static var context: (any Sendable)?
+
+  /// Runs `operation` with `context` attached to every RPC it makes, so the
+  /// observer of their results receives it as ``Call/context``.
+  ///
+  /// The context is whatever the consumer wants its observer to know about a
+  /// call that the result does not say — that a lookup is not a sighting, that
+  /// the caller will report the peers itself. It follows the task, so it reaches
+  /// calls made through any transport decorators and through child tasks; an
+  /// inner `withContext` replaces an outer one. Pushes have no caller and so no
+  /// context.
+  public nonisolated(nonsending) static func withContext<Result>(
+    _ context: any Sendable, operation: nonisolated(nonsending) () async throws -> Result
+  ) async rethrows -> Result {
+    try await $context.withValue(context, operation: operation)
+  }
 }
 
-/// Handed every user and chat a connection receives, before what carried them is
-/// handed on: pass one to `TelegramConnection.connect(…, onReceivedPeers:)`.
+/// Handed every user and chat a connection receives; see ``ReceivedPeerObservation``.
 public typealias ReceivedPeersObserver = @Sendable (ReceivedPeers) async throws -> Void
 
 /// An RPC's result arrived but the ``ReceivedPeersObserver`` refused its peers, so
@@ -71,7 +135,9 @@ public typealias ReceivedPeersObserver = @Sendable (ReceivedPeers) async throws 
 ///
 /// **The server has already executed the call.** A caller that retries on this
 /// error repeats a call that succeeded — a sent message is sent twice — so treat
-/// it as an unknown outcome, not as a failed request.
+/// it as an unknown outcome, not as a failed request. An observer that knows the
+/// call changed something (from ``ReceivedPeers/Call/function`` or its context)
+/// can decline to throw instead.
 public struct PeerObservationFailure: Error, CustomStringConvertible {
   /// The TL method whose result was withheld.
   public var method: String
@@ -86,99 +152,6 @@ public struct PeerObservationFailure: Error, CustomStringConvertible {
   public var description: String {
     "the result of \(method) arrived, but recording its peers failed: \(underlying)"
   }
-}
-
-/// A transport that hands every user and chat in an RPC result to an observer,
-/// and returns the result only after the observer has returned.
-///
-/// ``TelegramConnection`` installs this under its ``TelegramConnection/api``
-/// when it is given an observer, so a caller that only uses a connection never
-/// builds one. It is public for a client built over another transport — a test
-/// double, or a decorator of a connection's transport — that must observe the
-/// same way.
-///
-/// The request's constructor number says what its result decodes to; a wrapper
-/// (`invokeWithoutUpdates`, `invokeWithLayer`, …) is stepped into to find the
-/// method it carries. Every method of ``TelegramSchema`` whose result can hold a
-/// peer is known (`Scripts/generate-received-peers.ts`); a method from another
-/// schema generated on top of it is passed through unobserved.
-///
-/// A result is decoded once here and again by `TLClient`: the transport hands
-/// over bytes and receives bytes, so the decoded value cannot be shared. A
-/// result that does not decode here is passed on untouched, and `TLClient` fails
-/// it with the same error.
-///
-/// The observer runs on the caller's task, so concurrent calls observe
-/// concurrently, and a slow observer delays exactly the calls whose results it is
-/// observing. If it throws, the call fails with ``PeerObservationFailure`` — or
-/// with the `CancellationError` it threw — instead of returning a result whose
-/// peers were not recorded.
-public struct PeerObservingTransport: TLClientTransport {
-  public let base: any TLClientTransport
-  private let observer: ReceivedPeersObserver
-
-  public init(base: any TLClientTransport, observer: @escaping ReceivedPeersObserver) {
-    self.base = base
-    self.observer = observer
-  }
-
-  public func send(_ requestBody: Data) async throws -> Data {
-    let reply = try await base.send(requestBody)
-    guard let reader = ReceivedPeerReplies.reader(forRequest: requestBody),
-      let list = try? reader.read(reply), !list.isEmpty
-    else { return reply }
-    do {
-      try await observer(
-        ReceivedPeers(users: list.users, chats: list.chats, origin: .result(method: reader.method)))
-    } catch is CancellationError {
-      throw CancellationError()
-    } catch {
-      throw PeerObservationFailure(method: reader.method, underlying: error)
-    }
-    return reply
-  }
-}
-
-/// Hands pushed containers on in arrival order, each only after its peers were
-/// observed.
-///
-/// The server pushes regardless of how fast they are consumed, and the transport
-/// delivers them synchronously, so nothing upstream can be slowed down: a slow
-/// observer grows this queue, unbounded, rather than losing a push. A push whose
-/// observer throws is dropped with a warning. A push is a prompt, never the only
-/// copy — the difference carries the same update, with its peers, through an RPC
-/// that is observed in turn.
-final class PeerObservingPushRelay: Sendable {
-  private let continuation: AsyncStream<TL.UpdatesType>.Continuation
-
-  init(
-    observer: @escaping ReceivedPeersObserver,
-    sink: (@Sendable (TL.UpdatesType) -> Void)?, log: TelegramLog
-  ) {
-    let (stream, continuation) = AsyncStream.makeStream(of: TL.UpdatesType.self)
-    self.continuation = continuation
-    Task {
-      for await updates in stream {
-        let peers = ReceivedPeers(pushed: updates)
-        if !peers.isEmpty {
-          do {
-            try await observer(peers)
-          } catch {
-            log.warning("dropping a pushed update container: recording its peers failed: \(error)")
-            continue
-          }
-        }
-        sink?(updates)
-      }
-    }
-  }
-
-  func push(_ updates: TL.UpdatesType) { continuation.yield(updates) }
-
-  /// Stops after the pushes already queued.
-  func finish() { continuation.finish() }
-
-  deinit { continuation.finish() }
 }
 
 // MARK: - Reading peers out of values
@@ -224,15 +197,18 @@ enum ReceivedPeerReplies {
   /// `TLClient` will.
   struct Reader: Sendable {
     let method: String
-    let read: @Sendable (Data) throws -> ReceivedPeerList
+    let function: any TLFunction.Type
+    let read: @Sendable (Data) throws -> (peers: ReceivedPeerList, result: any Sendable)
 
     init<Function: TLFunction>(_: Function.Type, _ method: String)
     where Function.ReturnType: ReceivedPeerCarrying {
       self.method = method
+      self.function = Function.self
       self.read = { reply in
         var list = ReceivedPeerList()
-        try Function.ReturnType(tlData: reply).collectReceivedPeers(into: &list)
-        return list
+        let result = try Function.ReturnType(tlData: reply)
+        result.collectReceivedPeers(into: &list)
+        return (list, result)
       }
     }
   }

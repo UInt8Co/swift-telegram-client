@@ -204,18 +204,37 @@ import Testing
   @Test func resumeProofIsObservedLikeAnyResult() async throws {
     let fixture = try await ResumeFixture.make(replies: [.identify(42)])
     defer { fixture.removeDirectory() }
-    let observed = Mutex<[ReceivedPeers]>([])
-    let connection = try await fixture.establish(onReceivedPeers: { peers in
-      observed.withLock { $0.append(peers) }
-    })
+    let observation = ReceivedPeerObservation()
+    let connection = try await fixture.establish(receivedPeers: observation)
     #expect(connection.resumedSession)
-    // The identify RPC ran before the connection existed, through the same transport.
-    #expect(
-      observed.withLock { $0 } == [
-        ReceivedPeers(
-          users: [.user(TL.User(id: 42))], chats: [], origin: .result(method: "users.getUsers"))
-      ])
     #expect(connection.api.transport is PeerObservingTransport)
+    #expect(connection.receivedPeers === observation)
+    // Attached once the login is known: the identify RPC's peers were held for it.
+    let observed = Mutex<[ReceivedPeers]>([])
+    await observation.attach { peers in observed.withLock { $0.append(peers) } }
+    let peers = observed.withLock { $0 }
+    #expect(peers.map(Seen.init) == [Seen(users: [.user(TL.User(id: 42))], chats: [], from: "users.getUsers")])
+    #expect(peers.first?.call?.withholdsResultOnFailure == false)
+    await connection.disconnect()
+    try await fixture.server.channel.close()
+  }
+
+  @Test func failingObserverCannotFailOrRepeatALogin() async throws {
+    struct StoreDown: Error {}
+    let fixture = try await ResumeFixture.make(replies: [.authorize("99:test-secret")])
+    defer { fixture.removeDirectory() }
+    let (failed, report) = AsyncStream.makeStream(of: ReceivedPeerObservation.Failure.self)
+    let observation = ReceivedPeerObservation(onFailure: { report.yield($0) })
+    await observation.attach { _ in throw StoreDown() }
+    let connection = try await fixture.establish(
+      authorization: .botToken("99:test-secret"), receivedPeers: observation)
+    // The login stands, and was spent once; the refused peers are reported instead.
+    #expect(connection.accountID == 99)
+    #expect(fixture.dials.withLock { $0 } == [nil])
+    var failures = failed.makeAsyncIterator()
+    let failure = try #require(await failures.next())
+    #expect(failure.error is StoreDown)
+    #expect(failure.peers.call?.method == "auth.importBotAuthorization")
     await connection.disconnect()
     try await fixture.server.channel.close()
   }
@@ -298,13 +317,13 @@ private final class ResumeFixture: Sendable {
   func establish(
     authorization: TelegramAuthorization = .storedSessionOnly,
     connectFailures: [Int: MTProtoClientError] = [:],
-    onReceivedPeers: ReceivedPeersObserver? = nil
+    receivedPeers: ReceivedPeerObservation? = nil
   ) async throws -> TelegramConnection {
     try await TelegramConnection.establish(
       endpoint: server.endpoint, rsaPublicKey: TelegramService.production.rsaPublicKey,
       app: TelegramApp(apiID: 12345, apiHash: "test"), layer: TelegramSchemaLayer.current,
       authorization: authorization, sessionStore: store, sessionScope: "resume-test",
-      onPushedUpdates: nil, onReceivedPeers: onReceivedPeers,
+      onPushedUpdates: nil, receivedPeers: receivedPeers,
       timeouts: .init(connect: .seconds(1), request: .milliseconds(150)),
       log: TelegramLog(minimum: .warning) { _, message in
         self.warnings.withLock { $0.append(message) }

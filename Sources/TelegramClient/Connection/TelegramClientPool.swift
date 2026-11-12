@@ -14,9 +14,9 @@ import TelegramSchema
 /// foreign datacenter is therefore authorized the only way it can be: the home
 /// connection exports an authorization for it and the new connection imports it.
 ///
-/// Every connection the pool opens hands received peers to the observer `main`
-/// was connected with, if any, so a result fetched from another datacenter is
-/// observed like one from the home datacenter.
+/// Every connection the pool opens hands received peers to the
+/// ``ReceivedPeerObservation`` `main` was connected with, if any, so a result
+/// fetched from another datacenter is observed like one from the home datacenter.
 public actor TelegramClientPool {
   private let main: TelegramConnection
   private let app: TelegramApp
@@ -81,7 +81,7 @@ public actor TelegramClientPool {
             layer: main.layer,
             authorization: .exported { try await main.exportedAuthorization(for: dcID) },
             sessionStore: sessionStore, sessionScope: sessionScope,
-            onReceivedPeers: main.onReceivedPeers, log: log)
+            receivedPeers: main.receivedPeers, log: log)
         } catch is CancellationError {
           throw CancellationError()
         } catch {

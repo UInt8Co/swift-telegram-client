@@ -77,7 +77,8 @@ import Testing
       }
       request.writeUInt32(getUsers.id)
       let reply = try schema.reply(to: getUsers, through: [])
-      try await expectObserved(reply, request: request.data, method: "users.getUsers", wrapper.name)
+      try await expectObserved(
+        reply, request: request.data, method: "users.getUsers", methodID: getUsers.id, wrapper.name)
     }
   }
 
@@ -87,16 +88,17 @@ import Testing
   ) async throws {
     var writer = TLWriter()
     writer.writeUInt32(request)
-    try await expectObserved(reply, request: writer.data, method: method, position)
+    try await expectObserved(reply, request: writer.data, method: method, methodID: request, position)
   }
 
   private func expectObserved(
-    _ reply: (Data, TLTestSchema.Sentinels), request: Data, method: String, _ position: String
+    _ reply: (Data, TLTestSchema.Sentinels), request: Data, method: String, methodID: UInt32,
+    _ position: String
   ) async throws {
     let observed = Mutex<[ReceivedPeers]>([])
-    let transport = PeerObservingTransport(base: CannedTransport([reply.0])) { peers in
-      observed.withLock { $0.append(peers) }
-    }
+    let observation = ReceivedPeerObservation()
+    await observation.attach { peers in observed.withLock { $0.append(peers) } }
+    let transport = PeerObservingTransport(base: CannedTransport([reply.0]), observation: observation)
     #expect(try await transport.send(request) == reply.0)
     let seen = observed.withLock { $0 }
     let users = seen.flatMap(\.users).map { user -> Int64 in
@@ -108,7 +110,16 @@ import Testing
     #expect(!reply.1.users.isEmpty || !reply.1.chats.isEmpty, "\(method) \(position)")
     #expect(users == reply.1.users, "\(method) \(position)")
     #expect(chats == reply.1.chats, "\(method) \(position)")
-    #expect(seen.allSatisfy { $0.origin == .result(method: method) }, "\(method) \(position)")
+    for peers in seen {
+      let call = try #require(peers.call)
+      #expect(call.method == method, "\(method) \(position)")
+      // The call names its request type, and carries the whole decoded result.
+      #expect(
+        (call.function as? any TLConstructed.Type)?.tlConstructorID == methodID,
+        "\(method) \(position)")
+      #expect(
+        (call.result as? any TLEncodable)?.tlSerialized() == reply.0, "\(method) \(position)")
+    }
   }
 }
 

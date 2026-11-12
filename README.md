@@ -160,15 +160,19 @@ additional datacenter connections with `TelegramClientPool`, photo and document
 transfer with `MediaTransfer`, and flood-wait handling with `MTProtoDirective`.
 The [DocC topic index][overview] is also available in this repository.
 
-Pass `onReceivedPeers:` to `connect` to be handed every user and chat the
-connection receives — from the result of any RPC, the difference included, and
-from pushes — before the result is returned or the push reaches
-`onPushedUpdates`. It is the one place to record access hashes for peers known
-later only by ID; the library stores nothing. Objects arrive raw, `min` flag
-included, so never let a `min` hash replace a full one. A throwing observer fails
-the call with `PeerObservationFailure` after the server executed it, and drops a
-push (the difference carries it again). See [Observing received
-peers][received-peers].
+Pass a `ReceivedPeerObservation` as `receivedPeers:` to `connect` to be handed
+every user and chat the connection receives — from the result of any RPC, the
+login and the difference included, and from pushes. It is the one place to
+record access hashes for peers known later only by ID; the library stores
+nothing. Attach its observer whenever the store can be opened, even after
+`connect` returns: what arrives before is held in order. Once attached, it sees
+a result before the caller does and a push before `onPushedUpdates`, with the
+call's request type, decoded result and any context the caller attached with
+`ReceivedPeers.withContext`. Objects arrive raw, `min` flag included, so never
+let a `min` hash replace a full one. A throwing observer fails a call with
+`PeerObservationFailure` after the server executed it; a push is reported and
+still handed on, and observing the login can never fail it. See [Observing
+received peers][received-peers].
 
 Keep a `PeerCache(using: connection.api, lookup: .byID)` for each bot connection
 when addressing peers repeatedly by ID (`.inDialogs` supports user dialog lookup).

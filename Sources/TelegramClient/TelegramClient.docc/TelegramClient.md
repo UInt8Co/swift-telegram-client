@@ -29,7 +29,7 @@ client has to obey to keep a Telegram session working at all:
   notice the gaps and fill them. ``UpdateCursor`` tracks the sequence state and
   ``UpdateHub`` wakes whoever is waiting on a particular channel.
 
-``TelegramConnection/connect(to:app:authorization:sessionStore:sessionScope:onPushedUpdates:onReceivedPeers:timeouts:log:)``
+``TelegramConnection/connect(to:app:authorization:sessionStore:sessionScope:onPushedUpdates:receivedPeers:timeouts:log:)``
 is the entry point, and it needs no addresses: ``TelegramService/production``
 carries Telegram's own seeds, and everything after the first `help.getConfig`
 uses the datacenter list Telegram publishes.
@@ -133,6 +133,7 @@ layer and none of the machinery above changes.
 - ``ForumTopicGone``
 
 - <doc:ObservingReceivedPeers>
+- ``ReceivedPeerObservation``
 - ``ReceivedPeers``
 - ``ReceivedPeersObserver``
 - ``PeerObservingTransport``
