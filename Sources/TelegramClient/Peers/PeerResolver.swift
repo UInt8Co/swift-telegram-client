@@ -33,13 +33,25 @@ public enum PeerResolver {
         }
         return try reference(chat, description: locator.description, lookup: lookup)
       case .inDialogs:
+        // A dialog page also lists peers its top messages merely mention, as
+        // `min` objects. Their hashes address nothing outside that message, so
+        // one is passed over: the peer's own dialog, further on, lists it in full.
+        var sawMin = false
         let found = try await inDialogs(api) { page -> ChannelReference? in
           guard let chat = page.chats.first(where: { channelID(of: $0) == id }) else {
             return nil
           }
+          if case .channel(let channel) = chat, channel.min {
+            sawMin = true
+            return nil
+          }
           return try reference(chat, description: locator.description, lookup: lookup)
         }
-        guard let found else { throw TelegramClientError.peerNotFound(locator.description) }
+        guard let found else {
+          throw sawMin
+            ? TelegramClientError.missingAccessHash(locator.description)
+            : TelegramClientError.peerNotFound(locator.description)
+        }
         return found
       }
     }
@@ -60,14 +72,25 @@ public enum PeerResolver {
       // in; zero is what a bot sends for such a peer.
       return UserReference(id: id, accessHash: user.min ? 0 : user.accessHash ?? 0)
     case .inDialogs:
+      // As for a channel: a `min` user is one a top message mentions, and its
+      // hash is no reference to the user. Only a full object is returned.
+      var sawMin = false
       let found = try await inDialogs(api) { page -> UserReference? in
         guard let user = page.users.first(where: { userID(of: $0) == id }) else { return nil }
+        if case .user(let value) = user, value.min {
+          sawMin = true
+          return nil
+        }
         guard case .user(let value) = user, let hash = value.accessHash else {
           throw TelegramClientError.missingAccessHash(String(id))
         }
         return UserReference(id: id, accessHash: hash)
       }
-      guard let found else { throw TelegramClientError.userNotFound(id) }
+      guard let found else {
+        throw sawMin
+          ? TelegramClientError.missingAccessHash(String(id))
+          : TelegramClientError.userNotFound(id)
+      }
       return found
     }
   }
@@ -125,9 +148,13 @@ public enum PeerResolver {
     switch chat {
     case .channel(let channel):
       // A `min` channel's hash names it only inside the message it arrived
-      // with; a lookup by id sends zero instead, which is what a bot may do.
+      // with; a lookup by id sends zero instead, which is what a bot may do. A
+      // user account cannot send zero, so for it a `min` channel has no hash.
       let accessHash =
-        lookup == .byID ? (channel.min ? 0 : channel.accessHash ?? 0) : channel.accessHash
+        switch lookup {
+        case .byID: channel.min ? 0 : channel.accessHash ?? 0
+        case .inDialogs: channel.min ? nil : channel.accessHash
+        }
       guard let hash = accessHash else {
         throw TelegramClientError.missingAccessHash(description)
       }
