@@ -81,19 +81,27 @@ public final class TelegramConnection: Sendable {
   /// The API layer this connection announced, which is also the layer its
   /// replies and the server's pushes arrive in.
   public let layer: Int32
-  /// The Telegram API over this session.
+  /// The Telegram API over this session. With an observer of received peers,
+  /// its transport is a ``PeerObservingTransport`` over the session's own.
   public let api: TLClient
+  /// The observer this connection hands received peers to, which the
+  /// connections a ``TelegramClientPool`` opens beside it share.
+  let onReceivedPeers: ReceivedPeersObserver?
+  private let pushRelay: PeerObservingPushRelay?
 
   private init(
     endpoint: TelegramEndpoint, client: MTProtoClient, transport: TelegramTransport,
-    accountID: Int64, resumedSession: Bool
+    api: TLClient, accountID: Int64, resumedSession: Bool,
+    onReceivedPeers: ReceivedPeersObserver?, pushRelay: PeerObservingPushRelay?
   ) {
     self.endpoint = endpoint
     self.client = client
     self.accountID = accountID
     self.resumedSession = resumedSession
     self.layer = transport.layer
-    self.api = TLClient(transport: transport)
+    self.api = api
+    self.onReceivedPeers = onReceivedPeers
+    self.pushRelay = pushRelay
   }
 
   /// Sessions are cached per scope *and* datacenter: a login authorizes on
@@ -106,6 +114,12 @@ public final class TelegramConnection: Sendable {
   /// homes the account. `locateDC` supplies the target's addresses; without it
   /// a redirect is an error, and so is one answered to a connection that is not
   /// authorizing with a credential a redirect applies to.
+  ///
+  /// `onReceivedPeers` is handed every user and chat the connection receives —
+  /// from the results of its RPCs, the authorization included, and from pushed
+  /// update containers — before the result is returned or the push is handed to
+  /// `onPushedUpdates`. See <doc:ObservingReceivedPeers> for what it sees, its ordering,
+  /// and what a throw from it does.
   public static func connect(
     endpoint: TelegramEndpoint, rsaPublicKey: RSAPublicKey, app: TelegramApp,
     layer: Int32, authorization: TelegramAuthorization,
@@ -113,6 +127,7 @@ public final class TelegramConnection: Sendable {
     locateDC: TelegramDatacenterLocating? = nil,
     onMigration: (@Sendable (Int32) async throws -> Void)? = nil,
     onPushedUpdates: (@Sendable (TL.UpdatesType) -> Void)? = nil,
+    onReceivedPeers: ReceivedPeersObserver? = nil,
     timeouts: TelegramConnectionTimeouts = .default,
     log: TelegramLog = .silent
   ) async throws -> TelegramConnection {
@@ -120,7 +135,7 @@ public final class TelegramConnection: Sendable {
       endpoint: endpoint, rsaPublicKey: rsaPublicKey, app: app, layer: layer,
       authorization: authorization, sessionStore: sessionStore, sessionScope: sessionScope,
       locateDC: locateDC, onMigration: onMigration, onPushedUpdates: onPushedUpdates,
-      migrations: 0, timeouts: timeouts, log: log)
+      onReceivedPeers: onReceivedPeers, migrations: 0, timeouts: timeouts, log: log)
   }
 
   private static func connect(
@@ -129,6 +144,7 @@ public final class TelegramConnection: Sendable {
     sessionScope: String?, locateDC: TelegramDatacenterLocating?,
     onMigration: (@Sendable (Int32) async throws -> Void)?,
     onPushedUpdates: (@Sendable (TL.UpdatesType) -> Void)?,
+    onReceivedPeers: ReceivedPeersObserver?,
     migrations: Int, timeouts: TelegramConnectionTimeouts, log: TelegramLog
   ) async throws -> TelegramConnection {
     do {
@@ -136,7 +152,7 @@ public final class TelegramConnection: Sendable {
         endpoint: endpoint, rsaPublicKey: rsaPublicKey, app: app, layer: layer,
         authorization: authorization, sessionStore: sessionStore,
         sessionScope: sessionScope, onPushedUpdates: onPushedUpdates,
-        timeouts: timeouts, log: log)
+        onReceivedPeers: onReceivedPeers, timeouts: timeouts, log: log)
     } catch {
       // Either an `rpc_error` naming a datacenter, or a login that named one
       // itself (`auth.loginTokenMigrateTo`). Both mean the same thing here.
@@ -166,8 +182,8 @@ public final class TelegramConnection: Sendable {
             endpoint: candidate, rsaPublicKey: target.rsaPublicKey, app: app, layer: layer,
             authorization: authorization, sessionStore: sessionStore,
             sessionScope: sessionScope, locateDC: locateDC, onMigration: onMigration,
-            onPushedUpdates: onPushedUpdates, migrations: migrations + 1,
-            timeouts: timeouts, log: log)
+            onPushedUpdates: onPushedUpdates, onReceivedPeers: onReceivedPeers,
+            migrations: migrations + 1, timeouts: timeouts, log: log)
         } catch is CancellationError {
           throw CancellationError()
         } catch {
@@ -184,6 +200,7 @@ public final class TelegramConnection: Sendable {
     endpoint: TelegramEndpoint, rsaPublicKey: RSAPublicKey, app: TelegramApp, layer: Int32,
     authorization: TelegramAuthorization, sessionStore: (any TelegramSessionStore)?,
     sessionScope: String?, onPushedUpdates: (@Sendable (TL.UpdatesType) -> Void)?,
+    onReceivedPeers: ReceivedPeersObserver? = nil,
     timeouts: TelegramConnectionTimeouts, log: TelegramLog,
     dial: @Sendable (TelegramEndpoint, MTProtoClientConfiguration) async throws -> MTProtoClient =
       dialClient
@@ -218,12 +235,19 @@ public final class TelegramConnection: Sendable {
       try Task.checkCancellation()
       attempt += 1
       let captured = Mutex<MTProtoSessionKeys?>(nil)
+      // Pushes reach `onPushedUpdates` directly unless their peers are to be
+      // observed first, which takes an ordered, asynchronous hop.
+      let pushRelay = onReceivedPeers.map {
+        PeerObservingPushRelay(observer: $0, sink: onPushedUpdates, log: log)
+      }
+      let deliverPush: (@Sendable (TL.UpdatesType) -> Void)? =
+        if let pushRelay { { updates in pushRelay.push(updates) } } else { onPushedUpdates }
       let configuration = MTProtoClientConfiguration(
         rsaPublicKey: rsaPublicKey, dcID: endpoint.dcID,
         resumeSession: cached?.session,
         requestTimeout: timeouts.request, connectTimeout: timeouts.connect,
         onSessionEstablished: { keys in captured.withLock { $0 = keys } },
-        onUnhandledMessage: Self.pushSink(onPushedUpdates, log: log),
+        onUnhandledMessage: Self.pushSink(deliverPush, log: log),
         log: log.lineSink(at: .debug))
       var connectedClient: MTProtoClient?
       var phase = "connect"
@@ -231,7 +255,10 @@ public final class TelegramConnection: Sendable {
         let client = try await dial(endpoint, configuration)
         connectedClient = client
         let transport = TelegramTransport(client: client, app: app, layer: layer)
-        let api = TLClient(transport: transport)
+        // Observed from the first RPC: the login's result names the account.
+        let api = TLClient(
+          transport: onReceivedPeers.map { PeerObservingTransport(base: transport, observer: $0) }
+            ?? transport)
         if let cached {
           phase = "identify"
           // This authenticated RPC proves liveness as well as identity. An
@@ -254,10 +281,12 @@ public final class TelegramConnection: Sendable {
           }
         }
         return TelegramConnection(
-          endpoint: endpoint, client: client, transport: transport,
-          accountID: accountID, resumedSession: cached != nil)
+          endpoint: endpoint, client: client, transport: transport, api: api,
+          accountID: accountID, resumedSession: cached != nil,
+          onReceivedPeers: onReceivedPeers, pushRelay: pushRelay)
       } catch {
         try? await connectedClient?.disconnect()
+        pushRelay?.finish()
         guard cached != nil else { throw error }
         log.warning(
           "cached session \(sessionKey ?? "") resume \(phase) failed "
@@ -275,7 +304,7 @@ public final class TelegramConnection: Sendable {
             endpoint: endpoint, rsaPublicKey: rsaPublicKey, app: app, layer: layer,
             authorization: authorization, sessionStore: sessionStore,
             sessionScope: sessionScope, onPushedUpdates: onPushedUpdates,
-            timeouts: timeouts, log: log, dial: dial)
+            onReceivedPeers: onReceivedPeers, timeouts: timeouts, log: log, dial: dial)
         }
         guard attempt < maximumResumeAttempts,
           retriesResume(error, duringConnect: phase == "connect")
@@ -322,7 +351,10 @@ public final class TelegramConnection: Sendable {
     }
   }
 
-  public func disconnect() async { try? await client.disconnect() }
+  public func disconnect() async {
+    try? await client.disconnect()
+    pushRelay?.finish()
+  }
 
   /// Mints an authorization another connection imports to authorize on `dcID`.
   /// Single use: the import that consumes it spends it, so a retried dial

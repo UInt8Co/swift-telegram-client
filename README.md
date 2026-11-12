@@ -160,6 +160,16 @@ additional datacenter connections with `TelegramClientPool`, photo and document
 transfer with `MediaTransfer`, and flood-wait handling with `MTProtoDirective`.
 The [DocC topic index][overview] is also available in this repository.
 
+Pass `onReceivedPeers:` to `connect` to be handed every user and chat the
+connection receives — from the result of any RPC, the difference included, and
+from pushes — before the result is returned or the push reaches
+`onPushedUpdates`. It is the one place to record access hashes for peers known
+later only by ID; the library stores nothing. Objects arrive raw, `min` flag
+included, so never let a `min` hash replace a full one. A throwing observer fails
+the call with `PeerObservationFailure` after the server executed it, and drops a
+push (the difference carries it again). See [Observing received
+peers][received-peers].
+
 Keep a `PeerCache(using: connection.api, lookup: .byID)` for each bot connection
 when addressing peers repeatedly by ID (`.inDialogs` supports user dialog lookup).
 Use its `channel(_:)` and `user(_:)` references for subsequent requests: a bot's
@@ -262,6 +272,7 @@ MIT. See [LICENSE](LICENSE).
 
 [documentation]: https://swiftpackageindex.com/UInt8Co/swift-telegram-client/documentation/telegramclient
 [overview]: Sources/TelegramClient/TelegramClient.docc/TelegramClient.md
+[received-peers]: Sources/TelegramClient/TelegramClient.docc/ObservingReceivedPeers.md
 [methods]: https://core.telegram.org/methods
 [rich-text]: Sources/TelegramRichText/TelegramRichText.docc/TelegramRichText.md
 [markup]: Sources/TelegramMarkup/TelegramMarkup.docc/TelegramMarkup.md

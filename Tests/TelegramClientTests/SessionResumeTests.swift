@@ -201,6 +201,25 @@ import Testing
     try await fixture.server.channel.close()
   }
 
+  @Test func resumeProofIsObservedLikeAnyResult() async throws {
+    let fixture = try await ResumeFixture.make(replies: [.identify(42)])
+    defer { fixture.removeDirectory() }
+    let observed = Mutex<[ReceivedPeers]>([])
+    let connection = try await fixture.establish(onReceivedPeers: { peers in
+      observed.withLock { $0.append(peers) }
+    })
+    #expect(connection.resumedSession)
+    // The identify RPC ran before the connection existed, through the same transport.
+    #expect(
+      observed.withLock { $0 } == [
+        ReceivedPeers(
+          users: [.user(TL.User(id: 42))], chats: [], origin: .result(method: "users.getUsers"))
+      ])
+    #expect(connection.api.transport is PeerObservingTransport)
+    await connection.disconnect()
+    try await fixture.server.channel.close()
+  }
+
   @Test func mismatchedIdentifiedAccountLeavesNoStoredSessionInResumeOnlyMode() async throws {
     let fixture = try await ResumeFixture.make(replies: [.identify(99)])
     defer { fixture.removeDirectory() }
@@ -278,13 +297,14 @@ private final class ResumeFixture: Sendable {
   /// still run as encrypted RPCs against the peer, through the real transport.
   func establish(
     authorization: TelegramAuthorization = .storedSessionOnly,
-    connectFailures: [Int: MTProtoClientError] = [:]
+    connectFailures: [Int: MTProtoClientError] = [:],
+    onReceivedPeers: ReceivedPeersObserver? = nil
   ) async throws -> TelegramConnection {
     try await TelegramConnection.establish(
       endpoint: server.endpoint, rsaPublicKey: TelegramService.production.rsaPublicKey,
       app: TelegramApp(apiID: 12345, apiHash: "test"), layer: TelegramSchemaLayer.current,
       authorization: authorization, sessionStore: store, sessionScope: "resume-test",
-      onPushedUpdates: nil,
+      onPushedUpdates: nil, onReceivedPeers: onReceivedPeers,
       timeouts: .init(connect: .seconds(1), request: .milliseconds(150)),
       log: TelegramLog(minimum: .warning) { _, message in
         self.warnings.withLock { $0.append(message) }

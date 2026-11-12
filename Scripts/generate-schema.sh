@@ -96,4 +96,8 @@ EOF
 DENO="${DENO:-$(command -v deno || echo "$HOME/.deno/bin/deno")}"
 "$DENO" run --allow-read --allow-write Scripts/generate-package-targets.ts
 
+# Where a received value can hold a User or a Chat follows the schema too, and
+# TelegramClient's observer of received peers reads exactly those positions.
+"$DENO" run --allow-read --allow-write Scripts/generate-received-peers.ts
+
 echo "Regenerated layer $LATEST_LAYER into Sources/TelegramSchema."
