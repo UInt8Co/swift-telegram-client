@@ -107,33 +107,46 @@ by context at the call site, or by request type with
 ### Ordering, backpressure and failure
 
 The observer runs **before** what carried the peers is handed on, so a hash is
-recorded by the time any code can act on the result or the update:
+recorded by the time any code can act on the result or the update. Beyond
+that, a consumer may rely on exactly this:
 
-- For an RPC, once an observer is attached, it runs on the caller's task and
-  the result is returned when it returns. Concurrent calls observe
-  concurrently, so the observer must be safe to run concurrently with itself; a
-  slow observer slows exactly the calls it is observing. If it throws, the call
-  throws ``PeerObservationFailure`` instead of returning — **after the server
-  already executed it**, so an observer should only throw for a call that is
-  safe to make again — or the `CancellationError` it threw.
-- Pushes are observed one at a time, in arrival order, and each is handed to
+- **Results.** Once an observer is attached and the held backlog (below) is
+  observed, a result is observed on its caller's task as soon as it arrives and
+  returned when the observer returns — concurrently with other results and with
+  pushes, never queued behind them. The observer must therefore be safe to run
+  concurrently with itself; a slow observer slows exactly the calls it is
+  observing. If it throws, the call throws ``PeerObservationFailure`` instead of
+  returning — **after the server already executed it**, so an observer should
+  only throw for a call that is safe to make again — or the `CancellationError`
+  it threw.
+- **Pushes** are observed one at a time, in arrival order, and each is handed to
   `onPushedUpdates` only after its observation returned. The server pushes
   regardless of how quickly they are consumed, so a slow observer grows an
-  unbounded queue rather than losing pushes.
-- **A push is never lost to an observer failure.** The failure is reported to
-  the observation's failure handler, with the peers that were not recorded, and
-  the push is then handed on all the same: some pushes — a pre-checkout query
-  that must be answered within seconds — cannot wait for the difference to
-  bring them back.
-- Until an observer is attached, results reach their callers at once and their
-  peers are held, in order, with every push. Attaching observes them all, hands
-  on the held pushes, and only then lets new results be observed inline; a
-  result arriving meanwhile waits behind them. A held result's caller already
-  has it, so a failure to observe it is reported, not thrown.
-- The connection's own RPCs while connecting are never waited for: their peers
-  are held, or observed in the background if an observer is attached. An
-  observer that fails cannot fail a login the server already accepted, nor make
-  the next attempt spend another.
+  unbounded queue rather than losing pushes. **A push is never lost to an
+  observer failure:** the failure is reported to the observation's failure
+  handler, with the peers that were not recorded, and the push is then handed
+  on all the same — some pushes, such as a pre-checkout query that must be
+  answered within seconds, cannot wait for the difference to bring them back.
+- **A push and a concurrent result are not ordered** relative to each other, as
+  they were not before this API existed: neither waits for the other.
+- **Before attachment**, results reach their callers at once and their peers are
+  held, in arrival order, together with every push. Attaching observes that
+  backlog in order and hands on its pushes before anything received later is
+  observed: a result arriving meanwhile waits for the backlog — only for it,
+  not for pushes received after attachment — and a caller cancelled while
+  waiting gets `CancellationError` and its peers are held instead of lost. A
+  held result's caller already has it, so a failure to observe it is reported,
+  not thrown.
+- **RPCs made from inside the observer** — directly, from child tasks it
+  awaits (`async let`, task groups, `Task {}`), or nested several observations
+  deep — are observed at once and returned, ahead of anything queued, so an
+  observer may make calls whose results are themselves observed without waiting
+  for the observation that made them. A `Task.detached` started by the observer
+  is not inside it.
+- **The connection's own RPCs while connecting** are never waited for: their
+  peers are held, or observed in the background with the pushes if an observer
+  is already attached. An observer that fails cannot fail a login the server
+  already accepted, nor make the next attempt spend another.
 
 ### Testing with the production path
 
@@ -141,8 +154,8 @@ A test with a fake transport builds exactly what a connection does: a
 ``ReceivedPeerObservation``, a `TLClient` over a ``PeerObservingTransport``
 wrapping the fake, and pushes sent through
 ``ReceivedPeerObservation/push(_:handingOnTo:)``.
-``ReceivedPeerObservation/flush()`` waits until every push made so far has been
-observed and handed on.
+``ReceivedPeerObservation/flush()`` waits until every push and held result
+received so far has been observed and every push handed on.
 
 ### Cost
 

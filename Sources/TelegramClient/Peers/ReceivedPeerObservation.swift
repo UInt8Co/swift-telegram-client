@@ -17,27 +17,41 @@ import TelegramSchema
 /// received in between is lost: it is held, in arrival order, and observed on
 /// attachment.
 ///
-/// - **Results** of RPCs made through ``PeerObservingTransport`` are observed
-///   before the caller has them, once an observer is attached and everything held
-///   before it has been observed; until then the caller has them at once and
-///   they are held. Results of the RPCs a connection makes while connecting are
-///   always held, so observing them can never fail a login. Throwing for a
-///   result the caller is waiting for withholds it (``PeerObservationFailure``);
-///   ``ReceivedPeers/Call/withholdsResultOnFailure`` says which those are.
-/// - **Pushes** are observed one at a time, in arrival order, and each is handed
-///   on only after its observation — so pushes received before attachment wait
-///   for it. **A push is never lost to an observer that throws**: the failure is
-///   reported to the failure handler, then the push is handed on all the same.
-///   Some pushes cannot wait for the difference to bring them again
-///   (a pre-checkout query must be answered within seconds).
-/// - Failures that no caller is waiting for — a push's, a held result's — go to
-///   the failure handler with the peers that were not observed, so a consumer can
-///   keep them for later; the default handler logs a warning.
+/// What a consumer may rely on:
 ///
-/// The server pushes regardless of how fast pushes are consumed, so the queue is
-/// unbounded: a slow or unattached observer grows it instead of losing anything.
-/// One observation can serve several connections — a ``TelegramClientPool``
-/// shares its main connection's with the connections it opens.
+/// - **An RPC's peers are observed before its caller has the result.** Once the
+///   held backlog is observed, a result is observed on its caller's task as soon
+///   as it arrives — concurrently with other results and with pushes, never
+///   queued behind them. Throwing for it withholds it (``PeerObservationFailure``).
+/// - **Pushes are observed one at a time, in arrival order**, and each is handed
+///   on only after its observation. **A push is never lost to an observer that
+///   throws**: the failure is reported to the failure handler, then the push is
+///   handed on all the same — some pushes (a pre-checkout query) cannot wait for
+///   the difference to bring them again.
+/// - **Everything received before ``attach(_:)`` is observed in arrival order
+///   before anything received after it**: until then results reach their callers
+///   at once and their peers are held with the pushes, and a result arriving
+///   while that backlog is observed waits for the backlog — not for later pushes.
+/// - **A push and a concurrent RPC result are not ordered** relative to each
+///   other, as they never were: each is observed before it is handed on, and
+///   neither waits for the other.
+/// - **An RPC made from inside the observer** — directly, from a child task it
+///   awaits, or nested several observations deep — is observed at once and
+///   returned, ahead of anything queued, rather than waiting for the observation
+///   that made it. (A `Task.detached` is not inside the observer.)
+/// - Results of the RPCs a connection makes while connecting are never waited
+///   for, so observing them can never fail a login; they are held, or observed
+///   in the background behind earlier pushes.
+/// - Failures that no caller is waiting for — a push's, a held result's — go to
+///   the failure handler with the peers that were not observed, so a consumer
+///   can keep them for later; the default handler logs a warning.
+///   ``ReceivedPeers/Call/withholdsResultOnFailure`` says which results those are.
+///
+/// The server pushes regardless of how fast pushes are consumed, so the push
+/// queue is unbounded: a slow or unattached observer grows it instead of losing
+/// anything. One observation can serve several connections — a
+/// ``TelegramClientPool`` shares its main connection's with the connections it
+/// opens.
 ///
 /// A test drives exactly the production path: results through a
 /// ``PeerObservingTransport`` over a fake transport, pushes through
@@ -56,20 +70,19 @@ public final class ReceivedPeerObservation: Sendable {
     }
   }
 
+  /// What the observation's own task works through, in order.
   private enum Item: Sendable {
     /// A push, handed on after its peers, if any, were observed.
     case push(ReceivedPeers, handOn: @Sendable (TL.UpdatesType) -> Void)
     /// A result its caller already has.
     case held(ReceivedPeers)
-    /// A result its caller waits for; the continuation answers the caller.
-    case awaited(ReceivedPeers, CheckedContinuation<ReceivedPeersObserver?, any Error>)
     /// Someone waiting until everything queued before this was processed.
     case flush(CheckedContinuation<Void, Never>)
 
     var needsObserver: Bool {
       switch self {
       case .push(let peers, _): !peers.isEmpty
-      case .held, .awaited: true
+      case .held: true
       case .flush: false
       }
     }
@@ -77,13 +90,24 @@ public final class ReceivedPeerObservation: Sendable {
 
   private struct State {
     var observer: ReceivedPeersObserver?
-    /// The head stays queued while it is processed, so an empty queue means idle.
+    /// The head stays queued while it is processed.
     var queue: [Item] = []
+    /// How many items at the head of `queue` were received before attachment
+    /// and are not yet observed. Results wait for this, never for the rest.
+    var backlog = 0
+    /// Callers whose results wait for the backlog, by waiter number.
+    var waiting: [Int: CheckedContinuation<Void, any Error>] = [:]
+    var nextWaiter = 0
+    /// `attach` calls waiting for the backlog.
+    var attaching: [CheckedContinuation<Void, Never>] = []
   }
 
   private final class Shared: Sendable {
     let state = Mutex(State())
   }
+
+  /// The observations whose observer the current task is running inside.
+  @TaskLocal private static var observing: Set<ObjectIdentifier> = []
 
   private let shared = Shared()
   private let wake: AsyncStream<Void>.Continuation
@@ -113,8 +137,16 @@ public final class ReceivedPeerObservation: Sendable {
           else { return nil }
           return (head, state.observer)
         }) {
-          await Self.process(item, observer: observer, report: report)
-          shared.state.withLock { _ = $0.queue.removeFirst() }
+          await Self.process(item, observer: observer, in: shared, report: report)
+          let drained = shared.state.withLock { state -> Drained? in
+            state.queue.removeFirst()
+            guard state.backlog > 0 else { return nil }
+            state.backlog -= 1
+            guard state.backlog == 0 else { return nil }
+            defer { state.waiting = [:]; state.attaching = [] }
+            return Drained(waiting: Array(state.waiting.values), attaching: state.attaching)
+          }
+          drained?.resume()
         }
       }
     }
@@ -122,24 +154,37 @@ public final class ReceivedPeerObservation: Sendable {
 
   deinit { wake.finish() }
 
-  /// Starts observing: everything held so far is observed, in arrival order, then
-  /// every peer from now on. Returns once what was held has been observed — and
-  /// the pushes among it handed on.
-  ///
-  /// Results that arrive while held peers are still being observed wait behind
-  /// them, so nothing is observed out of order. Attach once.
-  public func attach(_ observer: @escaping ReceivedPeersObserver) async {
-    let attached = shared.state.withLock { state in
-      guard state.observer == nil else { return false }
-      state.observer = observer
-      return true
+  private struct Drained {
+    var waiting: [CheckedContinuation<Void, any Error>]
+    var attaching: [CheckedContinuation<Void, Never>]
+
+    func resume() {
+      for continuation in waiting { continuation.resume() }
+      for continuation in attaching { continuation.resume() }
     }
-    precondition(attached, "a ReceivedPeerObservation is attached once")
-    await flush()
   }
 
-  /// Returns once everything received before the call has been observed and every
-  /// push among it handed on. Waits for attachment if something needs observing.
+  /// Starts observing: everything held so far is observed, in arrival order, then
+  /// every peer from now on. Returns once what was held has been observed — and
+  /// the pushes among it handed on. Attach once.
+  public func attach(_ observer: @escaping ReceivedPeersObserver) async {
+    await withCheckedContinuation { continuation in
+      let drained = shared.state.withLock { state -> Bool in
+        precondition(state.observer == nil, "a ReceivedPeerObservation is attached once")
+        state.observer = observer
+        state.backlog = state.queue.count
+        if state.backlog == 0 { return true }
+        state.attaching.append(continuation)
+        return false
+      }
+      if drained { continuation.resume() } else { wake.yield() }
+    }
+  }
+
+  /// Returns once every push and held result received before the call has been
+  /// observed and every push among them handed on. Waits for attachment if
+  /// something needs observing. Results observed on their callers' tasks are not
+  /// queued, so this does not wait for them.
   public func flush() async {
     await withCheckedContinuation { continuation in
       shared.state.withLock { $0.queue.append(.flush(continuation)) }
@@ -158,66 +203,108 @@ public final class ReceivedPeerObservation: Sendable {
   }
 
   /// Observes a result before its caller has it, or holds it. Throws what the
-  /// observer threw for a result its caller waits for.
+  /// observer threw for a result its caller waits for, or `CancellationError` if
+  /// the caller is cancelled while its result waits for the backlog — the peers
+  /// are then held rather than lost.
   func observe(result peers: ReceivedPeers, callerWaits: Bool) async throws {
-    enum Route { case held, inline(ReceivedPeersObserver), queued }
-    var held = peers
-    held.markHeld()
-    let inline = try await withCheckedThrowingContinuation {
-      (continuation: CheckedContinuation<ReceivedPeersObserver?, any Error>) in
-      let route = shared.state.withLock { state -> Route in
-        guard callerWaits, let observer = state.observer else {
-          state.queue.append(.held(held))
-          return .held
-        }
-        if state.queue.isEmpty { return .inline(observer) }
-        state.queue.append(.awaited(peers, continuation))
-        return .queued
-      }
-      switch route {
-      case .held:
-        wake.yield()
-        continuation.resume(returning: nil)
-      case .inline(let observer):
-        continuation.resume(returning: observer)
-      case .queued:
-        wake.yield()
-      }
+    let id = ObjectIdentifier(shared)
+    // Made from inside the observer: observed at once, or it would wait for
+    // the very observation that is waiting for it.
+    if callerWaits, Self.observing.contains(id),
+      let observer = shared.state.withLock({ $0.observer })
+    {
+      return try await Self.run(observer, peers, in: shared)
     }
-    if let inline { try await inline(peers) }
+    enum Route { case held, inline(ReceivedPeersObserver), wait }
+    let route = shared.state.withLock { state -> Route in
+      guard callerWaits, let observer = state.observer else {
+        state.queue.append(.held(Self.held(peers)))
+        return .held
+      }
+      return state.backlog == 0 ? .inline(observer) : .wait
+    }
+    switch route {
+    case .held:
+      wake.yield()
+    case .inline(let observer):
+      try await Self.run(observer, peers, in: shared)
+    case .wait:
+      do {
+        try await waitForBacklog()
+      } catch {
+        shared.state.withLock { $0.queue.append(.held(Self.held(peers))) }
+        wake.yield()
+        throw error
+      }
+      guard let observer = shared.state.withLock({ $0.observer }) else { return }
+      try await Self.run(observer, peers, in: shared)
+    }
+  }
+
+  private func waitForBacklog() async throws {
+    let waiter = shared.state.withLock { state in
+      state.nextWaiter += 1
+      return state.nextWaiter
+    }
+    try await withTaskCancellationHandler {
+      try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, any Error>) in
+        enum Now { case wait, go, cancelled }
+        let now = shared.state.withLock { state -> Now in
+          if state.backlog == 0 { return .go }
+          // Registered after a cancellation the handler could not find.
+          if Task.isCancelled { return .cancelled }
+          state.waiting[waiter] = continuation
+          return .wait
+        }
+        switch now {
+        case .wait: break
+        case .go: continuation.resume()
+        case .cancelled: continuation.resume(throwing: CancellationError())
+        }
+      }
+    } onCancel: {
+      shared.state.withLock { $0.waiting.removeValue(forKey: waiter) }?
+        .resume(throwing: CancellationError())
+    }
+  }
+
+  /// Runs the observer with the current task marked as inside it.
+  private static func run(
+    _ observer: ReceivedPeersObserver, _ peers: ReceivedPeers, in shared: Shared
+  ) async throws {
+    try await $observing.withValue(observing.union([ObjectIdentifier(shared)])) {
+      try await observer(peers)
+    }
+  }
+
+  private static func held(_ peers: ReceivedPeers) -> ReceivedPeers {
+    guard case .result(var call) = peers.origin else { return peers }
+    call.withholdsResultOnFailure = false
+    var held = peers
+    held.origin = .result(call)
+    return held
   }
 
   private static func process(
-    _ item: Item, observer: ReceivedPeersObserver?, report: @Sendable (Failure) -> Void
+    _ item: Item, observer: ReceivedPeersObserver?, in shared: Shared,
+    report: @Sendable (Failure) -> Void
   ) async {
     switch item {
     case .push(let peers, let handOn):
       if let observer, !peers.isEmpty {
-        do { try await observer(peers) } catch { report(Failure(peers: peers, error: error)) }
+        do { try await run(observer, peers, in: shared) } catch {
+          report(Failure(peers: peers, error: error))
+        }
       }
       if let updates = peers.pushed { handOn(updates) }
     case .held(let peers):
       guard let observer else { return }
-      do { try await observer(peers) } catch { report(Failure(peers: peers, error: error)) }
-    case .awaited(let peers, let continuation):
-      guard let observer else { return continuation.resume(returning: nil) }
-      do {
-        try await observer(peers)
-        continuation.resume(returning: nil)
-      } catch {
-        continuation.resume(throwing: error)
+      do { try await run(observer, peers, in: shared) } catch {
+        report(Failure(peers: peers, error: error))
       }
     case .flush(let continuation):
       continuation.resume()
     }
-  }
-}
-
-extension ReceivedPeers {
-  fileprivate mutating func markHeld() {
-    guard case .result(var call) = origin else { return }
-    call.withholdsResultOnFailure = false
-    origin = .result(call)
   }
 }
 

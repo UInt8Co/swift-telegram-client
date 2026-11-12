@@ -30,6 +30,12 @@ import Testing
     .updates(TL.Updates_(updates: [], users: [user], chats: [], date: 1, seq: seq))
   }
 
+  private static let users = [fullUser].tlSerialized()
+
+  private static func client(_ replies: [Data], _ observation: ReceivedPeerObservation) -> TLClient {
+    TLClient(transport: PeerObservingTransport(base: CannedTransport(replies), observation: observation))
+  }
+
   private static let getHistory = TL.Messages.GetHistory(
     peer: .inputPeerEmpty(TL.InputPeerEmpty()), offsetId: 0, offsetDate: 0, addOffset: 0,
     limit: 1, maxId: 0, minId: 0, hash: 0)
@@ -280,6 +286,144 @@ import Testing
     #expect(events.all == [.observed(seen), .observed(seen), .returned])
   }
 
+  // MARK: Re-entrancy and ordering
+
+  @Test("an RPC made while a push is observed is observed and returned, not queued behind it")
+  func rpcFromAPushObserverCompletes() async throws {
+    let observation = ReceivedPeerObservation()
+    let api = Self.client([Self.users, Self.users], observation)
+    let events = Events()
+    await observation.attach { peers in
+      if peers.pushed != nil { _ = try await api.invoke(Self.getSelf) }
+      events.append(.observed(Seen(peers)))
+    }
+    try await within("a push whose observer makes an RPC") {
+      observation.push(Self.container(Self.minUser, seq: 1)) { events.append(.pushed($0)) }
+      await observation.flush()
+    }
+    #expect(
+      events.all == [
+        .observed(Seen(users: [Self.fullUser], chats: [], from: "users.getUsers")),
+        .observed(Seen(users: [Self.minUser], chats: [], from: nil)),
+        .pushed(Self.container(Self.minUser, seq: 1)),
+      ])
+  }
+
+  @Test("an RPC made while the held backlog is observed completes, and attachment with it")
+  func rpcFromTheBacklogObserverCompletes() async throws {
+    let observation = ReceivedPeerObservation()
+    let api = Self.client([Self.users, Self.users, Self.users], observation)
+    let events = Events()
+    _ = try await api.invoke(Self.getSelf)  // held
+    observation.push(Self.container(Self.minUser, seq: 1)) { events.append(.pushed($0)) }
+    try await within("attachment whose backlog observer makes RPCs") {
+      await observation.attach { peers in
+        // Both a held result's and a held push's observation make an RPC.
+        if peers.call?.withholdsResultOnFailure == false || peers.pushed != nil {
+          _ = try await api.invoke(Self.getSelf)
+        }
+        events.append(.observed(Seen(peers)))
+      }
+    }
+    let result = Seen(users: [Self.fullUser], chats: [], from: "users.getUsers")
+    #expect(
+      events.all == [
+        .observed(result), .observed(result),
+        .observed(result), .observed(Seen(users: [Self.minUser], chats: [], from: nil)),
+        .pushed(Self.container(Self.minUser, seq: 1)),
+      ])
+  }
+
+  @Test("RPCs nested several observations deep, and from child tasks, complete")
+  func nestedAndChildTaskRPCsComplete() async throws {
+    let observation = ReceivedPeerObservation()
+    let api = Self.client(Array(repeating: Self.users, count: 10), observation)
+    let depths = Mutex<[Int]>([])
+    await observation.attach { peers in
+      let depth = peers.pushed != nil ? -1 : (peers.call?.context as? Int ?? 0)
+      depths.withLock { $0.append(depth) }
+      guard depth < 3 else { return }
+      try await ReceivedPeers.withContext(depth + 1) {
+        _ = try await api.invoke(Self.getSelf)
+        if depth == 0 {
+          // From child tasks the observer awaits, structured and not.
+          async let child = api.invoke(Self.getSelf)
+          _ = try await child
+          try await Task { _ = try await api.invoke(Self.getSelf) }.value
+        }
+      }
+    }
+    try await within("RPCs nested inside a push's observation") {
+      observation.push(Self.container(Self.minUser, seq: 1)) { _ in }
+      await observation.flush()
+    }
+    // The push (-1) made the depth-0 call, which nested to depth 3, then made
+    // two more depth-1 calls from child tasks, each nesting on to depth 3.
+    #expect(depths.withLock { $0 } == [-1, 0, 1, 2, 3, 1, 2, 3, 1, 2, 3])
+  }
+
+  @Test("a reply does not wait behind pushes received after attachment")
+  func repliesDoNotWaitBehindPushes() async throws {
+    let observation = ReceivedPeerObservation()
+    let api = Self.client([Self.users], observation)
+    let (entered, enter) = AsyncStream.makeStream(of: Void.self)
+    let (gate, open) = AsyncStream.makeStream(of: Void.self)
+    let events = Events()
+    await observation.attach { peers in
+      if peers.pushed != nil {
+        enter.yield()
+        var iterator = gate.makeAsyncIterator()
+        await iterator.next()
+      }
+      events.append(.observed(Seen(peers)))
+    }
+    observation.push(Self.container(Self.minUser, seq: 1)) { events.append(.pushed($0)) }
+    observation.push(Self.container(Self.minUser, seq: 2)) { events.append(.pushed($0)) }
+    var iterator = entered.makeAsyncIterator()
+    await iterator.next()
+    // The first push is mid-observation and another waits behind it.
+    try await within("a reply while pushes are being observed") {
+      _ = try await api.invoke(Self.getSelf)
+    }
+    #expect(events.all == [.observed(Seen(users: [Self.fullUser], chats: [], from: "users.getUsers"))])
+    open.yield()
+    open.yield()
+    try await within("the pushes after their observer resumed") { await observation.flush() }
+    #expect(events.all.count == 5)
+  }
+
+  @Test("a caller cancelled while its result waits for the backlog stops waiting; its peers are held")
+  func cancelledWaitingCallerHoldsItsPeers() async throws {
+    let observation = ReceivedPeerObservation()
+    let api = Self.client([Self.users, Self.users], observation)
+    let (entered, enter) = AsyncStream.makeStream(of: Void.self)
+    let (gate, open) = AsyncStream.makeStream(of: Void.self)
+    let observed = Mutex<[Bool]>([])
+    _ = try await api.invoke(Self.getSelf)  // held, and blocks the backlog below
+    let attached = Task {
+      await observation.attach { peers in
+        if observed.withLock({ $0.isEmpty }) {
+          enter.yield()
+          var iterator = gate.makeAsyncIterator()
+          await iterator.next()
+        }
+        observed.withLock { $0.append(peers.call?.withholdsResultOnFailure ?? true) }
+      }
+    }
+    var iterator = entered.makeAsyncIterator()
+    await iterator.next()
+    let waiting = Task { _ = try await api.invoke(Self.getSelf) }
+    try await Task.sleep(for: .milliseconds(30))
+    waiting.cancel()
+    let outcome = try await within("a cancelled caller") { await waiting.result }
+    #expect(throws: CancellationError.self) { try outcome.get() }
+    open.yield()
+    try await within("attachment after the cancellation") { await attached.value }
+    try await within("the cancelled result's peers") { await observation.flush() }
+    // The held result, then the cancelled one's peers, held too.
+    #expect(observed.withLock { $0 } == [false, false])
+  }
+
   @Test("a held result whose observation fails is reported with its peers")
   func heldFailuresAreReported() async throws {
     struct StoreDown: Error {}
@@ -342,4 +486,30 @@ private final class Events: Sendable {
   private let events = Mutex<[Event]>([])
   func append(_ event: Event) { events.withLock { $0.append(event) } }
   var all: [Event] { events.withLock { $0 } }
+}
+
+private struct TimedOut: Error {}
+
+/// Runs `operation` unstructured, so a hang fails the test after `seconds`
+/// instead of hanging the run.
+private func within<T: Sendable>(
+  _ what: String, seconds: Double = 5, _ operation: @escaping @Sendable () async throws -> T
+) async throws -> T {
+  let (outcomes, outcome) = AsyncStream.makeStream(of: Result<T, any Error>?.self)
+  let task = Task {
+    do { outcome.yield(.success(try await operation())) } catch { outcome.yield(.failure(error)) }
+  }
+  let timer = Task {
+    try? await Task.sleep(for: .seconds(seconds))
+    outcome.yield(nil)
+  }
+  var iterator = outcomes.makeAsyncIterator()
+  let first = await iterator.next() ?? nil
+  timer.cancel()
+  guard let first else {
+    task.cancel()
+    Issue.record("timed out: \(what)")
+    throw TimedOut()
+  }
+  return try first.get()
 }
