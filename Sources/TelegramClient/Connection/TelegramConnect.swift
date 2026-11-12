@@ -27,7 +27,7 @@ extension TelegramConnection {
     sessionStore: any TelegramSessionStore = InMemoryTelegramSessionStore(),
     sessionScope: String = "telegram",
     onPushedUpdates: (@Sendable (TL.UpdatesType) -> Void)? = nil,
-    onReceivedPeers: ReceivedPeersObserver? = nil,
+    receivedPeers: ReceivedPeerObservation? = nil,
     timeouts: TelegramConnectionTimeouts = .default,
     log: TelegramLog = .silent
   ) async throws -> TelegramConnection {
@@ -47,7 +47,7 @@ extension TelegramConnection {
           endpoint: seed, rsaPublicKey: service.rsaPublicKey, app: app,
           layer: service.layer, authorization: authorization,
           sessionStore: sessionStore, sessionScope: sessionScope, locateDC: locateDC,
-          onPushedUpdates: onPushedUpdates, onReceivedPeers: onReceivedPeers,
+          onPushedUpdates: onPushedUpdates, receivedPeers: receivedPeers,
           timeouts: timeouts, log: log)
       } catch is CancellationError {
         throw CancellationError()
