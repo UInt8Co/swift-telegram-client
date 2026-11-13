@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getHistory#4423e6c5 peer:InputPeer offset_id:int offset_date:int add_offset:int limit:int max_id:int min_id:int hash:long = messages.Messages`
   @TLObject(id: 0x4423e6c5, returning: TL.Messages.MessagesType.self)
   public struct GetHistory: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getHistory"
+    }
     public var peer: TL.InputPeerType
     public var offsetId: Int32
     public var offsetDate: Int32

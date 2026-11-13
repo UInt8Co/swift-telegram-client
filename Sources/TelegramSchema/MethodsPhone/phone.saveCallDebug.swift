@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.saveCallDebug#277add7e peer:InputPhoneCall debug:DataJSON = Bool`
   @TLObject(id: 0x277add7e, returning: Bool.self)
   public struct SaveCallDebug: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.saveCallDebug"
+    }
     public var peer: TL.InputPhoneCall
     public var debug: TL.DataJSON
   }

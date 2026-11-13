@@ -16,6 +16,9 @@ extension TL.Contacts {
   @TLObject(id: 0xd9ba2e54, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct AddContact: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.addContact"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var addPhonePrivacyException: Bool = false
     public var id: TL.InputUserType

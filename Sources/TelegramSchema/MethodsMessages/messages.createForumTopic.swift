@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x2f98c3d5, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct CreateForumTopic: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.createForumTopic"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 4) public var titleMissing: Bool = false
     public var peer: TL.InputPeerType

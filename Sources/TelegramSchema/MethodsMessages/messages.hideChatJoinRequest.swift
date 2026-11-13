@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x7fe7e815, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct HideChatJoinRequest: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.hideChatJoinRequest"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var approved: Bool = false
     public var peer: TL.InputPeerType

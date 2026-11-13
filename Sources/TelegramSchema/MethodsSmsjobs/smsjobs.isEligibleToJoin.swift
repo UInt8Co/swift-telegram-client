@@ -15,5 +15,8 @@ extension TL.Smsjobs {
   /// TL: `smsjobs.isEligibleToJoin#0edc39d0 = smsjobs.EligibilityToJoin`
   @TLObject(id: 0x0edc39d0, returning: TL.Smsjobs.EligibleToJoin.self)
   public struct IsEligibleToJoin: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "smsjobs.isEligibleToJoin"
+    }
   }
 }

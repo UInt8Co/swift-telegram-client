@@ -16,6 +16,9 @@ extension TL.Phone {
   @TLObject(id: 0xa5273abf, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct EditGroupCallParticipant: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.editGroupCallParticipant"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var call: TL.InputGroupCallType
     public var participant: TL.InputPeerType

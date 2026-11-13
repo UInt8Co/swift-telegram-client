@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.deleteFactCheck#d1da940c peer:InputPeer msg_id:int = Updates`
   @TLObject(id: 0xd1da940c, returning: TL.UpdatesType.self)
   public struct DeleteFactCheck: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.deleteFactCheck"
+    }
     public var peer: TL.InputPeerType
     public var msgId: Int32
   }

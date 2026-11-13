@@ -15,6 +15,9 @@ extension TL.Aicompose {
   /// TL: `aicompose.getToneExample#d1b4ab14 tone:InputAiComposeTone num:int = AiComposeToneExample`
   @TLObject(id: 0xd1b4ab14, returning: TL.AiComposeToneExample.self)
   public struct GetToneExample: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "aicompose.getToneExample"
+    }
     public var tone: TL.InputAiComposeToneType
     public var num: Int32
   }

@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.deleteStarGift#3cdaf8aa stargift:InputSavedStarGift = Bool`
   @TLObject(id: 0x3cdaf8aa, returning: Bool.self)
   public struct DeleteStarGift: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.deleteStarGift"
+    }
     public var stargift: TL.InputSavedStarGiftType
   }
 }

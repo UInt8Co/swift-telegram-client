@@ -16,6 +16,9 @@ extension TL.Payments {
   @TLObject(id: 0x2757ba54, returning: [TL.PremiumGiftCodeOption].self)
   @TLFlagsEquatable
   public struct GetPremiumGiftCodeOptions: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getPremiumGiftCodeOptions"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var boostPeer: TL.InputPeerType? = nil
   }

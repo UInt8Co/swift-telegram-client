@@ -16,6 +16,9 @@ extension TL.Bots {
   @TLObject(id: 0x778b5ab3, returning: TL.StarRefProgram.self)
   @TLFlagsEquatable
   public struct UpdateStarRefProgram: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.updateStarRefProgram"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var bot: TL.InputUserType
     public var commissionPermille: Int32

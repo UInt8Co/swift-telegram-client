@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.getTmpPassword#449e0b51 password:InputCheckPasswordSRP period:int = account.TmpPassword`
   @TLObject(id: 0x449e0b51, returning: TL.Account.TmpPassword.self)
   public struct GetTmpPassword: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getTmpPassword"
+    }
     public var password: TL.InputCheckPasswordSRPType
     public var period: Int32
   }

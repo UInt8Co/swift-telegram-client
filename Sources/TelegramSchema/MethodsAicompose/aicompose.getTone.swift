@@ -15,6 +15,9 @@ extension TL.Aicompose {
   /// TL: `aicompose.getTone#b2e8ba03 tone:InputAiComposeTone = aicompose.Tones`
   @TLObject(id: 0xb2e8ba03, returning: TL.Aicompose.TonesType.self)
   public struct GetTone: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "aicompose.getTone"
+    }
     public var tone: TL.InputAiComposeToneType
   }
 }

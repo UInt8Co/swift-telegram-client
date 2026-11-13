@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0xb26732a9, returning: Bool.self)
   @TLFlagsEquatable
   public struct SaveMusic: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.saveMusic"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var unsave: Bool = false
     public var id: TL.InputDocumentType

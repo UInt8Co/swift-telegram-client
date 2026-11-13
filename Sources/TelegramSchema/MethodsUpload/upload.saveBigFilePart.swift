@@ -15,6 +15,9 @@ extension TL.Upload {
   /// TL: `upload.saveBigFilePart#de7b673d file_id:long file_part:int file_total_parts:int bytes:bytes = Bool`
   @TLObject(id: 0xde7b673d, returning: Bool.self)
   public struct SaveBigFilePart: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "upload.saveBigFilePart"
+    }
     public var fileId: Int64
     public var filePart: Int32
     public var fileTotalParts: Int32

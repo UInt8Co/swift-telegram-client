@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x13704a7c, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct ForwardMessages: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.forwardMessages"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 5) public var silent: Bool = false
     @TLConditional("flags", bit: 6) public var background: Bool = false

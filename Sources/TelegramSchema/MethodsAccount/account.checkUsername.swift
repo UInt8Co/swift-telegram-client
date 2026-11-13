@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.checkUsername#2714d86c username:string = Bool`
   @TLObject(id: 0x2714d86c, returning: Bool.self)
   public struct CheckUsername: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.checkUsername"
+    }
     public var username: String
   }
 }

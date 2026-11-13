@@ -15,6 +15,9 @@ extension TL.Auth {
   /// TL: `auth.reportMissingCode#cb9deff6 phone_number:string phone_code_hash:string mnc:string = Bool`
   @TLObject(id: 0xcb9deff6, returning: Bool.self)
   public struct ReportMissingCode: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.reportMissingCode"
+    }
     public var phoneNumber: String
     public var phoneCodeHash: String
     public var mnc: String

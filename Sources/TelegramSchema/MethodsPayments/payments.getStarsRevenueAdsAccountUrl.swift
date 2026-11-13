@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.getStarsRevenueAdsAccountUrl#d1d7efc5 peer:InputPeer = payments.StarsRevenueAdsAccountUrl`
   @TLObject(id: 0xd1d7efc5, returning: TL.Payments.StarsRevenueAdsAccountUrl.self)
   public struct GetStarsRevenueAdsAccountUrl: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getStarsRevenueAdsAccountUrl"
+    }
     public var peer: TL.InputPeerType
   }
 }

@@ -15,6 +15,9 @@ extension TL.Upload {
   /// TL: `upload.getCdnFileHashes#91dc3f31 file_token:bytes offset:long = Vector<FileHash>`
   @TLObject(id: 0x91dc3f31, returning: [TL.FileHash].self)
   public struct GetCdnFileHashes: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "upload.getCdnFileHashes"
+    }
     public var fileToken: Data
     public var offset: Int64
   }

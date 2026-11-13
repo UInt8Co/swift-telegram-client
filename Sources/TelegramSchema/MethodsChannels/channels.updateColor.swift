@@ -16,6 +16,9 @@ extension TL.Channels {
   @TLObject(id: 0xd8aa3671, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct UpdateColor: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.updateColor"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var forProfile: Bool = false
     public var channel: TL.InputChannelType

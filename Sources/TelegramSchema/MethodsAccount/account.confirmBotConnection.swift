@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.confirmBotConnection#67ed1f68 bot_id:InputUser = Bool`
   @TLObject(id: 0x67ed1f68, returning: Bool.self)
   public struct ConfirmBotConnection: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.confirmBotConnection"
+    }
     public var botId: TL.InputUserType
   }
 }

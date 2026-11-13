@@ -15,5 +15,8 @@ extension TL.Account {
   /// TL: `account.resetNotifySettings#db7e1747 = Bool`
   @TLObject(id: 0xdb7e1747, returning: Bool.self)
   public struct ResetNotifySettings: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.resetNotifySettings"
+    }
   }
 }

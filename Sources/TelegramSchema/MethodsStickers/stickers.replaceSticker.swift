@@ -15,6 +15,9 @@ extension TL.Stickers {
   /// TL: `stickers.replaceSticker#4696459a sticker:InputDocument new_sticker:InputStickerSetItem = messages.StickerSet`
   @TLObject(id: 0x4696459a, returning: TL.Messages.StickerSetType.self)
   public struct ReplaceSticker: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stickers.replaceSticker"
+    }
     public var sticker: TL.InputDocumentType
     public var newSticker: TL.InputStickerSetItem
   }

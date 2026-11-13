@@ -16,6 +16,9 @@ extension TL.Stats {
   @TLObject(id: 0x621d5fa0, returning: TL.StatsGraphType.self)
   @TLFlagsEquatable
   public struct LoadAsyncGraph: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stats.loadAsyncGraph"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var token: String
     @TLConditional("flags", bit: 0) public var x: Int64? = nil

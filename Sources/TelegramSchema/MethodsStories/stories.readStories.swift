@@ -15,6 +15,9 @@ extension TL.Stories {
   /// TL: `stories.readStories#a556dac8 peer:InputPeer max_id:int = Vector<int>`
   @TLObject(id: 0xa556dac8, returning: [Int32].self)
   public struct ReadStories: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.readStories"
+    }
     public var peer: TL.InputPeerType
     public var maxId: Int32
   }

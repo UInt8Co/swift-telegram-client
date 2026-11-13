@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.checkGiftCode#8e51b4c1 slug:string = payments.CheckedGiftCode`
   @TLObject(id: 0x8e51b4c1, returning: TL.Payments.CheckedGiftCode.self)
   public struct CheckGiftCode: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.checkGiftCode"
+    }
     public var slug: String
   }
 }

@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x14967978, returning: TL.MessageMediaType.self)
   @TLFlagsEquatable
   public struct UploadMedia: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.uploadMedia"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var businessConnectionId: String? = nil
     public var peer: TL.InputPeerType

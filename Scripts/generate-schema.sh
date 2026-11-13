@@ -10,6 +10,11 @@
 #   Scripts/generate-schema.sh --fetch --layer 229  # re-pin from Telegram's published schema
 #   Scripts/generate-schema.sh --from-mtcute <dir>  # re-pin from an mtcute checkout
 #
+# SWIFT_MTPROTO=<dir> builds the generator from that swift-mtproto checkout
+# instead of the resolved dependency in .build/checkouts — for regenerating
+# against a generator change before it is released, or when the package was
+# resolved by another build system that keeps its checkouts elsewhere.
+#
 # Telegram publishes the current layer as JSON in the same `{constructors,
 # methods}` shape the generator consumes, so --fetch needs no conversion and no
 # extra tooling. --from-mtcute reads mtcute's packed `{l, e}` layout instead
@@ -56,9 +61,10 @@ echo "==> Generating layer $LATEST_LAYER from Schemas/api.json"
 
 # The generator ships with swift-mtproto; build it from this package's own
 # resolved dependencies so the emitted code matches the TLCoding runtime that
-# will compile it.
-swift build -j 4 --package-path .build/checkouts/swift-mtproto --product mtproto-gen-swift
-TOOL="$(swift build --package-path .build/checkouts/swift-mtproto --product mtproto-gen-swift --show-bin-path)/mtproto-gen-swift"
+# will compile it. SWIFT_MTPROTO overrides the checkout (see the header).
+SWIFT_MTPROTO="${SWIFT_MTPROTO:-.build/checkouts/swift-mtproto}"
+swift build -j 4 --package-path "$SWIFT_MTPROTO" --product mtproto-gen-swift
+TOOL="$(swift build --package-path "$SWIFT_MTPROTO" --product mtproto-gen-swift --show-bin-path)/mtproto-gen-swift"
 
 SCRATCH="$(mktemp -d)"
 trap 'rm -rf "$SCRATCH"' EXIT

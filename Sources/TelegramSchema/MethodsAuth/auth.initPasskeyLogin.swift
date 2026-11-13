@@ -15,6 +15,9 @@ extension TL.Auth {
   /// TL: `auth.initPasskeyLogin#518ad0b7 api_id:int api_hash:string = auth.PasskeyLoginOptions`
   @TLObject(id: 0x518ad0b7, returning: TL.Auth.PasskeyLoginOptions.self)
   public struct InitPasskeyLogin: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.initPasskeyLogin"
+    }
     public var apiId: Int32
     public var apiHash: String
   }

@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.setBotBroadcastDefaultAdminRights#788464e1 admin_rights:ChatAdminRights = Bool`
   @TLObject(id: 0x788464e1, returning: Bool.self)
   public struct SetBotBroadcastDefaultAdminRights: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.setBotBroadcastDefaultAdminRights"
+    }
     public var adminRights: TL.ChatAdminRights
   }
 }

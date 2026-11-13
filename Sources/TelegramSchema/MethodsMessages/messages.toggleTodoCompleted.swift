@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.toggleTodoCompleted#d3e03124 peer:InputPeer msg_id:int completed:Vector<int> incompleted:Vector<int> = Updates`
   @TLObject(id: 0xd3e03124, returning: TL.UpdatesType.self)
   public struct ToggleTodoCompleted: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.toggleTodoCompleted"
+    }
     public var peer: TL.InputPeerType
     public var msgId: Int32
     public var completed: [Int32]

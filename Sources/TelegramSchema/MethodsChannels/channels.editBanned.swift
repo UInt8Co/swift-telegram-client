@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.editBanned#96e6cd81 channel:InputChannel participant:InputPeer banned_rights:ChatBannedRights = Updates`
   @TLObject(id: 0x96e6cd81, returning: TL.UpdatesType.self)
   public struct EditBanned: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.editBanned"
+    }
     public var channel: TL.InputChannelType
     public var participant: TL.InputPeerType
     public var bannedRights: TL.ChatBannedRights

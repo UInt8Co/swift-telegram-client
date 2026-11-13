@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.unregisterDevice#6a0d3206 token_type:int token:string other_uids:Vector<long> = Bool`
   @TLObject(id: 0x6a0d3206, returning: Bool.self)
   public struct UnregisterDevice: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.unregisterDevice"
+    }
     public var tokenType: Int32
     public var token: String
     public var otherUids: [Int64]

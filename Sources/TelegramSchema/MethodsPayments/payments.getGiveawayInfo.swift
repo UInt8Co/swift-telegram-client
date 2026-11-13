@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.getGiveawayInfo#f4239425 peer:InputPeer msg_id:int = payments.GiveawayInfo`
   @TLObject(id: 0xf4239425, returning: TL.Payments.GiveawayInfoType.self)
   public struct GetGiveawayInfo: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getGiveawayInfo"
+    }
     public var peer: TL.InputPeerType
     public var msgId: Int32
   }

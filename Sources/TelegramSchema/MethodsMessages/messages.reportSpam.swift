@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.reportSpam#cf1592db peer:InputPeer = Bool`
   @TLObject(id: 0xcf1592db, returning: Bool.self)
   public struct ReportSpam: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.reportSpam"
+    }
     public var peer: TL.InputPeerType
   }
 }

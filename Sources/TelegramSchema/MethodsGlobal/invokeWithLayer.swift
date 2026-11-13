@@ -14,8 +14,11 @@ extension TL {
 
   /// TL: `invokeWithLayer#da9b0d0d layer:int query:!X = X`
   @TLObject(id: 0xda9b0d0d)
-  public struct InvokeWithLayer<Query: TLFunction>: TLFunction, Sendable {
+  public struct InvokeWithLayer<Query: TLFunction>: TLFunctionWrapper, Sendable {
     public typealias ReturnType = Query.ReturnType
+    public static var tlMethodName: String {
+      "invokeWithLayer"
+    }
     public var layer: Int32
     public var query: Query
   }

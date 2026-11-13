@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x9342ca07, returning: TL.Messages.BotCallbackAnswer.self)
   @TLFlagsEquatable
   public struct GetBotCallbackAnswer: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getBotCallbackAnswer"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var game: Bool = false
     public var peer: TL.InputPeerType

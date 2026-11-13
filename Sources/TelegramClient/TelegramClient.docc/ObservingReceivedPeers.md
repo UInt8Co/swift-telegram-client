@@ -45,14 +45,17 @@ does not depend on the login.
 - **Every pushed `Updates` container**, before it reaches `onPushedUpdates`.
 - **Connections a ``TelegramClientPool`` opens** beside the one it was given.
 
-The set of methods and positions is generated from `Schemas/api.json`
-(`Scripts/generate-received-peers.ts`), and a test re-derives it from the same
-file, so a schema update that adds a position fails the tests until the
-generated code is regenerated with it.
+A result is observed when its type can hold a peer. Those types, and the
+positions in them, are generated from `Schemas/api.json`
+(`Scripts/generate-received-peers.ts`), and a test re-derives them from the same
+file and calls every method, so a schema update that adds a position fails the
+tests until the generated code is regenerated with it. A method of a schema
+generated on top of `TelegramSchema` is observed like any other when it returns
+one of these types.
 
 Not observed: a `TLClient` built over some other transport (wrap that transport
-in ``PeerObservingTransport``), and methods of a schema generated on top of
-`TelegramSchema`, whose results this library cannot decode.
+in ``PeerObservingTransport``), and results of types `TelegramSchema` does not
+define.
 
 The short update forms `updateShortMessage`, `updateShortChatMessage` and
 `updateShortSentMessage` name their peers by id only; they carry no object and
@@ -159,9 +162,11 @@ received so far has been observed and every push handed on.
 
 ### Cost
 
-A result is decoded twice: once to find its peers, and again by `TLClient` for
-the caller, because a transport exchanges bytes rather than values. Only results
-of methods that can hold a peer are decoded the extra time.
+Nothing is decoded for observation: a `TLClient`'s transport hands typed
+results up the chain, so ``PeerObservingTransport`` reads the very value the
+bottom transport decoded and hands that value to the caller. A reply that does
+not decode fails its call there, before anything is observed. Finding the peers
+walks only the fields that can hold one.
 
 ## Topics
 

@@ -16,6 +16,9 @@ extension TL.Stories {
   @TLObject(id: 0x5e5259b6, returning: TL.StoryAlbum.self)
   @TLFlagsEquatable
   public struct UpdateAlbum: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.updateAlbum"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     public var albumId: Int32

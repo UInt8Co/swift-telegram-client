@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.transcribeAudioFile#072d2ef7 file:InputFile = messages.TranscribedAudio`
   @TLObject(id: 0x072d2ef7, returning: TL.Messages.TranscribedAudio.self)
   public struct TranscribeAudioFile: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.transcribeAudioFile"
+    }
     public var file: TL.InputFileType
   }
 }

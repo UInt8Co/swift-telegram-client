@@ -15,5 +15,8 @@ extension TL.Messages {
   /// TL: `messages.getPaidReactionPrivacy#472455aa = Updates`
   @TLObject(id: 0x472455aa, returning: TL.UpdatesType.self)
   public struct GetPaidReactionPrivacy: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getPaidReactionPrivacy"
+    }
   }
 }

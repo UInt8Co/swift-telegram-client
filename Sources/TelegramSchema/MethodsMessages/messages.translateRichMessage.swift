@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x1a542004, returning: TL.Messages.TranslatedRichMessage.self)
   @TLFlagsEquatable
   public struct TranslateRichMessage: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.translateRichMessage"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var peer: TL.InputPeerType? = nil
     @TLConditional("flags", bit: 0) public var id: [Int32]? = nil

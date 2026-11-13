@@ -16,6 +16,9 @@ extension TL.Payments {
   @TLObject(id: 0xe4fca4a3, returning: TL.Payments.ConnectedStarRefBots.self)
   @TLFlagsEquatable
   public struct EditConnectedStarRefBot: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.editConnectedStarRefBot"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var revoked: Bool = false
     public var peer: TL.InputPeerType

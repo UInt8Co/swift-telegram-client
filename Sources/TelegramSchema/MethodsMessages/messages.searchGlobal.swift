@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x6126a43c, returning: TL.Messages.MessagesType.self)
   @TLFlagsEquatable
   public struct SearchGlobal: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.searchGlobal"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var broadcastsOnly: Bool = false
     @TLConditional("flags", bit: 2) public var groupsOnly: Bool = false

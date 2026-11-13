@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.uninstallStickerSet#f96e55de stickerset:InputStickerSet = Bool`
   @TLObject(id: 0xf96e55de, returning: Bool.self)
   public struct UninstallStickerSet: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.uninstallStickerSet"
+    }
     public var stickerset: TL.InputStickerSetType
   }
 }

@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.togglePreHistoryHidden#eabbb94c channel:InputChannel enabled:Bool = Updates`
   @TLObject(id: 0xeabbb94c, returning: TL.UpdatesType.self)
   public struct TogglePreHistoryHidden: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.togglePreHistoryHidden"
+    }
     public var channel: TL.InputChannelType
     public var enabled: Bool
   }

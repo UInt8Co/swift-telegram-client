@@ -15,5 +15,8 @@ extension TL.Account {
   /// TL: `account.getAccountTTL#08fc711d = AccountDaysTTL`
   @TLObject(id: 0x08fc711d, returning: TL.AccountDaysTTL.self)
   public struct GetAccountTTL: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getAccountTTL"
+    }
   }
 }

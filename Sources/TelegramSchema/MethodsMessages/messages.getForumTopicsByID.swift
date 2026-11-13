@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getForumTopicsByID#af0a4a08 peer:InputPeer topics:Vector<int> = messages.ForumTopics`
   @TLObject(id: 0xaf0a4a08, returning: TL.Messages.ForumTopics.self)
   public struct GetForumTopicsByID: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getForumTopicsByID"
+    }
     public var peer: TL.InputPeerType
     public var topics: [Int32]
   }

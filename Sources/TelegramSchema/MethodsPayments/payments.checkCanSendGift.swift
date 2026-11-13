@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.checkCanSendGift#c0c4edc9 gift_id:long = payments.CheckCanSendGiftResult`
   @TLObject(id: 0xc0c4edc9, returning: TL.Payments.CheckCanSendGiftResultType.self)
   public struct CheckCanSendGift: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.checkCanSendGift"
+    }
     public var giftId: Int64
   }
 }

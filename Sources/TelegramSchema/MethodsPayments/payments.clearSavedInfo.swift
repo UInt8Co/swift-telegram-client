@@ -16,6 +16,9 @@ extension TL.Payments {
   @TLObject(id: 0xd83d70c1, returning: Bool.self)
   @TLFlagsEquatable
   public struct ClearSavedInfo: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.clearSavedInfo"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var credentials: Bool = false
     @TLConditional("flags", bit: 1) public var info: Bool = false

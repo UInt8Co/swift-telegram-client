@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getMyStickers#d0b5e1fc offset_id:long limit:int = messages.MyStickers`
   @TLObject(id: 0xd0b5e1fc, returning: TL.Messages.MyStickers.self)
   public struct GetMyStickers: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getMyStickers"
+    }
     public var offsetId: Int64
     public var limit: Int32
   }

@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.sendVerifyPhoneCode#a5a356f9 phone_number:string settings:CodeSettings = auth.SentCode`
   @TLObject(id: 0xa5a356f9, returning: TL.Auth.SentCodeType.self)
   public struct SendVerifyPhoneCode: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.sendVerifyPhoneCode"
+    }
     public var phoneNumber: String
     public var settings: TL.CodeSettings
   }

@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.answerWebhookJSONQuery#e6213f4d query_id:long data:DataJSON = Bool`
   @TLObject(id: 0xe6213f4d, returning: Bool.self)
   public struct AnswerWebhookJSONQuery: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.answerWebhookJSONQuery"
+    }
     public var queryId: Int64
     public var data: TL.DataJSON
   }

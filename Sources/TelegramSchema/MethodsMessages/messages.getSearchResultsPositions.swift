@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x9c7f2f10, returning: TL.Messages.SearchResultsPositions.self)
   @TLFlagsEquatable
   public struct GetSearchResultsPositions: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getSearchResultsPositions"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     @TLConditional("flags", bit: 2) public var savedPeerId: TL.InputPeerType? = nil

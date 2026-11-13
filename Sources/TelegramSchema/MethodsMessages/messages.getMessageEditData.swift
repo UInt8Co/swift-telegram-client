@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getMessageEditData#fda68d36 peer:InputPeer id:int = messages.MessageEditData`
   @TLObject(id: 0xfda68d36, returning: TL.Messages.MessageEditData.self)
   public struct GetMessageEditData: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getMessageEditData"
+    }
     public var peer: TL.InputPeerType
     public var id: Int32
   }

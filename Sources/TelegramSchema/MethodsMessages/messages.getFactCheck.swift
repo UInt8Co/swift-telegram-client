@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getFactCheck#b9cdc5ee peer:InputPeer msg_id:Vector<int> = Vector<FactCheck>`
   @TLObject(id: 0xb9cdc5ee, returning: [TL.FactCheck].self)
   public struct GetFactCheck: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getFactCheck"
+    }
     public var peer: TL.InputPeerType
     public var msgId: [Int32]
   }

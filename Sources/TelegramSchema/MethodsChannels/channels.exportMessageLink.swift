@@ -16,6 +16,9 @@ extension TL.Channels {
   @TLObject(id: 0xe63fadeb, returning: TL.ExportedMessageLink.self)
   @TLFlagsEquatable
   public struct ExportMessageLink: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.exportMessageLink"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var grouped: Bool = false
     @TLConditional("flags", bit: 1) public var thread: Bool = false

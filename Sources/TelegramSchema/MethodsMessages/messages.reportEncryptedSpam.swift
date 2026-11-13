@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.reportEncryptedSpam#4b0c8c0f peer:InputEncryptedChat = Bool`
   @TLObject(id: 0x4b0c8c0f, returning: Bool.self)
   public struct ReportEncryptedSpam: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.reportEncryptedSpam"
+    }
     public var peer: TL.InputEncryptedChat
   }
 }

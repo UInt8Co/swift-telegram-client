@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.getBotCommands#e34c0dd6 scope:BotCommandScope lang_code:string = Vector<BotCommand>`
   @TLObject(id: 0xe34c0dd6, returning: [TL.BotCommand].self)
   public struct GetBotCommands: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.getBotCommands"
+    }
     public var scope: TL.BotCommandScopeType
     public var langCode: String
   }

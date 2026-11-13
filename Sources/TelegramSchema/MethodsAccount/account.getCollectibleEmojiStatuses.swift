@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.getCollectibleEmojiStatuses#2e7b4543 hash:long = account.EmojiStatuses`
   @TLObject(id: 0x2e7b4543, returning: TL.Account.EmojiStatusesType.self)
   public struct GetCollectibleEmojiStatuses: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getCollectibleEmojiStatuses"
+    }
     public var hash: Int64
   }
 }

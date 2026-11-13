@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.setGlobalPrivacySettings#1edaaac2 settings:GlobalPrivacySettings = GlobalPrivacySettings`
   @TLObject(id: 0x1edaaac2, returning: TL.GlobalPrivacySettings.self)
   public struct SetGlobalPrivacySettings: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.setGlobalPrivacySettings"
+    }
     public var settings: TL.GlobalPrivacySettings
   }
 }

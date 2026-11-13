@@ -16,6 +16,9 @@ extension TL.Updates {
   @TLObject(id: 0x03173d78, returning: TL.Updates.ChannelDifferenceType.self)
   @TLFlagsEquatable
   public struct GetChannelDifference: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "updates.getChannelDifference"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var force: Bool = false
     public var channel: TL.InputChannelType

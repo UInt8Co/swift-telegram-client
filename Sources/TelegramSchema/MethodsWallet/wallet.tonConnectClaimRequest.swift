@@ -16,6 +16,9 @@ extension TL.Wallet {
   @TLObject(id: 0x66b57b41, returning: Bool.self)
   @TLFlagsEquatable
   public struct TonConnectClaimRequest: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.tonConnectClaimRequest"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var declined: Bool = false
     public var sessionId: Int64

@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getWidgetPublicData#6fc53181 peer:InputPeer msg_id:int hash:long = messages.WidgetPublicData`
   @TLObject(id: 0x6fc53181, returning: TL.Messages.WidgetPublicDataType.self)
   public struct GetWidgetPublicData: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getWidgetPublicData"
+    }
     public var peer: TL.InputPeerType
     public var msgId: Int32
     public var hash: Int64

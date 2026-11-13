@@ -16,6 +16,9 @@ extension TL.Photos {
   @TLObject(id: 0x0388a3b5, returning: TL.Photos.Photo.self)
   @TLFlagsEquatable
   public struct UploadProfilePhoto: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "photos.uploadProfilePhoto"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 3) public var fallback: Bool = false
     @TLConditional("flags", bit: 5) public var bot: TL.InputUserType? = nil

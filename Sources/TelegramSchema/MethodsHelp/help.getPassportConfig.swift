@@ -15,6 +15,9 @@ extension TL.Help {
   /// TL: `help.getPassportConfig#c661ad08 hash:int = help.PassportConfig`
   @TLObject(id: 0xc661ad08, returning: TL.Help.PassportConfigType.self)
   public struct GetPassportConfig: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.getPassportConfig"
+    }
     public var hash: Int32
   }
 }

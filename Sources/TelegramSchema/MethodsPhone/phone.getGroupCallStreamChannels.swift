@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.getGroupCallStreamChannels#1ab21940 call:InputGroupCall = phone.GroupCallStreamChannels`
   @TLObject(id: 0x1ab21940, returning: TL.Phone.GroupCallStreamChannels.self)
   public struct GetGroupCallStreamChannels: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.getGroupCallStreamChannels"
+    }
     public var call: TL.InputGroupCallType
   }
 }

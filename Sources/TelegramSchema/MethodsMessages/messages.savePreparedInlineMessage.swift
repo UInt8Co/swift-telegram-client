@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xf21f7f2f, returning: TL.Messages.BotPreparedInlineMessage.self)
   @TLFlagsEquatable
   public struct SavePreparedInlineMessage: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.savePreparedInlineMessage"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var result: TL.InputBotInlineResultType
     public var userId: TL.InputUserType

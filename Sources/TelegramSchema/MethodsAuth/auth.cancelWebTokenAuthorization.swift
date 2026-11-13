@@ -15,6 +15,9 @@ extension TL.Auth {
   /// TL: `auth.cancelWebTokenAuthorization#490dada1 web_auth_token:string = Bool`
   @TLObject(id: 0x490dada1, returning: Bool.self)
   public struct CancelWebTokenAuthorization: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.cancelWebTokenAuthorization"
+    }
     public var webAuthToken: String
   }
 }

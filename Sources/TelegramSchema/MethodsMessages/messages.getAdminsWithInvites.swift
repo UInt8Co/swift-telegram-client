@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getAdminsWithInvites#3920e6ef peer:InputPeer = messages.ChatAdminsWithInvites`
   @TLObject(id: 0x3920e6ef, returning: TL.Messages.ChatAdminsWithInvites.self)
   public struct GetAdminsWithInvites: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getAdminsWithInvites"
+    }
     public var peer: TL.InputPeerType
   }
 }

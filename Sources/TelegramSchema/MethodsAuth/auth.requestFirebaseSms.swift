@@ -16,6 +16,9 @@ extension TL.Auth {
   @TLObject(id: 0x8e39261e, returning: Bool.self)
   @TLFlagsEquatable
   public struct RequestFirebaseSms: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.requestFirebaseSms"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var phoneNumber: String
     public var phoneCodeHash: String

@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.editTitle#566decd0 channel:InputChannel title:string = Updates`
   @TLObject(id: 0x566decd0, returning: TL.UpdatesType.self)
   public struct EditTitle: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.editTitle"
+    }
     public var channel: TL.InputChannelType
     public var title: String
   }

@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x0e7841f0, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct ReorderPinnedForumTopics: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.reorderPinnedForumTopics"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var force: Bool = false
     public var peer: TL.InputPeerType

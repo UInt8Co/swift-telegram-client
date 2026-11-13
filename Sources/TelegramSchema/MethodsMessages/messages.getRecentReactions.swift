@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getRecentReactions#39461db2 limit:int hash:long = messages.Reactions`
   @TLObject(id: 0x39461db2, returning: TL.Messages.ReactionsType.self)
   public struct GetRecentReactions: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getRecentReactions"
+    }
     public var limit: Int32
     public var hash: Int64
   }

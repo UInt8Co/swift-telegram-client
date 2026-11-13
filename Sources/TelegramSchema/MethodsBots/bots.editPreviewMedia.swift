@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.editPreviewMedia#8525606f bot:InputUser lang_code:string media:InputMedia new_media:InputMedia = BotPreviewMedia`
   @TLObject(id: 0x8525606f, returning: TL.BotPreviewMedia.self)
   public struct EditPreviewMedia: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.editPreviewMedia"
+    }
     public var bot: TL.InputUserType
     public var langCode: String
     public var media: TL.InputMediaType

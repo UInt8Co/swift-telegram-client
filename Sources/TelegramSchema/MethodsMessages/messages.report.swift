@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.report#fc78af9b peer:InputPeer id:Vector<int> option:bytes message:string = ReportResult`
   @TLObject(id: 0xfc78af9b, returning: TL.ReportResultType.self)
   public struct Report: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.report"
+    }
     public var peer: TL.InputPeerType
     public var id: [Int32]
     public var option: Data

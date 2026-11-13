@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.canPurchaseStore#4fdc5ea7 purpose:InputStorePaymentPurpose = Bool`
   @TLObject(id: 0x4fdc5ea7, returning: Bool.self)
   public struct CanPurchaseStore: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.canPurchaseStore"
+    }
     public var purpose: TL.InputStorePaymentPurposeType
   }
 }

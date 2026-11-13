@@ -16,6 +16,9 @@ extension TL.Payments {
   @TLObject(id: 0xb6c8f12b, returning: TL.Payments.ValidatedRequestedInfo.self)
   @TLFlagsEquatable
   public struct ValidateRequestedInfo: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.validateRequestedInfo"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var save: Bool = false
     public var invoice: TL.InputInvoiceType

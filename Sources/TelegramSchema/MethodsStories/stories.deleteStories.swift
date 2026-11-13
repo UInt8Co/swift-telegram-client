@@ -15,6 +15,9 @@ extension TL.Stories {
   /// TL: `stories.deleteStories#ae59db5f peer:InputPeer id:Vector<int> = Vector<int>`
   @TLObject(id: 0xae59db5f, returning: [Int32].self)
   public struct DeleteStories: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.deleteStories"
+    }
     public var peer: TL.InputPeerType
     public var id: [Int32]
   }

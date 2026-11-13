@@ -21,7 +21,7 @@ import Testing
     apiID: 12345, apiHash: "hash", deviceModel: "Test Device", systemVersion: "TestOS 1",
     appVersion: "9.9", systemLangCode: "en-GB", langPack: "tdesktop", langCode: "en")
   private static let layer: Int32 = 229
-  private static let query = TL.Help.GetConfig().tlSerialized()
+  private static let query = TL.Help.GetConfig()
 
   private static func opener() -> TelegramSessionOpener {
     TelegramSessionOpener(app: app, layer: layer)
@@ -31,19 +31,24 @@ import Testing
   func firstQueryIsWrapped() {
     let opener = Self.opener()
 
-    let first = opener.body(for: Self.query)
-    let second = opener.body(for: Self.query)
-    let third = opener.body(for: Self.query)
+    let first = opener.opening(Self.query)
+    let second = opener.opening(Self.query)
+    let third = opener.opening(TL.Updates.GetState())
 
-    #expect(first != Self.query, "the first query announces the layer")
-    #expect(second == Self.query, "every later query goes out bare")
-    #expect(third == Self.query)
+    #expect(first != nil, "the first query announces the layer")
+    #expect(first?.query.query == Self.query, "around the query itself")
+    #expect(second == nil, "every later query goes out bare")
+    #expect(third == nil)
   }
 
   @Test("the envelope carries the layer, the app and the query it wraps")
   func envelopeIsWellFormed() throws {
-    var reader = TLReader(Self.opener().body(for: Self.query))
+    let envelope = try #require(Self.opener().opening(Self.query))
+    // Its result is the query's own, so the reply decodes as `TL.Config`.
+    #expect(type(of: envelope).ReturnType.self == TL.Config.self)
+    #expect(RPCRequestSummary.describe(envelope).name == "help.getConfig")
 
+    var reader = TLReader(envelope.tlSerialized())
     #expect(try reader.readUInt32() == 0xda9b_0d0d, "invokeWithLayer")
     #expect(try reader.readInt32() == Self.layer)
     #expect(try reader.readUInt32() == 0xc1cd_5ea9, "initConnection")
@@ -55,14 +60,13 @@ import Testing
     #expect(try reader.readString() == Self.app.systemLangCode)
     #expect(try reader.readString() == Self.app.langPack)
     #expect(try reader.readString() == Self.app.langCode)
-    // Whatever is left is the wrapped query, byte for byte: the envelope
-    // prefixes the request rather than re-encoding it.
-    #expect(try reader.readRawBytes(reader.bytesRemaining) == Self.query)
+    // Whatever is left is the wrapped query, byte for byte.
+    #expect(try reader.readRawBytes(reader.bytesRemaining) == Self.query.tlSerialized())
   }
 
   @Test("two connections each open their own session")
   func openersAreIndependent() {
-    #expect(Self.opener().body(for: Self.query) != Self.query)
-    #expect(Self.opener().body(for: Self.query) != Self.query)
+    #expect(Self.opener().opening(Self.query) != nil)
+    #expect(Self.opener().opening(Self.query) != nil)
   }
 }

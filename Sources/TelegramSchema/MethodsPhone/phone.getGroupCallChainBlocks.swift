@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.getGroupCallChainBlocks#ee9f88a6 call:InputGroupCall sub_chain_id:int offset:int limit:int = Updates`
   @TLObject(id: 0xee9f88a6, returning: TL.UpdatesType.self)
   public struct GetGroupCallChainBlocks: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.getGroupCallChainBlocks"
+    }
     public var call: TL.InputGroupCallType
     public var subChainId: Int32
     public var offset: Int32

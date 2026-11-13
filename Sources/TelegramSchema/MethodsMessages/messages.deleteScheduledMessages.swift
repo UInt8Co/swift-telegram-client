@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.deleteScheduledMessages#59ae2b16 peer:InputPeer id:Vector<int> = Updates`
   @TLObject(id: 0x59ae2b16, returning: TL.UpdatesType.self)
   public struct DeleteScheduledMessages: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.deleteScheduledMessages"
+    }
     public var peer: TL.InputPeerType
     public var id: [Int32]
   }

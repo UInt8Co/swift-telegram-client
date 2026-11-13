@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getDefaultTagReactions#bdf93428 hash:long = messages.Reactions`
   @TLObject(id: 0xbdf93428, returning: TL.Messages.ReactionsType.self)
   public struct GetDefaultTagReactions: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getDefaultTagReactions"
+    }
     public var hash: Int64
   }
 }

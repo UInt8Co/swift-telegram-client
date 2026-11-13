@@ -15,6 +15,9 @@ extension TL.Aicompose {
   /// TL: `aicompose.saveTone#1782cbb1 tone:InputAiComposeTone unsave:Bool = Bool`
   @TLObject(id: 0x1782cbb1, returning: Bool.self)
   public struct SaveTone: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "aicompose.saveTone"
+    }
     public var tone: TL.InputAiComposeToneType
     public var unsave: Bool
   }

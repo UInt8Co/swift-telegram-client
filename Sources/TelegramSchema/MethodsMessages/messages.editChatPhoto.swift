@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.editChatPhoto#35ddd674 chat_id:long photo:InputChatPhoto = Updates`
   @TLObject(id: 0x35ddd674, returning: TL.UpdatesType.self)
   public struct EditChatPhoto: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.editChatPhoto"
+    }
     public var chatId: Int64
     public var photo: TL.InputChatPhotoType
   }

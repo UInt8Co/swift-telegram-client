@@ -15,6 +15,9 @@ extension TL.Auth {
   /// TL: `auth.bindTempAuthKey#cdd42a05 perm_auth_key_id:long nonce:long expires_at:int encrypted_message:bytes = Bool`
   @TLObject(id: 0xcdd42a05, returning: Bool.self)
   public struct BindTempAuthKey: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.bindTempAuthKey"
+    }
     public var permAuthKeyId: Int64
     public var nonce: Int64
     public var expiresAt: Int32

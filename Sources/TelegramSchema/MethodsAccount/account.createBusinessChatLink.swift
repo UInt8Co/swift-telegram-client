@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.createBusinessChatLink#8851e68e link:InputBusinessChatLink = BusinessChatLink`
   @TLObject(id: 0x8851e68e, returning: TL.BusinessChatLink.self)
   public struct CreateBusinessChatLink: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.createBusinessChatLink"
+    }
     public var link: TL.InputBusinessChatLink
   }
 }

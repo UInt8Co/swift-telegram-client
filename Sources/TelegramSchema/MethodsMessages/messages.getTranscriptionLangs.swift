@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xba6cd9aa, returning: [String].self)
   @TLFlagsEquatable
   public struct GetTranscriptionLangs: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getTranscriptionLangs"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var peer: TL.InputPeerType? = nil
   }

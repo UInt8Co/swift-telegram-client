@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.readHistory#0e306d3a peer:InputPeer max_id:int = messages.AffectedMessages`
   @TLObject(id: 0x0e306d3a, returning: TL.Messages.AffectedMessages.self)
   public struct ReadHistory: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.readHistory"
+    }
     public var peer: TL.InputPeerType
     public var maxId: Int32
   }

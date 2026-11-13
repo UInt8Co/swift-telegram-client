@@ -16,6 +16,9 @@ extension TL.Channels {
   @TLObject(id: 0x0ecc2618, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct ToggleJoinRequest: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.toggleJoinRequest"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var applyToInvites: Bool = false
     public var channel: TL.InputChannelType

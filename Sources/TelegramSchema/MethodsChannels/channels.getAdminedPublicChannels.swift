@@ -16,6 +16,9 @@ extension TL.Channels {
   @TLObject(id: 0xf8b036af, returning: TL.Messages.ChatsType.self)
   @TLFlagsEquatable
   public struct GetAdminedPublicChannels: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.getAdminedPublicChannels"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var byLocation: Bool = false
     @TLConditional("flags", bit: 1) public var checkLimit: Bool = false

@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0x9adf82fe, returning: TL.Account.WebBrowserSettingsType.self)
   @TLFlagsEquatable
   public struct UpdateWebBrowserSettings: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.updateWebBrowserSettings"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var openExternalBrowser: Bool = false
     @TLConditional("flags", bit: 1) public var displayCloseButton: Bool = false

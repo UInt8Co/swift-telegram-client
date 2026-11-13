@@ -16,6 +16,9 @@ extension TL.Bots {
   @TLObject(id: 0xf4946757, returning: Bool.self)
   @TLFlagsEquatable
   public struct SetCustomVerification: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.setCustomVerification"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var enabled: Bool = false
     @TLConditional("flags", bit: 0) public var bot: TL.InputUserType? = nil

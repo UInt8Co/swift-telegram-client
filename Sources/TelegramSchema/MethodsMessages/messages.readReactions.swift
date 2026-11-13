@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x9ec44f93, returning: TL.Messages.AffectedHistory.self)
   @TLFlagsEquatable
   public struct ReadReactions: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.readReactions"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     @TLConditional("flags", bit: 0) public var topMsgId: Int32? = nil

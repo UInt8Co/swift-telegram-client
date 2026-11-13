@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.setDefaultReaction#4f47a016 reaction:Reaction = Bool`
   @TLObject(id: 0x4f47a016, returning: Bool.self)
   public struct SetDefaultReaction: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.setDefaultReaction"
+    }
     public var reaction: TL.ReactionType
   }
 }

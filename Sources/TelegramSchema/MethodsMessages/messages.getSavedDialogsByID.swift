@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x6f6f9c96, returning: TL.Messages.SavedDialogsType.self)
   @TLFlagsEquatable
   public struct GetSavedDialogsByID: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getSavedDialogsByID"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var parentPeer: TL.InputPeerType? = nil
     public var ids: [TL.InputPeerType]

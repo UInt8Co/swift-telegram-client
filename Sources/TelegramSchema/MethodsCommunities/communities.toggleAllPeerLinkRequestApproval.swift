@@ -16,6 +16,9 @@ extension TL.Communities {
   @TLObject(id: 0xbfe3dd3d, returning: Bool.self)
   @TLFlagsEquatable
   public struct ToggleAllPeerLinkRequestApproval: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "communities.toggleAllPeerLinkRequestApproval"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var reject: Bool = false
     public var community: TL.InputChannelType

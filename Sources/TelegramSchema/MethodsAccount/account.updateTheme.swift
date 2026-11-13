@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0x2bf40ccc, returning: TL.Theme.self)
   @TLFlagsEquatable
   public struct UpdateTheme: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.updateTheme"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var format: String
     public var theme: TL.InputThemeType

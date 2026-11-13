@@ -16,6 +16,9 @@ extension TL.Payments {
   @TLObject(id: 0x60eaefa1, returning: Bool.self)
   @TLFlagsEquatable
   public struct ToggleChatStarGiftNotifications: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.toggleChatStarGiftNotifications"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var enabled: Bool = false
     public var peer: TL.InputPeerType

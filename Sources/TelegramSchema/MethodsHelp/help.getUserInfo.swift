@@ -15,6 +15,9 @@ extension TL.Help {
   /// TL: `help.getUserInfo#038a08d3 user_id:InputUser = help.UserInfo`
   @TLObject(id: 0x038a08d3, returning: TL.Help.UserInfoType.self)
   public struct GetUserInfo: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.getUserInfo"
+    }
     public var userId: TL.InputUserType
   }
 }

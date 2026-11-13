@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xad0fa15c, returning: Bool.self)
   @TLFlagsEquatable
   public struct SaveDraft: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.saveDraft"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var noWebpage: Bool = false
     @TLConditional("flags", bit: 6) public var invertMedia: Bool = false

@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.joinGroupCallPresentation#cbea6bc4 call:InputGroupCall params:DataJSON = Updates`
   @TLObject(id: 0xcbea6bc4, returning: TL.UpdatesType.self)
   public struct JoinGroupCallPresentation: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.joinGroupCallPresentation"
+    }
     public var call: TL.InputGroupCallType
     public var params: TL.DataJSON
   }

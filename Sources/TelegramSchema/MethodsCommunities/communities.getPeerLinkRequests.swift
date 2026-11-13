@@ -15,6 +15,9 @@ extension TL.Communities {
   /// TL: `communities.getPeerLinkRequests#93773344 community:InputChannel offset:string limit:int = communities.PeerLinkRequests`
   @TLObject(id: 0x93773344, returning: TL.Communities.PeerLinkRequests.self)
   public struct GetPeerLinkRequests: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "communities.getPeerLinkRequests"
+    }
     public var community: TL.InputChannelType
     public var offset: String
     public var limit: Int32

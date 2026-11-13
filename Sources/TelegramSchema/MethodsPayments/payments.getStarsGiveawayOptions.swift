@@ -15,5 +15,8 @@ extension TL.Payments {
   /// TL: `payments.getStarsGiveawayOptions#bd1efd3e = Vector<StarsGiveawayOption>`
   @TLObject(id: 0xbd1efd3e, returning: [TL.StarsGiveawayOption].self)
   public struct GetStarsGiveawayOptions: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getStarsGiveawayOptions"
+    }
   }
 }

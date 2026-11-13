@@ -14,8 +14,11 @@ extension TL {
 
   /// TL: `invokeWithTakeout#aca9fd2e takeout_id:long query:!X = X`
   @TLObject(id: 0xaca9fd2e)
-  public struct InvokeWithTakeout<Query: TLFunction>: TLFunction, Sendable {
+  public struct InvokeWithTakeout<Query: TLFunction>: TLFunctionWrapper, Sendable {
     public typealias ReturnType = Query.ReturnType
+    public static var tlMethodName: String {
+      "invokeWithTakeout"
+    }
     public var takeoutId: Int64
     public var query: Query
   }

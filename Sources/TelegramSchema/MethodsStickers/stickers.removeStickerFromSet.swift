@@ -15,6 +15,9 @@ extension TL.Stickers {
   /// TL: `stickers.removeStickerFromSet#f7760f51 sticker:InputDocument = messages.StickerSet`
   @TLObject(id: 0xf7760f51, returning: TL.Messages.StickerSetType.self)
   public struct RemoveStickerFromSet: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stickers.removeStickerFromSet"
+    }
     public var sticker: TL.InputDocumentType
   }
 }

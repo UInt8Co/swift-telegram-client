@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.getLeftChannels#8341ecc0 offset:int = messages.Chats`
   @TLObject(id: 0x8341ecc0, returning: TL.Messages.ChatsType.self)
   public struct GetLeftChannels: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.getLeftChannels"
+    }
     public var offset: Int32
   }
 }

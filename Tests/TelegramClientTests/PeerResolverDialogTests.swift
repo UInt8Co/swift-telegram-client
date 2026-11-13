@@ -71,22 +71,3 @@ import Testing
     }
   }
 }
-
-// MARK: - Doubles
-
-/// Answers each request with the next canned reply body.
-final class CannedTransport: TLClientTransport {
-  private let state: Mutex<(replies: [Data], requests: [Data])>
-
-  init(_ replies: [Data]) { state = Mutex((replies, [])) }
-
-  var requests: [Data] { state.withLock { $0.requests } }
-
-  func send(_ requestBody: Data) async throws -> Data {
-    let reply = state.withLock { state -> Data? in
-      state.requests.append(requestBody)
-      return state.replies.isEmpty ? nil : state.replies.removeFirst()
-    }
-    return try #require(reply, "unexpected request")
-  }
-}

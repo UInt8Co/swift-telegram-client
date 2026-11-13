@@ -16,6 +16,9 @@ extension TL.Phone {
   @TLObject(id: 0xe6aa647f, returning: TL.Phone.ExportedGroupCallInvite.self)
   @TLFlagsEquatable
   public struct ExportGroupCallInvite: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.exportGroupCallInvite"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var canSelfUnmute: Bool = false
     public var call: TL.InputGroupCallType

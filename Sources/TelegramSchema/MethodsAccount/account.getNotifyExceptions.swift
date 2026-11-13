@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0x53577479, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct GetNotifyExceptions: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getNotifyExceptions"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var compareSound: Bool = false
     @TLConditional("flags", bit: 2) public var compareStories: Bool = false

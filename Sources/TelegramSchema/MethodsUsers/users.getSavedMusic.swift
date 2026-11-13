@@ -15,6 +15,9 @@ extension TL.Users {
   /// TL: `users.getSavedMusic#788d7fe3 id:InputUser offset:int limit:int hash:long = users.SavedMusic`
   @TLObject(id: 0x788d7fe3, returning: TL.Users.SavedMusicType.self)
   public struct GetSavedMusic: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "users.getSavedMusic"
+    }
     public var id: TL.InputUserType
     public var offset: Int32
     public var limit: Int32

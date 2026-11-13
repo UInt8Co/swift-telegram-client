@@ -8,20 +8,9 @@ import Testing
   import Foundation
 #endif
 
-private actor StarsTransport: TLClientTransport {
-  var requests: [Data] = []
-  var replies: [Data]
-  init(_ replies: [Data]) { self.replies = replies }
-  func send(_ requestBody: Data) throws -> Data {
-    requests.append(requestBody)
-    guard !replies.isEmpty else { throw CancellationError() }
-    return replies.removeFirst()
-  }
-}
-
 @Suite struct StarsClientTests {
   @Test func exportsLinksAndRejectsInvalidInvoicesBeforeSending() async throws {
-    let transport = StarsTransport([
+    let transport = CannedTransport([
       TL.Payments.ExportedInvoice(url: "https://t.me/$invoice").tlSerialized()
     ])
     let client = StarsClient(api: TLClient(transport: transport))
@@ -29,13 +18,13 @@ private actor StarsTransport: TLClientTransport {
       try await client.exportSubscriptionInvoice(
         title: "Title", description: "Description", stars: 0, payload: Data([1]))
     }
-    #expect(await transport.requests.isEmpty)
+    #expect(transport.requests.isEmpty)
     let payload = Data([0, 255])
     #expect(
       try await client.exportSubscriptionInvoice(
         title: "Title", description: "Description", stars: 5,
         payload: payload) == "https://t.me/$invoice")
-    let request = try TL.Payments.ExportInvoice(tlData: #require(await transport.requests.first))
+    let request = try #require(transport.requests(TL.Payments.ExportInvoice.self).first)
     #expect(
       try request.invoiceMedia
         == StarsInvoice.subscriptionMedia(
@@ -43,13 +32,12 @@ private actor StarsTransport: TLClientTransport {
   }
 
   @Test func acceptsAndDeclinesPrecheckoutWithTheCorrectFlags() async throws {
-    let transport = StarsTransport([true.tlSerialized(), true.tlSerialized()])
+    let transport = CannedTransport([true.tlSerialized(), true.tlSerialized()])
     let client = StarsClient(api: TLClient(transport: transport))
     try await client.answerPrecheckout(queryID: Int64.max, errorMessage: nil)
     try await client.answerPrecheckout(queryID: 2, errorMessage: "Please try again.")
-    let requests = try await transport.requests.map {
-      try TL.Messages.SetBotPrecheckoutResults(tlData: $0)
-    }
+    let requests = transport.requests(TL.Messages.SetBotPrecheckoutResults.self)
+    try #require(requests.count == 2)
     #expect(requests[0].queryId == Int64.max && requests[0].success && requests[0].error == nil)
     #expect(
       requests[1].queryId == 2 && !requests[1].success && requests[1].error == "Please try again.")
@@ -58,20 +46,21 @@ private actor StarsTransport: TLClientTransport {
   @Test func cancelsAutoRenewalAndReturnsRefundUpdates() async throws {
     let updates = TL.UpdatesType.updates(
       .init(updates: [], users: [.user(.init(id: 7))], chats: [], date: 1, seq: 1))
-    let transport = StarsTransport([true.tlSerialized(), updates.tlSerialized()])
+    let transport = CannedTransport([true.tlSerialized(), updates.tlSerialized()])
     let client = StarsClient(api: TLClient(transport: transport))
     let user = TL.InputUserType.inputUser(.init(userId: 7, accessHash: 123))
     try await client.cancelSubscription(user: user, chargeID: "subscription")
     #expect(try await client.refundCharge(user: user, chargeID: "duplicate") == updates)
-    let requests = await transport.requests
-    let cancel = try TL.Payments.BotCancelStarsSubscription(tlData: requests[0])
+    let requests = transport.requests
+    let cancel = try #require(requests[0] as? TL.Payments.BotCancelStarsSubscription)
     #expect(!cancel.restore && cancel.userId == user && cancel.chargeId == "subscription")
-    let refund = try TL.Payments.RefundStarsCharge(tlData: requests[1])
+    let refund = try #require(requests[1] as? TL.Payments.RefundStarsCharge)
     #expect(refund.userId == user && refund.chargeId == "duplicate")
   }
 
   @Test func transportFailuresPropagateToTheCaller() async {
-    let client = StarsClient(api: TLClient(transport: StarsTransport([])))
+    let client = StarsClient(
+      api: TLClient(transport: CannedTransport { _ in throw CancellationError() }))
     await #expect(throws: CancellationError.self) {
       try await client.answerPrecheckout(queryID: 1, errorMessage: nil)
     }

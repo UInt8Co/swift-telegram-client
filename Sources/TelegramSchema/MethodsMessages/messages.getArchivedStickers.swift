@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x57f17692, returning: TL.Messages.ArchivedStickers.self)
   @TLFlagsEquatable
   public struct GetArchivedStickers: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getArchivedStickers"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var masks: Bool = false
     @TLConditional("flags", bit: 1) public var emojis: Bool = false

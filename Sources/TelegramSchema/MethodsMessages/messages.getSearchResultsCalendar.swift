@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x6aa3f6bd, returning: TL.Messages.SearchResultsCalendar.self)
   @TLFlagsEquatable
   public struct GetSearchResultsCalendar: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getSearchResultsCalendar"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     @TLConditional("flags", bit: 2) public var savedPeerId: TL.InputPeerType? = nil

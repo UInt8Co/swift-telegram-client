@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.verifyEmail#032da4cf purpose:EmailVerifyPurpose verification:EmailVerification = account.EmailVerified`
   @TLObject(id: 0x032da4cf, returning: TL.Account.EmailVerifiedType.self)
   public struct VerifyEmail: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.verifyEmail"
+    }
     public var purpose: TL.EmailVerifyPurposeType
     public var verification: TL.EmailVerificationType
   }

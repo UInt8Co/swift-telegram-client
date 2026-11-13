@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.setPrivacy#c9f81ce8 key:InputPrivacyKey rules:Vector<InputPrivacyRule> = account.PrivacyRules`
   @TLObject(id: 0xc9f81ce8, returning: TL.Account.PrivacyRules.self)
   public struct SetPrivacy: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.setPrivacy"
+    }
     public var key: TL.InputPrivacyKeyType
     public var rules: [TL.InputPrivacyRuleType]
   }

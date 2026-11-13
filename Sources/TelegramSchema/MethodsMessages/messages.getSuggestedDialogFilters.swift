@@ -15,5 +15,8 @@ extension TL.Messages {
   /// TL: `messages.getSuggestedDialogFilters#a29cd42c = Vector<DialogFilterSuggested>`
   @TLObject(id: 0xa29cd42c, returning: [TL.DialogFilterSuggested].self)
   public struct GetSuggestedDialogFilters: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getSuggestedDialogFilters"
+    }
   }
 }

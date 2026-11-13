@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x864b2581, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct SetChatAvailableReactions: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.setChatAvailableReactions"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     public var availableReactions: TL.ChatReactionsType

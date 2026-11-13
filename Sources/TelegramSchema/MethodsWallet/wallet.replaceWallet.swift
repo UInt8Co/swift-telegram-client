@@ -16,6 +16,9 @@ extension TL.Wallet {
   @TLObject(id: 0xd8c72eec, returning: TL.WalletStateType.self)
   @TLFlagsEquatable
   public struct ReplaceWallet: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.replaceWallet"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var wallet: TL.InputWalletReplacementType
     @TLConditional("flags", bit: 0) public var password: TL.InputCheckPasswordSRPType? = nil

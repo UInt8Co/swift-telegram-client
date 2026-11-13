@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.editChatParticipantRank#a00f32b0 peer:InputPeer participant:InputPeer rank:string = Updates`
   @TLObject(id: 0xa00f32b0, returning: TL.UpdatesType.self)
   public struct EditChatParticipantRank: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.editChatParticipantRank"
+    }
     public var peer: TL.InputPeerType
     public var participant: TL.InputPeerType
     public var rank: String

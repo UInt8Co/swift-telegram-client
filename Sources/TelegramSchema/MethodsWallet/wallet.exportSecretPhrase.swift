@@ -16,6 +16,9 @@ extension TL.Wallet {
   @TLObject(id: 0x9077c9ac, returning: TL.Wallet.SecretPhraseParts.self)
   @TLFlagsEquatable
   public struct ExportSecretPhrase: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.exportSecretPhrase"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var password: TL.InputCheckPasswordSRPType? = nil
   }

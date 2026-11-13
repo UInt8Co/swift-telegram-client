@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.updateDialogFiltersOrder#c563c1e4 order:Vector<int> = Bool`
   @TLObject(id: 0xc563c1e4, returning: Bool.self)
   public struct UpdateDialogFiltersOrder: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.updateDialogFiltersOrder"
+    }
     public var order: [Int32]
   }
 }

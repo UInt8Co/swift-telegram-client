@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.deleteMessages#84c1fd4e channel:InputChannel id:Vector<int> = messages.AffectedMessages`
   @TLObject(id: 0x84c1fd4e, returning: TL.Messages.AffectedMessages.self)
   public struct DeleteMessages: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.deleteMessages"
+    }
     public var channel: TL.InputChannelType
     public var id: [Int32]
   }

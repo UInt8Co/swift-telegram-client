@@ -15,6 +15,9 @@ extension TL.Auth {
   /// TL: `auth.importLoginToken#95ac5ce4 token:bytes = auth.LoginToken`
   @TLObject(id: 0x95ac5ce4, returning: TL.Auth.LoginTokenType.self)
   public struct ImportLoginToken: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.importLoginToken"
+    }
     public var token: Data
   }
 }

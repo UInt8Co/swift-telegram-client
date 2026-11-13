@@ -16,6 +16,9 @@ extension TL.Stories {
   @TLObject(id: 0xb9b2881f, returning: TL.Stories.StoryReactionsList.self)
   @TLFlagsEquatable
   public struct GetStoryReactionsList: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.getStoryReactionsList"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 2) public var forwardsFirst: Bool = false
     public var peer: TL.InputPeerType

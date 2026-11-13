@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.getStarGiftAuctionAcquiredGifts#6ba2cbec gift_id:long = payments.StarGiftAuctionAcquiredGifts`
   @TLObject(id: 0x6ba2cbec, returning: TL.Payments.StarGiftAuctionAcquiredGifts.self)
   public struct GetStarGiftAuctionAcquiredGifts: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getStarGiftAuctionAcquiredGifts"
+    }
     public var giftId: Int64
   }
 }

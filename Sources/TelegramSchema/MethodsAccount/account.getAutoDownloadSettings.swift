@@ -15,5 +15,8 @@ extension TL.Account {
   /// TL: `account.getAutoDownloadSettings#56da0b3f = account.AutoDownloadSettings`
   @TLObject(id: 0x56da0b3f, returning: TL.Account.AutoDownloadSettings.self)
   public struct GetAutoDownloadSettings: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getAutoDownloadSettings"
+    }
   }
 }

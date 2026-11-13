@@ -15,5 +15,8 @@ extension TL.Auth {
   /// TL: `auth.requestPasswordRecovery#d897bc66 = auth.PasswordRecovery`
   @TLObject(id: 0xd897bc66, returning: TL.Auth.PasswordRecovery.self)
   public struct RequestPasswordRecovery: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.requestPasswordRecovery"
+    }
   }
 }

@@ -15,6 +15,9 @@ extension TL.Auth {
   /// TL: `auth.cancelCode#1f040578 phone_number:string phone_code_hash:string = Bool`
   @TLObject(id: 0x1f040578, returning: Bool.self)
   public struct CancelCode: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.cancelCode"
+    }
     public var phoneNumber: String
     public var phoneCodeHash: String
   }

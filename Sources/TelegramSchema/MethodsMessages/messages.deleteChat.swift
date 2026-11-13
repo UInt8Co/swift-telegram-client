@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.deleteChat#5bd0ee50 chat_id:long = Bool`
   @TLObject(id: 0x5bd0ee50, returning: Bool.self)
   public struct DeleteChat: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.deleteChat"
+    }
     public var chatId: Int64
   }
 }

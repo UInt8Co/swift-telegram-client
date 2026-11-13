@@ -16,6 +16,9 @@ extension TL.Stories {
   @TLObject(id: 0xd069ccde, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct StartLive: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.startLive"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 2) public var pinned: Bool = false
     @TLConditional("flags", bit: 4) public var noforwards: Bool = false

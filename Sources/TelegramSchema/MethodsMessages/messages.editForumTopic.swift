@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xcecc1134, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct EditForumTopic: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.editForumTopic"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     public var topicId: Int32

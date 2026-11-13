@@ -15,6 +15,9 @@ extension TL.Ephemeral {
   /// TL: `ephemeral.reportMessage#8704f2bf peer:InputPeer id:int option:bytes message:string = ReportResult`
   @TLObject(id: 0x8704f2bf, returning: TL.ReportResultType.self)
   public struct ReportMessage: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "ephemeral.reportMessage"
+    }
     public var peer: TL.InputPeerType
     public var id: Int32
     public var option: Data

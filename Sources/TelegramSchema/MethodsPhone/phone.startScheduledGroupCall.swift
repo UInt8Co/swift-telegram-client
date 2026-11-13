@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.startScheduledGroupCall#5680e342 call:InputGroupCall = Updates`
   @TLObject(id: 0x5680e342, returning: TL.UpdatesType.self)
   public struct StartScheduledGroupCall: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.startScheduledGroupCall"
+    }
     public var call: TL.InputGroupCallType
   }
 }

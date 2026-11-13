@@ -14,8 +14,11 @@ extension TL {
 
   /// TL: `invokeWithGooglePlayIntegrity#1df92984 nonce:string token:string query:!X = X`
   @TLObject(id: 0x1df92984)
-  public struct InvokeWithGooglePlayIntegrity<Query: TLFunction>: TLFunction, Sendable {
+  public struct InvokeWithGooglePlayIntegrity<Query: TLFunction>: TLFunctionWrapper, Sendable {
     public typealias ReturnType = Query.ReturnType
+    public static var tlMethodName: String {
+      "invokeWithGooglePlayIntegrity"
+    }
     public var nonce: String
     public var token: String
     public var query: Query

@@ -16,6 +16,9 @@ extension TL.Payments {
   @TLObject(id: 0x2dca16b8, returning: TL.Payments.StarsStatus.self)
   @TLFlagsEquatable
   public struct GetStarsTransactionsByID: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getStarsTransactionsByID"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var ton: Bool = false
     public var peer: TL.InputPeerType

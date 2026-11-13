@@ -15,6 +15,9 @@ extension TL.Aicompose {
   /// TL: `aicompose.deleteTone#dd39316a tone:InputAiComposeTone = Bool`
   @TLObject(id: 0xdd39316a, returning: Bool.self)
   public struct DeleteTone: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "aicompose.deleteTone"
+    }
     public var tone: TL.InputAiComposeToneType
   }
 }

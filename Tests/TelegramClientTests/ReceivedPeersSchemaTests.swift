@@ -14,27 +14,36 @@ import Testing
 /// Checks the observer's coverage against `Schemas/api.json` itself, not against
 /// the generated code: the closure of types that can hold a `User` or a `Chat` is
 /// derived here independently, and for every position one can sit in, a reply
-/// with a peer in exactly that position is written byte by byte and sent through
+/// with a peer in exactly that position is written byte by byte, decoded by the
+/// bottom transport as the method's result, and observed by
 /// ``PeerObservingTransport``. A type, field or method the generated code misses
 /// — including one a schema update added without regenerating — fails here.
+///
+/// Methods are invoked as the typed functions callers send, reached from the
+/// schema through `schemaMethods` (generated with the conformances), each decoded
+/// from a request written with every flag clear.
 @Suite struct ReceivedPeersSchemaTests {
-  @Test("every method whose result can hold a peer is read, and nothing else")
+  @Test("every method whose result can hold a peer is observed, and nothing else")
   func everyPeerCarryingMethodIsObserved() async throws {
     let schema = try TLTestSchema.load()
-    var expectedMethods: Set<UInt32> = []
+    let functions = try Self.functions(of: schema)
+    var carrying = 0
     for method in schema.methods where !method.isWrapper {
-      guard let named = method.result.namedType, schema.carriers.contains(named) else { continue }
-      expectedMethods.insert(method.id)
+      let function = try #require(functions[method.id], "\(method.name)")
+      let carries = method.result.namedType.map(schema.carriers.contains) ?? false
+      #expect(Self.resultCarriesPeers(function) == carries, "\(method.name)")
+      guard carries else { continue }
+      carrying += 1
       let reply = try schema.reply(to: method, through: [])
-      try await expectObserved(reply, request: method.id, method: method.name)
+      try await expectObserved(reply, invoking: function, schema.request(for: method), method.name)
     }
-    #expect(Set(ReceivedPeerReplies.methods.keys) == expectedMethods)
-    #expect(expectedMethods.count > 300)
+    #expect(carrying > 300)
   }
 
   @Test("every field of every type that can hold a peer is visited")
   func everyPeerPositionIsObserved() async throws {
     let schema = try TLTestSchema.load()
+    let functions = try Self.functions(of: schema)
     var positions = 0
     var unreceivable: Set<String> = []
     for type in schema.carriers.sorted() where !TLTestSchema.peerTypes.contains(type) {
@@ -43,6 +52,7 @@ import Testing
         unreceivable.insert(type)
         continue
       }
+      let function = try #require(functions[route.method.id], "\(route.method.name)")
       for constructor in schema.constructorsByType[type]! {
         for (index, field) in constructor.fields.enumerated() {
           guard let named = field.value?.namedType, schema.carriers.contains(named) else { continue }
@@ -50,7 +60,7 @@ import Testing
             + (schema.toPeer[named] ?? [])
           let reply = try schema.reply(to: route.method, through: path)
           try await expectObserved(
-            reply, request: route.method.id, method: route.method.name,
+            reply, invoking: function, schema.request(for: route.method), route.method.name,
             "\(constructor.name).\(field.name)")
           positions += 1
         }
@@ -61,45 +71,85 @@ import Testing
     #expect(unreceivable.allSatisfy { $0.hasPrefix("Input") })
   }
 
-  @Test("every wrapper method is stepped into, every optional field present")
-  func everyWrapperIsSteppedInto() async throws {
+  @Test("a call inside every wrapper method is observed as the call it wraps")
+  func everyWrapperIsSeenThrough() async throws {
     let schema = try TLTestSchema.load()
     let getUsers = try #require(schema.methods.first { $0.name == "users.getUsers" })
-    let wrappers = schema.methods.filter(\.isWrapper)
-    #expect(Set(ReceivedPeerReplies.wrappers.keys) == Set(wrappers.map(\.id)))
-    for wrapper in wrappers {
-      var request = TLWriter()
-      request.writeUInt32(wrapper.id)
-      var unused = TLTestSchema.Sentinels()
-      for field in wrapper.fields {
-        if field.value == .query { break }
-        try schema.writeField(field, of: wrapper.fields, allFlags: true, into: &request, &unused)
-      }
-      request.writeUInt32(getUsers.id)
+    let query = TL.Users.GetUsers(id: [.inputUserSelf(TL.InputUserSelf())])
+    // Every optional field of `initConnection` present.
+    let wrapped: [any TLFunction] = [
+      TL.InvokeAfterMsg(msgId: 1, query: query),
+      TL.InvokeAfterMsgs(msgIds: [1, 2], query: query),
+      TL.InitConnection(
+        apiId: 1, deviceModel: "d", systemVersion: "s", appVersion: "a", systemLangCode: "en",
+        langPack: "", langCode: "en", proxy: TL.InputClientProxy(address: "proxy", port: 443),
+        params: .jsonObject(
+          TL.JsonObject(value: [TL.JsonObjectValue(key: "k", value: .jsonNull(TL.JsonNull()))])),
+        query: query),
+      TL.InvokeWithLayer(layer: TelegramSchemaLayer.current, query: query),
+      TL.InvokeWithoutUpdates(query: query),
+      TL.InvokeWithMessagesRange(range: TL.MessageRange(minId: 1, maxId: 2), query: query),
+      TL.InvokeWithTakeout(takeoutId: 1, query: query),
+      TL.InvokeWithBusinessConnection(connectionId: "c", query: query),
+      TL.InvokeWithGooglePlayIntegrity(nonce: "n", token: "t", query: query),
+      TL.InvokeWithApnsSecret(nonce: "n", secret: "s", query: query),
+      TL.InvokeWithReCaptcha(token: "t", query: query),
+      // Wrappers nest.
+      TL.InvokeWithLayer(
+        layer: TelegramSchemaLayer.current,
+        query: TL.InvokeWithoutUpdates(query: TL.InvokeAfterMsgs(msgIds: [1], query: query))),
+    ]
+    let constructors = try wrapped.map { wrapper in
+      var reader = TLReader(wrapper.tlSerialized())
+      return try reader.readUInt32()
+    }
+    #expect(Set(constructors) == Set(schema.methods.filter(\.isWrapper).map(\.id)))
+    for (wrapper, constructor) in zip(wrapped, constructors) {
       let reply = try schema.reply(to: getUsers, through: [])
       try await expectObserved(
-        reply, request: request.data, method: "users.getUsers", methodID: getUsers.id, wrapper.name)
+        reply, invoking: wrapper, as: "users.getUsers", TL.Users.GetUsers.self,
+        "in \(String(constructor, radix: 16))")
     }
   }
 
-  private func expectObserved(
-    _ reply: (Data, TLTestSchema.Sentinels), request: UInt32, method: String,
-    _ position: String = ""
-  ) async throws {
-    var writer = TLWriter()
-    writer.writeUInt32(request)
-    try await expectObserved(reply, request: writer.data, method: method, methodID: request, position)
+  /// Every non-wrapper method's Swift type, by constructor number; exactly the
+  /// schema's.
+  private static func functions(
+    of schema: TLTestSchema
+  ) throws -> [UInt32: any (TLFunction & TLConstructed).Type] {
+    let functions = Dictionary(
+      schemaMethods.map { ($0.tlConstructorID, $0) }, uniquingKeysWith: { first, _ in first })
+    #expect(functions.count == schemaMethods.count, "a constructor number is listed twice")
+    #expect(Set(functions.keys) == Set(schema.methods.filter { !$0.isWrapper }.map(\.id)))
+    return functions
   }
 
-  private func expectObserved(
-    _ reply: (Data, TLTestSchema.Sentinels), request: Data, method: String, methodID: UInt32,
-    _ position: String
+  /// Whether `function`'s result type is one the observer reads peers from.
+  private static func resultCarriesPeers<Function: TLFunction>(_: Function.Type) -> Bool {
+    Function.ReturnType.self is any ReceivedPeerCarrying.Type
+  }
+
+  /// Decodes `request` as a `Function` and observes `reply` as its result.
+  private func expectObserved<Function: TLFunction & TLConstructed>(
+    _ reply: (Data, TLTestSchema.Sentinels), invoking _: Function.Type, _ request: Data,
+    _ method: String, _ position: String = ""
+  ) async throws {
+    let function = try Function(tlData: request)
+    try await expectObserved(reply, invoking: function, as: method, Function.self, position)
+  }
+
+  private func expectObserved<Function: TLFunction>(
+    _ reply: (Data, TLTestSchema.Sentinels), invoking function: Function, as method: String,
+    _ invoked: any TLFunction.Type, _ position: String
   ) async throws {
     let observed = Mutex<[ReceivedPeers]>([])
     let observation = ReceivedPeerObservation()
     await observation.attach { peers in observed.withLock { $0.append(peers) } }
-    let transport = PeerObservingTransport(base: CannedTransport([reply.0]), observation: observation)
-    #expect(try await transport.send(request) == reply.0)
+    let bottom = CannedTransport([reply.0])
+    let transport = PeerObservingTransport(base: bottom, observation: observation)
+    let result = try await transport.invoke(function)
+    #expect((result as? any TLEncodable)?.tlSerialized() == reply.0, "\(method) \(position)")
+    #expect(bottom.decodedReplies == 1, "\(method) \(position)")
     let seen = observed.withLock { $0 }
     let users = seen.flatMap(\.users).map { user -> Int64 in
       if case .userEmpty(let value) = user { value.id } else { -1 }
@@ -113,10 +163,9 @@ import Testing
     for peers in seen {
       let call = try #require(peers.call)
       #expect(call.method == method, "\(method) \(position)")
-      // The call names its request type, and carries the whole decoded result.
-      #expect(
-        (call.function as? any TLConstructed.Type)?.tlConstructorID == methodID,
-        "\(method) \(position)")
+      // The call names the request type it wraps, and carries the very result
+      // the caller received.
+      #expect(ObjectIdentifier(call.function) == ObjectIdentifier(invoked), "\(method) \(position)")
       #expect(
         (call.result as? any TLEncodable)?.tlSerialized() == reply.0, "\(method) \(position)")
     }
@@ -356,16 +405,20 @@ private struct TLTestSchema {
     return (writer.data, sentinels)
   }
 
-  /// Writes one field of a constructor; with `allFlags`, every optional field is present.
-  func writeField(
-    _ field: Field, of fields: [Field], allFlags: Bool, into writer: inout TLWriter,
-    _ sentinels: inout Sentinels
-  ) throws {
-    if field.isFlags {
-      writer.writeUInt32(allFlags ? .max : 0)
-    } else if field.condition == nil || allFlags, let value = field.value {
-      try write(value, onPath: false, [], into: &writer, &sentinels)
+  /// A request for `method` with every flag clear, every vector empty and every
+  /// other argument its type's cheapest value.
+  func request(for method: Combinator) throws -> Data {
+    var writer = TLWriter()
+    writer.writeUInt32(method.id)
+    var unused = Sentinels()
+    for field in method.fields {
+      if field.isFlags {
+        writer.writeUInt32(0)
+      } else if field.condition == nil, let value = field.value {
+        try write(value, onPath: false, [], into: &writer, &unused)
+      }
     }
+    return writer.data
   }
 
   private func write(

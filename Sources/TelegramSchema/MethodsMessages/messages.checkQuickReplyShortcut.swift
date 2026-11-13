@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.checkQuickReplyShortcut#f1d0fbd3 shortcut:string = Bool`
   @TLObject(id: 0xf1d0fbd3, returning: Bool.self)
   public struct CheckQuickReplyShortcut: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.checkQuickReplyShortcut"
+    }
     public var shortcut: String
   }
 }

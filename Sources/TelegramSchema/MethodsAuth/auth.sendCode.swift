@@ -15,6 +15,9 @@ extension TL.Auth {
   /// TL: `auth.sendCode#a677244f phone_number:string api_id:int api_hash:string settings:CodeSettings = auth.SentCode`
   @TLObject(id: 0xa677244f, returning: TL.Auth.SentCodeType.self)
   public struct SendCode: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.sendCode"
+    }
     public var phoneNumber: String
     public var apiId: Int32
     public var apiHash: String

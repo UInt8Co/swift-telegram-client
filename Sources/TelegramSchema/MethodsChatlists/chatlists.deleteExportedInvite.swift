@@ -15,6 +15,9 @@ extension TL.Chatlists {
   /// TL: `chatlists.deleteExportedInvite#719c5c5e chatlist:InputChatlist slug:string = Bool`
   @TLObject(id: 0x719c5c5e, returning: Bool.self)
   public struct DeleteExportedInvite: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "chatlists.deleteExportedInvite"
+    }
     public var chatlist: TL.InputChatlistDialogFilter
     public var slug: String
   }

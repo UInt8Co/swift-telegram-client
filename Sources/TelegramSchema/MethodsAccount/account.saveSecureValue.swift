@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.saveSecureValue#899fe31d value:InputSecureValue secure_secret_id:long = SecureValue`
   @TLObject(id: 0x899fe31d, returning: TL.SecureValue.self)
   public struct SaveSecureValue: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.saveSecureValue"
+    }
     public var value: TL.InputSecureValue
     public var secureSecretId: Int64
   }

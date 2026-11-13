@@ -15,6 +15,9 @@ extension TL.Contacts {
   /// TL: `contacts.getSponsoredPeers#b6c8c393 q:string = contacts.SponsoredPeers`
   @TLObject(id: 0xb6c8c393, returning: TL.Contacts.SponsoredPeersType.self)
   public struct GetSponsoredPeers: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.getSponsoredPeers"
+    }
     public var q: String
   }
 }

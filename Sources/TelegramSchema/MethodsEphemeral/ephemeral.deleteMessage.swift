@@ -16,6 +16,9 @@ extension TL.Ephemeral {
   @TLObject(id: 0x92f6e797, returning: Bool.self)
   @TLFlagsEquatable
   public struct DeleteMessage: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "ephemeral.deleteMessage"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var peer: TL.InputPeerType? = nil
     public var receiverId: TL.InputUserType

@@ -16,6 +16,9 @@ extension TL.Wallet {
   @TLObject(id: 0xd9e5d9e2, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct SendTransfer: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.sendTransfer"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var dataNormal: Data
     @TLConditional("flags", bit: 0) public var dataGasless: Data? = nil

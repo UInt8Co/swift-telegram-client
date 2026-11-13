@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.convertToGigagroup#0b290c69 channel:InputChannel = Updates`
   @TLObject(id: 0x0b290c69, returning: TL.UpdatesType.self)
   public struct ConvertToGigagroup: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.convertToGigagroup"
+    }
     public var channel: TL.InputChannelType
   }
 }

@@ -15,6 +15,9 @@ extension TL.Chatlists {
   /// TL: `chatlists.hideChatlistUpdates#66e486fb chatlist:InputChatlist = Bool`
   @TLObject(id: 0x66e486fb, returning: Bool.self)
   public struct HideChatlistUpdates: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "chatlists.hideChatlistUpdates"
+    }
     public var chatlist: TL.InputChatlistDialogFilter
   }
 }

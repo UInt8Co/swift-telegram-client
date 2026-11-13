@@ -15,6 +15,9 @@ extension TL.Langpack {
   /// TL: `langpack.getStrings#efea3803 lang_pack:string lang_code:string keys:Vector<string> = Vector<LangPackString>`
   @TLObject(id: 0xefea3803, returning: [TL.LangPackStringType].self)
   public struct GetStrings: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "langpack.getStrings"
+    }
     public var langPack: String
     public var langCode: String
     public var keys: [String]

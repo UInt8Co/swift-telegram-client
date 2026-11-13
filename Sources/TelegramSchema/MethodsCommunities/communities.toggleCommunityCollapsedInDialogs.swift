@@ -16,6 +16,9 @@ extension TL.Communities {
   @TLObject(id: 0xd766e3ea, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct ToggleCommunityCollapsedInDialogs: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "communities.toggleCommunityCollapsedInDialogs"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var collapsed: Bool = false
     public var community: TL.InputChannelType

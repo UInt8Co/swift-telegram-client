@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.getCraftStarGifts#fd05dd00 gift_id:long offset:string limit:int = payments.SavedStarGifts`
   @TLObject(id: 0xfd05dd00, returning: TL.Payments.SavedStarGifts.self)
   public struct GetCraftStarGifts: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getCraftStarGifts"
+    }
     public var giftId: Int64
     public var offset: String
     public var limit: Int32

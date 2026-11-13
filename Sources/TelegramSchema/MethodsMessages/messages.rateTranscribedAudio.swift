@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.rateTranscribedAudio#7f1d072f peer:InputPeer msg_id:int transcription_id:long good:Bool = Bool`
   @TLObject(id: 0x7f1d072f, returning: Bool.self)
   public struct RateTranscribedAudio: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.rateTranscribedAudio"
+    }
     public var peer: TL.InputPeerType
     public var msgId: Int32
     public var transcriptionId: Int64

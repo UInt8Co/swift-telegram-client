@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.toggleSponsoredMessages#b9d9a38d enabled:Bool = Bool`
   @TLObject(id: 0xb9d9a38d, returning: Bool.self)
   public struct ToggleSponsoredMessages: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.toggleSponsoredMessages"
+    }
     public var enabled: Bool
   }
 }

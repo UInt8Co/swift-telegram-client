@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.transferStarGift#7f18176a stargift:InputSavedStarGift to_id:InputPeer = Updates`
   @TLObject(id: 0x7f18176a, returning: TL.UpdatesType.self)
   public struct TransferStarGift: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.transferStarGift"
+    }
     public var stargift: TL.InputSavedStarGiftType
     public var toId: TL.InputPeerType
   }

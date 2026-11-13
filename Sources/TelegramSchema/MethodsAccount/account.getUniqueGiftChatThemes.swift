@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.getUniqueGiftChatThemes#e42ce9c9 offset:string limit:int hash:long = account.ChatThemes`
   @TLObject(id: 0xe42ce9c9, returning: TL.Account.ChatThemesType.self)
   public struct GetUniqueGiftChatThemes: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getUniqueGiftChatThemes"
+    }
     public var offset: String
     public var limit: Int32
     public var hash: Int64

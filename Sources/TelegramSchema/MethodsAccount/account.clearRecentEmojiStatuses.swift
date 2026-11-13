@@ -15,5 +15,8 @@ extension TL.Account {
   /// TL: `account.clearRecentEmojiStatuses#18201aae = Bool`
   @TLObject(id: 0x18201aae, returning: Bool.self)
   public struct ClearRecentEmojiStatuses: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.clearRecentEmojiStatuses"
+    }
   }
 }

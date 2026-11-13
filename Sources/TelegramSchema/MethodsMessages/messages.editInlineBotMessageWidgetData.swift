@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x6396ce2b, returning: Bool.self)
   @TLFlagsEquatable
   public struct EditInlineBotMessageWidgetData: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.editInlineBotMessageWidgetData"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var id: TL.InputBotInlineMessageIDType
     @TLConditional("flags", bit: 0) public var publicData: String? = nil

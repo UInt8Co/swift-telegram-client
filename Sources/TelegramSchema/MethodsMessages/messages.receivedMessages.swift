@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.receivedMessages#05a954c0 max_id:int = Vector<ReceivedNotifyMessage>`
   @TLObject(id: 0x05a954c0, returning: [TL.ReceivedNotifyMessage].self)
   public struct ReceivedMessages: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.receivedMessages"
+    }
     public var maxId: Int32
   }
 }

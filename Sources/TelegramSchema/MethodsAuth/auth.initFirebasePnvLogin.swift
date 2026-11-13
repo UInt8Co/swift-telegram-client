@@ -16,6 +16,9 @@ extension TL.Auth {
   @TLObject(id: 0x644f15c0, returning: TL.Auth.FirebasePnvIntent.self)
   @TLFlagsEquatable
   public struct InitFirebasePnvLogin: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.initFirebasePnvLogin"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var exceptIds: [Int64]? = nil
     public var apiId: Int32

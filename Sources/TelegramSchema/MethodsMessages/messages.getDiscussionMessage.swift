@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getDiscussionMessage#446972fd peer:InputPeer msg_id:int = messages.DiscussionMessage`
   @TLObject(id: 0x446972fd, returning: TL.Messages.DiscussionMessage.self)
   public struct GetDiscussionMessage: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getDiscussionMessage"
+    }
     public var peer: TL.InputPeerType
     public var msgId: Int32
   }

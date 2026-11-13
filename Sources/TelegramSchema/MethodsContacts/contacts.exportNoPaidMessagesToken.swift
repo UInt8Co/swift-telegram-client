@@ -16,6 +16,9 @@ extension TL.Contacts {
   @TLObject(id: 0x83c586ae, returning: TL.ExportedNoPaidMessagesToken.self)
   @TLFlagsEquatable
   public struct ExportNoPaidMessagesToken: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.exportNoPaidMessagesToken"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var revoke: Bool = false
     @TLConditional("flags", bit: 1) public var temporary: Bool = false

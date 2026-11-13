@@ -16,6 +16,9 @@ extension TL.Ephemeral {
   @TLObject(id: 0x3fa464c8, returning: TL.Messages.BotCallbackAnswer.self)
   @TLFlagsEquatable
   public struct GetCallbackAnswer: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "ephemeral.getCallbackAnswer"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     public var id: Int32

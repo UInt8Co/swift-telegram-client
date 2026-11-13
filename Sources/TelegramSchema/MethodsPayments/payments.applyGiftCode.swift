@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.applyGiftCode#f6e26854 slug:string = Updates`
   @TLObject(id: 0xf6e26854, returning: TL.UpdatesType.self)
   public struct ApplyGiftCode: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.applyGiftCode"
+    }
     public var slug: String
   }
 }

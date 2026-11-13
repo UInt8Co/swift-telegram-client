@@ -15,6 +15,9 @@ extension TL.Contacts {
   /// TL: `contacts.getContacts#5dd69e12 hash:long = contacts.Contacts`
   @TLObject(id: 0x5dd69e12, returning: TL.Contacts.ContactsType.self)
   public struct GetContacts: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.getContacts"
+    }
     public var hash: Int64
   }
 }

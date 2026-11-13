@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xa2185cab, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct DeleteChatUser: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.deleteChatUser"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var revokeHistory: Bool = false
     public var chatId: Int64

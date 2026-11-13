@@ -15,6 +15,9 @@ extension TL.Users {
   /// TL: `users.getSavedMusicByID#7573a4e9 id:InputUser documents:Vector<InputDocument> = users.SavedMusic`
   @TLObject(id: 0x7573a4e9, returning: TL.Users.SavedMusicType.self)
   public struct GetSavedMusicByID: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "users.getSavedMusicByID"
+    }
     public var id: TL.InputUserType
     public var documents: [TL.InputDocumentType]
   }

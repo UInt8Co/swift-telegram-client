@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.reportReaction#3f64c076 peer:InputPeer id:int reaction_peer:InputPeer = Bool`
   @TLObject(id: 0x3f64c076, returning: Bool.self)
   public struct ReportReaction: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.reportReaction"
+    }
     public var peer: TL.InputPeerType
     public var id: Int32
     public var reactionPeer: TL.InputPeerType

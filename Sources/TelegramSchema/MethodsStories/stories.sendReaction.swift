@@ -16,6 +16,9 @@ extension TL.Stories {
   @TLObject(id: 0x7fd736b2, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct SendReaction: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.sendReaction"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var addToRecent: Bool = false
     public var peer: TL.InputPeerType

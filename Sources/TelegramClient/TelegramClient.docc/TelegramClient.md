@@ -296,8 +296,8 @@ preserving IDs, access hashes and file-reference bytes.
 
 ### Pure request and peer projections
 
-`RPCRequestSummary` inspects known leading peer layouts without exposing payloads or
-access hashes. `MessageContextPeer` builds references from caller-validated history
+`RPCRequestSummary` names a request's TL method, through any `invokeWith…`
+wrappers, and the peer it leads with, without exposing payloads or access hashes. `MessageContextPeer` builds references from caller-validated history
 messages. `TelegramPeerInfoMerging` transforms full peer information and versioned
 basic-group participants; the caller owns persistence and invalidation. `SavedGiftText`
 projects gift text in source order with caller-selected filtering and input limits.

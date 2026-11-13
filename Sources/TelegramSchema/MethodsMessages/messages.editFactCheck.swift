@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.editFactCheck#0589ee75 peer:InputPeer msg_id:int text:TextWithEntities = Updates`
   @TLObject(id: 0x0589ee75, returning: TL.UpdatesType.self)
   public struct EditFactCheck: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.editFactCheck"
+    }
     public var peer: TL.InputPeerType
     public var msgId: Int32
     public var text: TL.TextWithEntities

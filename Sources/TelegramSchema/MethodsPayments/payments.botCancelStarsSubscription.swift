@@ -16,6 +16,9 @@ extension TL.Payments {
   @TLObject(id: 0x6dfa0622, returning: Bool.self)
   @TLFlagsEquatable
   public struct BotCancelStarsSubscription: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.botCancelStarsSubscription"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var restore: Bool = false
     public var userId: TL.InputUserType

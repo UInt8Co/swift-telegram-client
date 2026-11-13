@@ -15,6 +15,9 @@ extension TL.Stories {
   /// TL: `stories.getStoriesViews#28e16cc8 peer:InputPeer id:Vector<int> = stories.StoryViews`
   @TLObject(id: 0x28e16cc8, returning: TL.Stories.StoryViews.self)
   public struct GetStoriesViews: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.getStoriesViews"
+    }
     public var peer: TL.InputPeerType
     public var id: [Int32]
   }

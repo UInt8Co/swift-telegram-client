@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.initHistoryImport#34090c3b peer:InputPeer file:InputFile media_count:int = messages.HistoryImport`
   @TLObject(id: 0x34090c3b, returning: TL.Messages.HistoryImport.self)
   public struct InitHistoryImport: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.initHistoryImport"
+    }
     public var peer: TL.InputPeerType
     public var file: TL.InputFileType
     public var mediaCount: Int32

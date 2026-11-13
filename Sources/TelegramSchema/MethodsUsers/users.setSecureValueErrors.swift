@@ -15,6 +15,9 @@ extension TL.Users {
   /// TL: `users.setSecureValueErrors#90c894b5 id:InputUser errors:Vector<SecureValueError> = Bool`
   @TLObject(id: 0x90c894b5, returning: Bool.self)
   public struct SetSecureValueErrors: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "users.setSecureValueErrors"
+    }
     public var id: TL.InputUserType
     public var errors: [TL.SecureValueErrorType]
   }

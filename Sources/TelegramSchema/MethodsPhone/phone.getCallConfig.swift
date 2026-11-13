@@ -15,5 +15,8 @@ extension TL.Phone {
   /// TL: `phone.getCallConfig#55451fa9 = DataJSON`
   @TLObject(id: 0x55451fa9, returning: TL.DataJSON.self)
   public struct GetCallConfig: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.getCallConfig"
+    }
   }
 }

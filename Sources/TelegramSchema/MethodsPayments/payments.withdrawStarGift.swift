@@ -16,6 +16,9 @@ extension TL.Payments {
   @TLObject(id: 0xec2030ae, returning: Bool.self)
   @TLFlagsEquatable
   public struct WithdrawStarGift: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.withdrawStarGift"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var keepOnProfile: Bool = false
     public var stargift: TL.InputSavedStarGiftType

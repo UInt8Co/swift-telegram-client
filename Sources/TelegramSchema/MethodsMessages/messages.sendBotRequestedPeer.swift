@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x6c5cf2a7, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct SendBotRequestedPeer: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.sendBotRequestedPeer"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     @TLConditional("flags", bit: 0) public var msgId: Int32? = nil

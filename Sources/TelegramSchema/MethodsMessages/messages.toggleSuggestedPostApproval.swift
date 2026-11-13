@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x8107455c, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct ToggleSuggestedPostApproval: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.toggleSuggestedPostApproval"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var reject: Bool = false
     public var peer: TL.InputPeerType

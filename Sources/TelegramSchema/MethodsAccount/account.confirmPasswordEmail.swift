@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.confirmPasswordEmail#8fdf1920 code:string = Bool`
   @TLObject(id: 0x8fdf1920, returning: Bool.self)
   public struct ConfirmPasswordEmail: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.confirmPasswordEmail"
+    }
     public var code: String
   }
 }

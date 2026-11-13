@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.sendVote#10ea6184 peer:InputPeer msg_id:int options:Vector<bytes> = Updates`
   @TLObject(id: 0x10ea6184, returning: TL.UpdatesType.self)
   public struct SendVote: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.sendVote"
+    }
     public var peer: TL.InputPeerType
     public var msgId: Int32
     public var options: [Data]

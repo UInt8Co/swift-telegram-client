@@ -16,6 +16,9 @@ extension TL.Communities {
   @TLObject(id: 0x9967ad0f, returning: Bool.self)
   @TLFlagsEquatable
   public struct ToggleParticipantBanned: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "communities.toggleParticipantBanned"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var unban: Bool = false
     public var community: TL.InputChannelType

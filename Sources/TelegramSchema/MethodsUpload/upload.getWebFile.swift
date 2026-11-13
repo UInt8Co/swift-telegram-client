@@ -15,6 +15,9 @@ extension TL.Upload {
   /// TL: `upload.getWebFile#24e6818d location:InputWebFileLocation offset:int limit:int = upload.WebFile`
   @TLObject(id: 0x24e6818d, returning: TL.Upload.WebFile.self)
   public struct GetWebFile: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "upload.getWebFile"
+    }
     public var location: TL.InputWebFileLocationType
     public var offset: Int32
     public var limit: Int32

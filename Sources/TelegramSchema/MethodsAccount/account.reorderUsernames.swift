@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.reorderUsernames#ef500eab order:Vector<string> = Bool`
   @TLObject(id: 0xef500eab, returning: Bool.self)
   public struct ReorderUsernames: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.reorderUsernames"
+    }
     public var order: [String]
   }
 }

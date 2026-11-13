@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.changePhone#70c32edb phone_number:string phone_code_hash:string phone_code:string = User`
   @TLObject(id: 0x70c32edb, returning: TL.UserType.self)
   public struct ChangePhone: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.changePhone"
+    }
     public var phoneNumber: String
     public var phoneCodeHash: String
     public var phoneCode: String

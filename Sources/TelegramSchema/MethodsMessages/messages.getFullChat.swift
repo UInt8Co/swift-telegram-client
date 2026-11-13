@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getFullChat#aeb00b34 chat_id:long = messages.ChatFull`
   @TLObject(id: 0xaeb00b34, returning: TL.Messages.ChatFull.self)
   public struct GetFullChat: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getFullChat"
+    }
     public var chatId: Int64
   }
 }

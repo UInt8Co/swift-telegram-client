@@ -16,6 +16,9 @@ extension TL.Payments {
   @TLObject(id: 0xd91ffad6, returning: TL.Payments.StarsRevenueStats.self)
   @TLFlagsEquatable
   public struct GetStarsRevenueStats: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getStarsRevenueStats"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var dark: Bool = false
     @TLConditional("flags", bit: 1) public var ton: Bool = false

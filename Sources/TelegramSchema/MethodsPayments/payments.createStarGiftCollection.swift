@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.createStarGiftCollection#1f4a0e87 peer:InputPeer title:string stargift:Vector<InputSavedStarGift> = StarGiftCollection`
   @TLObject(id: 0x1f4a0e87, returning: TL.StarGiftCollection.self)
   public struct CreateStarGiftCollection: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.createStarGiftCollection"
+    }
     public var peer: TL.InputPeerType
     public var title: String
     public var stargift: [TL.InputSavedStarGiftType]

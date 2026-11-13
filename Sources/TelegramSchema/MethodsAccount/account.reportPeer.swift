@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.reportPeer#c5ba3d86 peer:InputPeer reason:ReportReason message:string = Bool`
   @TLObject(id: 0xc5ba3d86, returning: Bool.self)
   public struct ReportPeer: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.reportPeer"
+    }
     public var peer: TL.InputPeerType
     public var reason: TL.ReportReasonType
     public var message: String

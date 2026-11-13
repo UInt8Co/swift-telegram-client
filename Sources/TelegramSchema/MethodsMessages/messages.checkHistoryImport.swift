@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.checkHistoryImport#43fe19f3 import_head:string = messages.HistoryImportParsed`
   @TLObject(id: 0x43fe19f3, returning: TL.Messages.HistoryImportParsed.self)
   public struct CheckHistoryImport: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.checkHistoryImport"
+    }
     public var importHead: String
   }
 }

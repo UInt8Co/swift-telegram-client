@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.importChatInvite#de91436e hash:string = messages.ChatInviteJoinResult`
   @TLObject(id: 0xde91436e, returning: TL.Messages.ChatInviteJoinResultType.self)
   public struct ImportChatInvite: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.importChatInvite"
+    }
     public var hash: String
   }
 }

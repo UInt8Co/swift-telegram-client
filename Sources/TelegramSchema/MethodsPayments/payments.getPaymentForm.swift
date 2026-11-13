@@ -16,6 +16,9 @@ extension TL.Payments {
   @TLObject(id: 0x37148dbb, returning: TL.Payments.PaymentFormType.self)
   @TLFlagsEquatable
   public struct GetPaymentForm: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getPaymentForm"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var invoice: TL.InputInvoiceType
     @TLConditional("flags", bit: 0) public var themeParams: TL.DataJSON? = nil

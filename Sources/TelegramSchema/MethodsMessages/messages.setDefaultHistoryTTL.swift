@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.setDefaultHistoryTTL#9eb51445 period:int = Bool`
   @TLObject(id: 0x9eb51445, returning: Bool.self)
   public struct SetDefaultHistoryTTL: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.setDefaultHistoryTTL"
+    }
     public var period: Int32
   }
 }

@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getRichMessage#501569cf peer:InputPeer id:int = messages.Messages`
   @TLObject(id: 0x501569cf, returning: TL.Messages.MessagesType.self)
   public struct GetRichMessage: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getRichMessage"
+    }
     public var peer: TL.InputPeerType
     public var id: Int32
   }

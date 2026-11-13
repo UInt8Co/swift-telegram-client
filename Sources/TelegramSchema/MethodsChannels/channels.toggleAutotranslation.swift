@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.toggleAutotranslation#167fc0a1 channel:InputChannel enabled:Bool = Updates`
   @TLObject(id: 0x167fc0a1, returning: TL.UpdatesType.self)
   public struct ToggleAutotranslation: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.toggleAutotranslation"
+    }
     public var channel: TL.InputChannelType
     public var enabled: Bool
   }

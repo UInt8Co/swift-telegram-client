@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.deleteChannel#c0111fe3 channel:InputChannel = Updates`
   @TLObject(id: 0xc0111fe3, returning: TL.UpdatesType.self)
   public struct DeleteChannel: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.deleteChannel"
+    }
     public var channel: TL.InputChannelType
   }
 }

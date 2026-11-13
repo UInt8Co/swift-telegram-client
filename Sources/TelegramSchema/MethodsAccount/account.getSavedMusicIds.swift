@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.getSavedMusicIds#e09d5faf hash:long = account.SavedMusicIds`
   @TLObject(id: 0xe09d5faf, returning: TL.Account.SavedMusicIdsType.self)
   public struct GetSavedMusicIds: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getSavedMusicIds"
+    }
     public var hash: Int64
   }
 }

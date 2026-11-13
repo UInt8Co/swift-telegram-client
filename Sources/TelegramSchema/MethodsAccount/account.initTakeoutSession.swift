@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0x8ef3eab0, returning: TL.Account.Takeout.self)
   @TLFlagsEquatable
   public struct InitTakeoutSession: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.initTakeoutSession"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var contacts: Bool = false
     @TLConditional("flags", bit: 1) public var messageUsers: Bool = false

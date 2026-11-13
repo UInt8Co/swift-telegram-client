@@ -16,6 +16,9 @@ extension TL.Wallet {
   @TLObject(id: 0xd63f61ce, returning: Bool.self)
   @TLFlagsEquatable
   public struct TonConnectCloseSession: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.tonConnectCloseSession"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var sessionId: Int64
     @TLConditional("flags", bit: 0) public var body: Data? = nil

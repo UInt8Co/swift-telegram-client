@@ -16,6 +16,9 @@ extension TL.Payments {
   @TLObject(id: 0x0d6b48f7, returning: TL.Payments.SuggestedStarRefBots.self)
   @TLFlagsEquatable
   public struct GetSuggestedStarRefBots: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getSuggestedStarRefBots"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var orderByRevenue: Bool = false
     @TLConditional("flags", bit: 1) public var orderByDate: Bool = false

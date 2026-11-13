@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x58bbcb50, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct SendPaidReaction: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.sendPaidReaction"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     public var msgId: Int32

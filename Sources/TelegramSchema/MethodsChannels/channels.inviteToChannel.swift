@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.inviteToChannel#c9e33d54 channel:InputChannel users:Vector<InputUser> = messages.InvitedUsers`
   @TLObject(id: 0xc9e33d54, returning: TL.Messages.InvitedUsers.self)
   public struct InviteToChannel: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.inviteToChannel"
+    }
     public var channel: TL.InputChannelType
     public var users: [TL.InputUserType]
   }

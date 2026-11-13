@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.setJoinChatResults#e71a4810 query_id:long result:JoinChatBotResult = Bool`
   @TLObject(id: 0xe71a4810, returning: Bool.self)
   public struct SetJoinChatResults: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.setJoinChatResults"
+    }
     public var queryId: Int64
     public var result: TL.JoinChatBotResultType
   }

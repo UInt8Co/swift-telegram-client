@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x1720b4d8, returning: TL.Messages.AffectedHistory.self)
   @TLFlagsEquatable
   public struct ReadPollVotes: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.readPollVotes"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     @TLConditional("flags", bit: 0) public var topMsgId: Int32? = nil

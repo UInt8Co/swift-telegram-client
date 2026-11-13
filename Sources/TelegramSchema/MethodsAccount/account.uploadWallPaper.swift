@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0xe39a8f03, returning: TL.WallPaperType.self)
   @TLFlagsEquatable
   public struct UploadWallPaper: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.uploadWallPaper"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var forChat: Bool = false
     public var file: TL.InputFileType

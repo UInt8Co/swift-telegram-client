@@ -16,6 +16,9 @@ extension TL.Stats {
   @TLObject(id: 0xdcdf8607, returning: TL.Stats.MegagroupStats.self)
   @TLFlagsEquatable
   public struct GetMegagroupStats: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stats.getMegagroupStats"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var dark: Bool = false
     public var channel: TL.InputChannelType

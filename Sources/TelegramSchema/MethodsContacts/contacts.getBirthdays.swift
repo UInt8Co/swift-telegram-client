@@ -15,5 +15,8 @@ extension TL.Contacts {
   /// TL: `contacts.getBirthdays#daeda864 = contacts.ContactBirthdays`
   @TLObject(id: 0xdaeda864, returning: TL.Contacts.ContactBirthdays.self)
   public struct GetBirthdays: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.getBirthdays"
+    }
   }
 }

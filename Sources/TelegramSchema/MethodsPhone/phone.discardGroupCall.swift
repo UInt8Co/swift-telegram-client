@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.discardGroupCall#7a777135 call:InputGroupCall = Updates`
   @TLObject(id: 0x7a777135, returning: TL.UpdatesType.self)
   public struct DiscardGroupCall: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.discardGroupCall"
+    }
     public var call: TL.InputGroupCallType
   }
 }

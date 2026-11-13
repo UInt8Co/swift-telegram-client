@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getBotWidgetQueryAnswer#5c550579 peer:InputPeer msg_id:int query_type:WidgetQueryType data:bytes = messages.BotWidgetQueryAnswer`
   @TLObject(id: 0x5c550579, returning: TL.Messages.BotWidgetQueryAnswer.self)
   public struct GetBotWidgetQueryAnswer: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getBotWidgetQueryAnswer"
+    }
     public var peer: TL.InputPeerType
     public var msgId: Int32
     public var queryType: TL.WidgetQueryTypeType

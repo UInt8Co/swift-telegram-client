@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.refundStarsCharge#25ae8f4a user_id:InputUser charge_id:string = Updates`
   @TLObject(id: 0x25ae8f4a, returning: TL.UpdatesType.self)
   public struct RefundStarsCharge: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.refundStarsCharge"
+    }
     public var userId: TL.InputUserType
     public var chargeId: String
   }

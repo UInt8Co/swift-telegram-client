@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.getGroupCallJoinAs#ef7c213a peer:InputPeer = phone.JoinAsPeers`
   @TLObject(id: 0xef7c213a, returning: TL.Phone.JoinAsPeers.self)
   public struct GetGroupCallJoinAs: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.getGroupCallJoinAs"
+    }
     public var peer: TL.InputPeerType
   }
 }

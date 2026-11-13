@@ -15,5 +15,8 @@ extension TL.Bots {
   /// TL: `bots.getAdminedBots#b0711d83 = Vector<User>`
   @TLObject(id: 0xb0711d83, returning: [TL.UserType].self)
   public struct GetAdminedBots: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.getAdminedBots"
+    }
   }
 }

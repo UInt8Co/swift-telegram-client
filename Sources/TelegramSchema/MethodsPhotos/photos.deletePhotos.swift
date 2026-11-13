@@ -15,6 +15,9 @@ extension TL.Photos {
   /// TL: `photos.deletePhotos#87cf7f2f id:Vector<InputPhoto> = Vector<long>`
   @TLObject(id: 0x87cf7f2f, returning: [Int64].self)
   public struct DeletePhotos: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "photos.deletePhotos"
+    }
     public var id: [TL.InputPhotoType]
   }
 }

@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.getParticipant#a0ab6cc6 channel:InputChannel participant:InputPeer = channels.ChannelParticipant`
   @TLObject(id: 0xa0ab6cc6, returning: TL.Channels.ChannelParticipant.self)
   public struct GetParticipant: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.getParticipant"
+    }
     public var channel: TL.InputChannelType
     public var participant: TL.InputPeerType
   }

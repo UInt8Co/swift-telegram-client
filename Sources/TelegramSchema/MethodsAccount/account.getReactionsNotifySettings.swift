@@ -15,5 +15,8 @@ extension TL.Account {
   /// TL: `account.getReactionsNotifySettings#06dd654c = ReactionsNotifySettings`
   @TLObject(id: 0x06dd654c, returning: TL.ReactionsNotifySettings.self)
   public struct GetReactionsNotifySettings: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getReactionsNotifySettings"
+    }
   }
 }

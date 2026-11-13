@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.updateDeviceLocked#38df3532 period:int = Bool`
   @TLObject(id: 0x38df3532, returning: Bool.self)
   public struct UpdateDeviceLocked: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.updateDeviceLocked"
+    }
     public var period: Int32
   }
 }

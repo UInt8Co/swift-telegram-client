@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.saveDefaultSendAs#ccfddf96 peer:InputPeer send_as:InputPeer = Bool`
   @TLObject(id: 0xccfddf96, returning: Bool.self)
   public struct SaveDefaultSendAs: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.saveDefaultSendAs"
+    }
     public var peer: TL.InputPeerType
     public var sendAs: TL.InputPeerType
   }

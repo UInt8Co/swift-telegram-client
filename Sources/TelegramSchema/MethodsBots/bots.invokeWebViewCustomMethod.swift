@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.invokeWebViewCustomMethod#087fc5e7 bot:InputUser custom_method:string params:DataJSON = DataJSON`
   @TLObject(id: 0x087fc5e7, returning: TL.DataJSON.self)
   public struct InvokeWebViewCustomMethod: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.invokeWebViewCustomMethod"
+    }
     public var bot: TL.InputUserType
     public var customMethod: String
     public var params: TL.DataJSON

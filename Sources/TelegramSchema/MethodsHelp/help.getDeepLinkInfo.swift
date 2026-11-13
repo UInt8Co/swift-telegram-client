@@ -15,6 +15,9 @@ extension TL.Help {
   /// TL: `help.getDeepLinkInfo#3fedc75f path:string = help.DeepLinkInfo`
   @TLObject(id: 0x3fedc75f, returning: TL.Help.DeepLinkInfoType.self)
   public struct GetDeepLinkInfo: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.getDeepLinkInfo"
+    }
     public var path: String
   }
 }

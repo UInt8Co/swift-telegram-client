@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.reorderUsernames#9709b1c2 bot:InputUser order:Vector<string> = Bool`
   @TLObject(id: 0x9709b1c2, returning: Bool.self)
   public struct ReorderUsernames: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.reorderUsernames"
+    }
     public var bot: TL.InputUserType
     public var order: [String]
   }

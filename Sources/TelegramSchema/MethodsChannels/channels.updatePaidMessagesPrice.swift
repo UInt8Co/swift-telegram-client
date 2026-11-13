@@ -16,6 +16,9 @@ extension TL.Channels {
   @TLObject(id: 0x4b12327b, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct UpdatePaidMessagesPrice: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.updatePaidMessagesPrice"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var broadcastMessagesAllowed: Bool = false
     public var channel: TL.InputChannelType

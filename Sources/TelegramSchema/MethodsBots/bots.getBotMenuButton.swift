@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.getBotMenuButton#9c60eb28 user_id:InputUser = BotMenuButton`
   @TLObject(id: 0x9c60eb28, returning: TL.BotMenuButtonType.self)
   public struct GetBotMenuButton: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.getBotMenuButton"
+    }
     public var userId: TL.InputUserType
   }
 }

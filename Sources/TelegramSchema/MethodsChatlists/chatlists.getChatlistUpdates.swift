@@ -15,6 +15,9 @@ extension TL.Chatlists {
   /// TL: `chatlists.getChatlistUpdates#89419521 chatlist:InputChatlist = chatlists.ChatlistUpdates`
   @TLObject(id: 0x89419521, returning: TL.Chatlists.ChatlistUpdates.self)
   public struct GetChatlistUpdates: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "chatlists.getChatlistUpdates"
+    }
     public var chatlist: TL.InputChatlistDialogFilter
   }
 }

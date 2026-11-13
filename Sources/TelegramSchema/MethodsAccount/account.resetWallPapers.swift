@@ -15,5 +15,8 @@ extension TL.Account {
   /// TL: `account.resetWallPapers#bb3b9804 = Bool`
   @TLObject(id: 0xbb3b9804, returning: Bool.self)
   public struct ResetWallPapers: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.resetWallPapers"
+    }
   }
 }

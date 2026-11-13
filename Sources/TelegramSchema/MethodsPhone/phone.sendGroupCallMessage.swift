@@ -16,6 +16,9 @@ extension TL.Phone {
   @TLObject(id: 0xb1d11410, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct SendGroupCallMessage: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.sendGroupCallMessage"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var call: TL.InputGroupCallType
     public var randomId: Int64

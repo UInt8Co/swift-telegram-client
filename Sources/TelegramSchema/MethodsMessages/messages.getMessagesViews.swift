@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getMessagesViews#5784d3e1 peer:InputPeer id:Vector<int> increment:Bool = messages.MessageViews`
   @TLObject(id: 0x5784d3e1, returning: TL.Messages.MessageViews.self)
   public struct GetMessagesViews: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getMessagesViews"
+    }
     public var peer: TL.InputPeerType
     public var id: [Int32]
     public var increment: Bool

@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xb08f922a, returning: TL.Messages.AffectedHistory.self)
   @TLFlagsEquatable
   public struct DeleteHistory: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.deleteHistory"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var justClear: Bool = false
     @TLConditional("flags", bit: 1) public var revoke: Bool = false

@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.readSavedHistory#ba4a3b5b parent_peer:InputPeer peer:InputPeer max_id:int = Bool`
   @TLObject(id: 0xba4a3b5b, returning: Bool.self)
   public struct ReadSavedHistory: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.readSavedHistory"
+    }
     public var parentPeer: TL.InputPeerType
     public var peer: TL.InputPeerType
     public var maxId: Int32

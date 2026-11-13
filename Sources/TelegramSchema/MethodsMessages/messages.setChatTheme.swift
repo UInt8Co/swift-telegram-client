@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.setChatTheme#081202c9 peer:InputPeer theme:InputChatTheme = Updates`
   @TLObject(id: 0x081202c9, returning: TL.UpdatesType.self)
   public struct SetChatTheme: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.setChatTheme"
+    }
     public var peer: TL.InputPeerType
     public var theme: TL.InputChatThemeType
   }

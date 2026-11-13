@@ -16,6 +16,9 @@ extension TL.Updates {
   @TLObject(id: 0x19c2f763, returning: TL.Updates.DifferenceType.self)
   @TLFlagsEquatable
   public struct GetDifference: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "updates.getDifference"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var pts: Int32
     @TLConditional("flags", bit: 1) public var ptsLimit: Int32? = nil

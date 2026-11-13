@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getWebPage#8d9692a3 url:string hash:int = messages.WebPage`
   @TLObject(id: 0x8d9692a3, returning: TL.Messages.WebPage.self)
   public struct GetWebPage: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getWebPage"
+    }
     public var url: String
     public var hash: Int32
   }

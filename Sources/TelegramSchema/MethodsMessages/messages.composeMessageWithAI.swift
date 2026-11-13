@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xdaecc589, returning: TL.Messages.ComposedMessageWithAI.self)
   @TLFlagsEquatable
   public struct ComposeMessageWithAI: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.composeMessageWithAI"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var proofread: Bool = false
     @TLConditional("flags", bit: 3) public var emojify: Bool = false

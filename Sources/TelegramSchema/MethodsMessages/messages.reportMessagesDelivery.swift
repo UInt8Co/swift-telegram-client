@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x5a6d7395, returning: Bool.self)
   @TLFlagsEquatable
   public struct ReportMessagesDelivery: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.reportMessagesDelivery"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var push: Bool = false
     public var peer: TL.InputPeerType

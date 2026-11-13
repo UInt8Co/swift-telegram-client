@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.setEncryptedTyping#791451ed peer:InputEncryptedChat typing:Bool = Bool`
   @TLObject(id: 0x791451ed, returning: Bool.self)
   public struct SetEncryptedTyping: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.setEncryptedTyping"
+    }
     public var peer: TL.InputEncryptedChat
     public var typing: Bool
   }

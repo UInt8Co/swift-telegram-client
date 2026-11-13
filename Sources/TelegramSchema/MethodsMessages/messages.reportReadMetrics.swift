@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.reportReadMetrics#4067c5e6 peer:InputPeer metrics:Vector<InputMessageReadMetric> = Bool`
   @TLObject(id: 0x4067c5e6, returning: Bool.self)
   public struct ReportReadMetrics: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.reportReadMetrics"
+    }
     public var peer: TL.InputPeerType
     public var metrics: [TL.InputMessageReadMetric]
   }

@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getBotApp#34fdc5c3 app:InputBotApp hash:long = messages.BotApp`
   @TLObject(id: 0x34fdc5c3, returning: TL.Messages.BotApp.self)
   public struct GetBotApp: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getBotApp"
+    }
     public var app: TL.InputBotAppType
     public var hash: Int64
   }

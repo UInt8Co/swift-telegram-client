@@ -15,6 +15,9 @@ extension TL.Contacts {
   /// TL: `contacts.toggleTopPeers#8514bdda enabled:Bool = Bool`
   @TLObject(id: 0x8514bdda, returning: Bool.self)
   public struct ToggleTopPeers: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.toggleTopPeers"
+    }
     public var enabled: Bool
   }
 }

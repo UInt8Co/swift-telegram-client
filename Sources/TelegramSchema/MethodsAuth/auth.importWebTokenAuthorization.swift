@@ -15,6 +15,9 @@ extension TL.Auth {
   /// TL: `auth.importWebTokenAuthorization#2db873a9 api_id:int api_hash:string web_auth_token:string = auth.Authorization`
   @TLObject(id: 0x2db873a9, returning: TL.Auth.AuthorizationType.self)
   public struct ImportWebTokenAuthorization: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.importWebTokenAuthorization"
+    }
     public var apiId: Int32
     public var apiHash: String
     public var webAuthToken: String

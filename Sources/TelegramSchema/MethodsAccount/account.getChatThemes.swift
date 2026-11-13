@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.getChatThemes#d638de89 hash:long = account.Themes`
   @TLObject(id: 0xd638de89, returning: TL.Account.ThemesType.self)
   public struct GetChatThemes: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getChatThemes"
+    }
     public var hash: Int64
   }
 }

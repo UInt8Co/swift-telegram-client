@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.exportInvoice#0f91b065 invoice_media:InputMedia = payments.ExportedInvoice`
   @TLObject(id: 0x0f91b065, returning: TL.Payments.ExportedInvoice.self)
   public struct ExportInvoice: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.exportInvoice"
+    }
     public var invoiceMedia: TL.InputMediaType
   }
 }

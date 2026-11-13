@@ -15,6 +15,9 @@ extension TL.Photos {
   /// TL: `photos.getUserPhotos#91cd32a8 user_id:InputUser offset:int max_id:long limit:int = photos.Photos`
   @TLObject(id: 0x91cd32a8, returning: TL.Photos.PhotosType.self)
   public struct GetUserPhotos: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "photos.getUserPhotos"
+    }
     public var userId: TL.InputUserType
     public var offset: Int32
     public var maxId: Int64

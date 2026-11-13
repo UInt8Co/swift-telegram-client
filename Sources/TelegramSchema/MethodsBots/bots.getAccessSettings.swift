@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.getAccessSettings#213853a3 bot:InputUser = bots.AccessSettings`
   @TLObject(id: 0x213853a3, returning: TL.Bots.AccessSettings.self)
   public struct GetAccessSettings: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.getAccessSettings"
+    }
     public var bot: TL.InputUserType
   }
 }

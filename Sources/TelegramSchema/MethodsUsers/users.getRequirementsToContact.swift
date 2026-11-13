@@ -15,6 +15,9 @@ extension TL.Users {
   /// TL: `users.getRequirementsToContact#d89a83a3 id:Vector<InputUser> = Vector<RequirementToContact>`
   @TLObject(id: 0xd89a83a3, returning: [TL.RequirementToContactType].self)
   public struct GetRequirementsToContact: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "users.getRequirementsToContact"
+    }
     public var id: [TL.InputUserType]
   }
 }

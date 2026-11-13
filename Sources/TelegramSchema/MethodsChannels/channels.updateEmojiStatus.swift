@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.updateEmojiStatus#f0d3e6a8 channel:InputChannel emoji_status:EmojiStatus = Updates`
   @TLObject(id: 0xf0d3e6a8, returning: TL.UpdatesType.self)
   public struct UpdateEmojiStatus: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.updateEmojiStatus"
+    }
     public var channel: TL.InputChannelType
     public var emojiStatus: TL.EmojiStatusType
   }

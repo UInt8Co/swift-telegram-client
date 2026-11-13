@@ -14,8 +14,11 @@ extension TL {
 
   /// TL: `invokeWithReCaptcha#adbb0f94 token:string query:!X = X`
   @TLObject(id: 0xadbb0f94)
-  public struct InvokeWithReCaptcha<Query: TLFunction>: TLFunction, Sendable {
+  public struct InvokeWithReCaptcha<Query: TLFunction>: TLFunctionWrapper, Sendable {
     public typealias ReturnType = Query.ReturnType
+    public static var tlMethodName: String {
+      "invokeWithReCaptcha"
+    }
     public var token: String
     public var query: Query
   }

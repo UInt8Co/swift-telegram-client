@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xf393aea0, returning: Bool.self)
   @TLFlagsEquatable
   public struct DiscardEncryption: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.discardEncryption"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var deleteHistory: Bool = false
     public var chatId: Int32

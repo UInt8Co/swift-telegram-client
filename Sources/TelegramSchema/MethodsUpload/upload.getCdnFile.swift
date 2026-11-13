@@ -15,6 +15,9 @@ extension TL.Upload {
   /// TL: `upload.getCdnFile#395f69da file_token:bytes offset:long limit:int = upload.CdnFile`
   @TLObject(id: 0x395f69da, returning: TL.Upload.CdnFileType.self)
   public struct GetCdnFile: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "upload.getCdnFile"
+    }
     public var fileToken: Data
     public var offset: Int64
     public var limit: Int32

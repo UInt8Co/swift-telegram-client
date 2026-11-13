@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.getParticipants#77ced9d0 channel:InputChannel filter:ChannelParticipantsFilter offset:int limit:int hash:long = channels.ChannelParticipants`
   @TLObject(id: 0x77ced9d0, returning: TL.Channels.ChannelParticipantsType.self)
   public struct GetParticipants: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.getParticipants"
+    }
     public var channel: TL.InputChannelType
     public var filter: TL.ChannelParticipantsFilterType
     public var offset: Int32

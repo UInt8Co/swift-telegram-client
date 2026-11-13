@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getAttachMenuBot#77216192 bot:InputUser = AttachMenuBotsBot`
   @TLObject(id: 0x77216192, returning: TL.AttachMenuBotsBot.self)
   public struct GetAttachMenuBot: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getAttachMenuBot"
+    }
     public var bot: TL.InputUserType
   }
 }

@@ -15,5 +15,8 @@ extension TL.Help {
   /// TL: `help.getSupportName#d360e72c = help.SupportName`
   @TLObject(id: 0xd360e72c, returning: TL.Help.SupportName.self)
   public struct GetSupportName: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.getSupportName"
+    }
   }
 }

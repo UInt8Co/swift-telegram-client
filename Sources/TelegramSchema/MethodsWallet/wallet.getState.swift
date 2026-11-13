@@ -15,5 +15,8 @@ extension TL.Wallet {
   /// TL: `wallet.getState#ab83b33a = WalletState`
   @TLObject(id: 0xab83b33a, returning: TL.WalletStateType.self)
   public struct GetState: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.getState"
+    }
   }
 }

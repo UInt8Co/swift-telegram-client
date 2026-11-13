@@ -15,6 +15,9 @@ extension TL.Wallet {
   /// TL: `wallet.tonConnectRegisterKey#338bcf1c session_id:long client_id:string = wallet.TonConnectChallenge`
   @TLObject(id: 0x338bcf1c, returning: TL.Wallet.TonConnectChallenge.self)
   public struct TonConnectRegisterKey: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.tonConnectRegisterKey"
+    }
     public var sessionId: Int64
     public var clientId: String
   }

@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.sendGroupCallEncryptedMessage#e5afa56d call:InputGroupCall encrypted_message:bytes = Bool`
   @TLObject(id: 0xe5afa56d, returning: Bool.self)
   public struct SendGroupCallEncryptedMessage: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.sendGroupCallEncryptedMessage"
+    }
     public var call: TL.InputGroupCallType
     public var encryptedMessage: Data
   }

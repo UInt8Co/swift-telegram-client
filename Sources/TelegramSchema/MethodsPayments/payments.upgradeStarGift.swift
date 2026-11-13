@@ -16,6 +16,9 @@ extension TL.Payments {
   @TLObject(id: 0xaed6e4f5, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct UpgradeStarGift: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.upgradeStarGift"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var keepOriginalDetails: Bool = false
     public var stargift: TL.InputSavedStarGiftType

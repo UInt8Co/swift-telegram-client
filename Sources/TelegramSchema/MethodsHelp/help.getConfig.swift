@@ -15,5 +15,8 @@ extension TL.Help {
   /// TL: `help.getConfig#c4f9186b = Config`
   @TLObject(id: 0xc4f9186b, returning: TL.Config.self)
   public struct GetConfig: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.getConfig"
+    }
   }
 }

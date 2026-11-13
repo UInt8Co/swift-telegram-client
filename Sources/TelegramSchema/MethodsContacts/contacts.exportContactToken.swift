@@ -15,5 +15,8 @@ extension TL.Contacts {
   /// TL: `contacts.exportContactToken#f8654027 = ExportedContactToken`
   @TLObject(id: 0xf8654027, returning: TL.ExportedContactToken.self)
   public struct ExportContactToken: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.exportContactToken"
+    }
   }
 }

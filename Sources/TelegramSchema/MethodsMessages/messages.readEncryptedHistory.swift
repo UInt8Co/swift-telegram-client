@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.readEncryptedHistory#7f4b690a peer:InputEncryptedChat max_date:int = Bool`
   @TLObject(id: 0x7f4b690a, returning: Bool.self)
   public struct ReadEncryptedHistory: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.readEncryptedHistory"
+    }
     public var peer: TL.InputEncryptedChat
     public var maxDate: Int32
   }

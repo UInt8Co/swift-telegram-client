@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.addUsername#3501c08a bot:InputUser username:string = Bool`
   @TLObject(id: 0x3501c08a, returning: Bool.self)
   public struct AddUsername: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.addUsername"
+    }
     public var bot: TL.InputUserType
     public var username: String
   }

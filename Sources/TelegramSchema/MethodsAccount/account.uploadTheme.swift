@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0x1c3db333, returning: TL.DocumentType.self)
   @TLFlagsEquatable
   public struct UploadTheme: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.uploadTheme"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var file: TL.InputFileType
     @TLConditional("flags", bit: 0) public var thumb: TL.InputFileType? = nil

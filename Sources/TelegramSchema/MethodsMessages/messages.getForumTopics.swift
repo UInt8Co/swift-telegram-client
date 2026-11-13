@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x3ba47bff, returning: TL.Messages.ForumTopics.self)
   @TLFlagsEquatable
   public struct GetForumTopics: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getForumTopics"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     @TLConditional("flags", bit: 0) public var q: String? = nil

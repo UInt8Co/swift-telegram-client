@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xb5052fea, returning: Bool.self)
   @TLFlagsEquatable
   public struct ToggleStickerSets: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.toggleStickerSets"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var uninstall: Bool = false
     @TLConditional("flags", bit: 1) public var archive: Bool = false

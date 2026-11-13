@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.deleteParticipantHistory#367544db channel:InputChannel participant:InputPeer = messages.AffectedHistory`
   @TLObject(id: 0x367544db, returning: TL.Messages.AffectedHistory.self)
   public struct DeleteParticipantHistory: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.deleteParticipantHistory"
+    }
     public var channel: TL.InputChannelType
     public var participant: TL.InputPeerType
   }

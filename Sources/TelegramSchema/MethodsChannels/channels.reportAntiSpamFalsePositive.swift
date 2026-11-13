@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.reportAntiSpamFalsePositive#a850a693 channel:InputChannel msg_id:int = Bool`
   @TLObject(id: 0xa850a693, returning: Bool.self)
   public struct ReportAntiSpamFalsePositive: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.reportAntiSpamFalsePositive"
+    }
     public var channel: TL.InputChannelType
     public var msgId: Int32
   }

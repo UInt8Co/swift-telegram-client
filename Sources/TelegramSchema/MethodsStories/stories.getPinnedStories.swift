@@ -15,6 +15,9 @@ extension TL.Stories {
   /// TL: `stories.getPinnedStories#5821a5dc peer:InputPeer offset_id:int limit:int = stories.Stories`
   @TLObject(id: 0x5821a5dc, returning: TL.Stories.Stories.self)
   public struct GetPinnedStories: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.getPinnedStories"
+    }
     public var peer: TL.InputPeerType
     public var offsetId: Int32
     public var limit: Int32

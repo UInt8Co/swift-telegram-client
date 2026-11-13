@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.deletePollAnswer#ac8505a5 peer:InputPeer msg_id:int option:bytes = Updates`
   @TLObject(id: 0xac8505a5, returning: TL.UpdatesType.self)
   public struct DeletePollAnswer: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.deletePollAnswer"
+    }
     public var peer: TL.InputPeerType
     public var msgId: Int32
     public var option: Data

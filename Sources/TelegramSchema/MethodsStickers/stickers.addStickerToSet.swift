@@ -15,6 +15,9 @@ extension TL.Stickers {
   /// TL: `stickers.addStickerToSet#8653febe stickerset:InputStickerSet sticker:InputStickerSetItem = messages.StickerSet`
   @TLObject(id: 0x8653febe, returning: TL.Messages.StickerSetType.self)
   public struct AddStickerToSet: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stickers.addStickerToSet"
+    }
     public var stickerset: TL.InputStickerSetType
     public var sticker: TL.InputStickerSetItem
   }

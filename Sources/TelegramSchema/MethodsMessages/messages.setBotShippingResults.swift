@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xe5f672fa, returning: Bool.self)
   @TLFlagsEquatable
   public struct SetBotShippingResults: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.setBotShippingResults"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var queryId: Int64
     @TLConditional("flags", bit: 0) public var error: String? = nil

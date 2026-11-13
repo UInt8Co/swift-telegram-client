@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.editGroupCallTitle#1ca6ac0a call:InputGroupCall title:string = Updates`
   @TLObject(id: 0x1ca6ac0a, returning: TL.UpdatesType.self)
   public struct EditGroupCallTitle: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.editGroupCallTitle"
+    }
     public var call: TL.InputGroupCallType
     public var title: String
   }

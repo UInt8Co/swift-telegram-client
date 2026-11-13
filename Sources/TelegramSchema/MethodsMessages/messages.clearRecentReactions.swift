@@ -15,5 +15,8 @@ extension TL.Messages {
   /// TL: `messages.clearRecentReactions#9dfeefb4 = Bool`
   @TLObject(id: 0x9dfeefb4, returning: Bool.self)
   public struct ClearRecentReactions: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.clearRecentReactions"
+    }
   }
 }

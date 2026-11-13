@@ -16,6 +16,9 @@ extension TL.Aicompose {
   @TLObject(id: 0x4aa83913, returning: TL.AiComposeToneType.self)
   @TLFlagsEquatable
   public struct CreateTone: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "aicompose.createTone"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var displayAuthor: Bool = false
     public var emojiId: Int64

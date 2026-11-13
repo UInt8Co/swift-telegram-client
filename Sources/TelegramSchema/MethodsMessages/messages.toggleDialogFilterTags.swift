@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.toggleDialogFilterTags#fd2dda49 enabled:Bool = Bool`
   @TLObject(id: 0xfd2dda49, returning: Bool.self)
   public struct ToggleDialogFilterTags: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.toggleDialogFilterTags"
+    }
     public var enabled: Bool
   }
 }

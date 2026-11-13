@@ -15,5 +15,8 @@ extension TL.Messages {
   /// TL: `messages.getEmojiGameInfo#fb7e8ca7 = messages.EmojiGameInfo`
   @TLObject(id: 0xfb7e8ca7, returning: TL.Messages.EmojiGameInfoType.self)
   public struct GetEmojiGameInfo: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getEmojiGameInfo"
+    }
   }
 }

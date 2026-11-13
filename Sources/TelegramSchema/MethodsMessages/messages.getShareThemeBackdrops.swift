@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getShareThemeBackdrops#f4599ef2 hash:int = ShareThemeBackdrops`
   @TLObject(id: 0xf4599ef2, returning: TL.ShareThemeBackdropsType.self)
   public struct GetShareThemeBackdrops: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getShareThemeBackdrops"
+    }
     public var hash: Int32
   }
 }

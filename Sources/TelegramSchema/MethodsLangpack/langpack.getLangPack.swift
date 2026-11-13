@@ -15,6 +15,9 @@ extension TL.Langpack {
   /// TL: `langpack.getLangPack#f2f2330a lang_pack:string lang_code:string = LangPackDifference`
   @TLObject(id: 0xf2f2330a, returning: TL.LangPackDifference.self)
   public struct GetLangPack: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "langpack.getLangPack"
+    }
     public var langPack: String
     public var langCode: String
   }

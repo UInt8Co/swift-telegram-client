@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x69f59d69, returning: Bool.self)
   @TLFlagsEquatable
   public struct ToggleBotInAttachMenu: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.toggleBotInAttachMenu"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var writeAllowed: Bool = false
     public var bot: TL.InputUserType

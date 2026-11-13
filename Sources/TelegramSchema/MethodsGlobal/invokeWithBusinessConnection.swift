@@ -14,8 +14,11 @@ extension TL {
 
   /// TL: `invokeWithBusinessConnection#dd289f8e connection_id:string query:!X = X`
   @TLObject(id: 0xdd289f8e)
-  public struct InvokeWithBusinessConnection<Query: TLFunction>: TLFunction, Sendable {
+  public struct InvokeWithBusinessConnection<Query: TLFunction>: TLFunctionWrapper, Sendable {
     public typealias ReturnType = Query.ReturnType
+    public static var tlMethodName: String {
+      "invokeWithBusinessConnection"
+    }
     public var connectionId: String
     public var query: Query
   }

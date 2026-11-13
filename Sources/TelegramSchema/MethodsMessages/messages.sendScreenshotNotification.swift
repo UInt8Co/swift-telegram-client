@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.sendScreenshotNotification#a1405817 peer:InputPeer reply_to:InputReplyTo random_id:long = Updates`
   @TLObject(id: 0xa1405817, returning: TL.UpdatesType.self)
   public struct SendScreenshotNotification: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.sendScreenshotNotification"
+    }
     public var peer: TL.InputPeerType
     public var replyTo: TL.InputReplyToType
     public var randomId: Int64

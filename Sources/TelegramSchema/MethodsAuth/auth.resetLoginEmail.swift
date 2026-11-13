@@ -15,6 +15,9 @@ extension TL.Auth {
   /// TL: `auth.resetLoginEmail#7e960193 phone_number:string phone_code_hash:string = auth.SentCode`
   @TLObject(id: 0x7e960193, returning: TL.Auth.SentCodeType.self)
   public struct ResetLoginEmail: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.resetLoginEmail"
+    }
     public var phoneNumber: String
     public var phoneCodeHash: String
   }

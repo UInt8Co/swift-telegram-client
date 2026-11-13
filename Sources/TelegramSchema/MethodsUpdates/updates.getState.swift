@@ -15,5 +15,8 @@ extension TL.Updates {
   /// TL: `updates.getState#edd4882a = updates.State`
   @TLObject(id: 0xedd4882a, returning: TL.Updates.State.self)
   public struct GetState: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "updates.getState"
+    }
   }
 }

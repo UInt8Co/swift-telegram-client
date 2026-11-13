@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.deleteStarGiftCollection#ad5648e8 peer:InputPeer collection_id:int = Bool`
   @TLObject(id: 0xad5648e8, returning: Bool.self)
   public struct DeleteStarGiftCollection: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.deleteStarGiftCollection"
+    }
     public var peer: TL.InputPeerType
     public var collectionId: Int32
   }

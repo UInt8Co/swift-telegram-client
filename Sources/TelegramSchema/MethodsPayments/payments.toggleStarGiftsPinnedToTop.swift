@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.toggleStarGiftsPinnedToTop#1513e7b0 peer:InputPeer stargift:Vector<InputSavedStarGift> = Bool`
   @TLObject(id: 0x1513e7b0, returning: Bool.self)
   public struct ToggleStarGiftsPinnedToTop: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.toggleStarGiftsPinnedToTop"
+    }
     public var peer: TL.InputPeerType
     public var stargift: [TL.InputSavedStarGiftType]
   }

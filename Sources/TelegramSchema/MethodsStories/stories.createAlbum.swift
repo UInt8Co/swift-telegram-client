@@ -15,6 +15,9 @@ extension TL.Stories {
   /// TL: `stories.createAlbum#a36396e5 peer:InputPeer title:string stories:Vector<int> = StoryAlbum`
   @TLObject(id: 0xa36396e5, returning: TL.StoryAlbum.self)
   public struct CreateAlbum: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.createAlbum"
+    }
     public var peer: TL.InputPeerType
     public var title: String
     public var stories: [Int32]

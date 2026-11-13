@@ -15,6 +15,9 @@ extension TL.Auth {
   /// TL: `auth.importAuthorization#a57a7dad id:long bytes:bytes = auth.Authorization`
   @TLObject(id: 0xa57a7dad, returning: TL.Auth.AuthorizationType.self)
   public struct ImportAuthorization: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.importAuthorization"
+    }
     public var id: Int64
     public var bytes: Data
   }

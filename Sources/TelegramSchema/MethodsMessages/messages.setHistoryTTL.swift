@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.setHistoryTTL#b80e5fe4 peer:InputPeer period:int = Updates`
   @TLObject(id: 0xb80e5fe4, returning: TL.UpdatesType.self)
   public struct SetHistoryTTL: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.setHistoryTTL"
+    }
     public var peer: TL.InputPeerType
     public var period: Int32
   }

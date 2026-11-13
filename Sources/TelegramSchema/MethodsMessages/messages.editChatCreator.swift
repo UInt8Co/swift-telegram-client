@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.editChatCreator#f743b857 peer:InputPeer user_id:InputUser password:InputCheckPasswordSRP = Updates`
   @TLObject(id: 0xf743b857, returning: TL.UpdatesType.self)
   public struct EditChatCreator: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.editChatCreator"
+    }
     public var peer: TL.InputPeerType
     public var userId: TL.InputUserType
     public var password: TL.InputCheckPasswordSRPType

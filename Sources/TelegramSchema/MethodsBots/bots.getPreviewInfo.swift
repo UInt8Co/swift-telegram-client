@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.getPreviewInfo#423ab3ad bot:InputUser lang_code:string = bots.PreviewInfo`
   @TLObject(id: 0x423ab3ad, returning: TL.Bots.PreviewInfo.self)
   public struct GetPreviewInfo: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.getPreviewInfo"
+    }
     public var bot: TL.InputUserType
     public var langCode: String
   }

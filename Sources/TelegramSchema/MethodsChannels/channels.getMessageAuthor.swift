@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.getMessageAuthor#ece2a0e6 channel:InputChannel id:int = User`
   @TLObject(id: 0xece2a0e6, returning: TL.UserType.self)
   public struct GetMessageAuthor: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.getMessageAuthor"
+    }
     public var channel: TL.InputChannelType
     public var id: Int32
   }

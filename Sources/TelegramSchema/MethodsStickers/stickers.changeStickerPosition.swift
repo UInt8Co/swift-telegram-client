@@ -15,6 +15,9 @@ extension TL.Stickers {
   /// TL: `stickers.changeStickerPosition#ffb6d4ca sticker:InputDocument position:int = messages.StickerSet`
   @TLObject(id: 0xffb6d4ca, returning: TL.Messages.StickerSetType.self)
   public struct ChangeStickerPosition: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stickers.changeStickerPosition"
+    }
     public var sticker: TL.InputDocumentType
     public var position: Int32
   }

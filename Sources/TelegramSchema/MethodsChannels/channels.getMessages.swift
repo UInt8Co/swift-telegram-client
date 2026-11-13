@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.getMessages#ad8c9a23 channel:InputChannel id:Vector<InputMessage> = messages.Messages`
   @TLObject(id: 0xad8c9a23, returning: TL.Messages.MessagesType.self)
   public struct GetMessages: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.getMessages"
+    }
     public var channel: TL.InputChannelType
     public var id: [TL.InputMessageType]
   }

@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xf624bc1e, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct EditMessageWidgetData: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.editMessageWidgetData"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     public var id: Int32

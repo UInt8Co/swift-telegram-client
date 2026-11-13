@@ -16,6 +16,9 @@ extension TL.Phone {
   @TLObject(id: 0xbcf22685, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct InviteConferenceCallParticipant: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.inviteConferenceCallParticipant"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var video: Bool = false
     public var call: TL.InputGroupCallType

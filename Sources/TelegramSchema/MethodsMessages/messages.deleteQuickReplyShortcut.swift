@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.deleteQuickReplyShortcut#3cc04740 shortcut_id:int = Bool`
   @TLObject(id: 0x3cc04740, returning: Bool.self)
   public struct DeleteQuickReplyShortcut: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.deleteQuickReplyShortcut"
+    }
     public var shortcutId: Int32
   }
 }

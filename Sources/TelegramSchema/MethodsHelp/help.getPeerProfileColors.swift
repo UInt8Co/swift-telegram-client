@@ -15,6 +15,9 @@ extension TL.Help {
   /// TL: `help.getPeerProfileColors#abcfa9fd hash:int = help.PeerColors`
   @TLObject(id: 0xabcfa9fd, returning: TL.Help.PeerColorsType.self)
   public struct GetPeerProfileColors: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.getPeerProfileColors"
+    }
     public var hash: Int32
   }
 }

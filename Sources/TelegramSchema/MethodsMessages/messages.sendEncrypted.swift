@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x44fa7a15, returning: TL.Messages.SentEncryptedMessageType.self)
   @TLFlagsEquatable
   public struct SendEncrypted: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.sendEncrypted"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var silent: Bool = false
     public var peer: TL.InputEncryptedChat

@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.acceptCall#3bd2b4a0 peer:InputPhoneCall g_b:bytes protocol:PhoneCallProtocol = phone.PhoneCall`
   @TLObject(id: 0x3bd2b4a0, returning: TL.Phone.PhoneCall.self)
   public struct AcceptCall: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.acceptCall"
+    }
     public var peer: TL.InputPhoneCall
     public var gB: Data
     public var `protocol`: TL.PhoneCallProtocol

@@ -16,6 +16,9 @@ extension TL.Payments {
   @TLObject(id: 0xc0a2ea9f, returning: TL.Payments.StarGiftDepositPayload.self)
   @TLFlagsEquatable
   public struct DepositStarGift: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.depositStarGift"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var hideSender: Bool = false
     public var peer: TL.InputPeerType

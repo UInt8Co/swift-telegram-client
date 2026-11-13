@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getStickers#d5a5d3a1 emoticon:string hash:long = messages.Stickers`
   @TLObject(id: 0xd5a5d3a1, returning: TL.Messages.StickersType.self)
   public struct GetStickers: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getStickers"
+    }
     public var emoticon: String
     public var hash: Int64
   }

@@ -16,6 +16,9 @@ extension TL.Payments {
   @TLObject(id: 0xc7770878, returning: Bool.self)
   @TLFlagsEquatable
   public struct ChangeStarsSubscription: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.changeStarsSubscription"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     public var subscriptionId: String

@@ -16,6 +16,9 @@ extension TL.Contacts {
   @TLObject(id: 0x725afbbc, returning: TL.Contacts.ResolvedPeer.self)
   @TLFlagsEquatable
   public struct ResolveUsername: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.resolveUsername"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var username: String
     @TLConditional("flags", bit: 0) public var referer: String? = nil

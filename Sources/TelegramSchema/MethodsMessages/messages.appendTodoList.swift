@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.appendTodoList#21a61057 peer:InputPeer msg_id:int list:Vector<TodoItem> = Updates`
   @TLObject(id: 0x21a61057, returning: TL.UpdatesType.self)
   public struct AppendTodoList: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.appendTodoList"
+    }
     public var peer: TL.InputPeerType
     public var msgId: Int32
     public var list: [TL.TodoItem]

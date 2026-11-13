@@ -15,6 +15,9 @@ extension TL.Wallet {
   /// TL: `wallet.getTransactionsByMsgHash#a6bb795d msg_hash:Vector<string> = wallet.Transactions`
   @TLObject(id: 0xa6bb795d, returning: TL.Wallet.Transactions.self)
   public struct GetTransactionsByMsgHash: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.getTransactionsByMsgHash"
+    }
     public var msgHash: [String]
   }
 }

@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.confirmCall#2efe1722 peer:InputPhoneCall g_a:bytes key_fingerprint:long protocol:PhoneCallProtocol = phone.PhoneCall`
   @TLObject(id: 0x2efe1722, returning: TL.Phone.PhoneCall.self)
   public struct ConfirmCall: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.confirmCall"
+    }
     public var peer: TL.InputPhoneCall
     public var gA: Data
     public var keyFingerprint: Int64

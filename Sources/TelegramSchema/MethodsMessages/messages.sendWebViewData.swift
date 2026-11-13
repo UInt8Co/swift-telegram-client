@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.sendWebViewData#dc0242c8 bot:InputUser random_id:long button_text:string data:string = Updates`
   @TLObject(id: 0xdc0242c8, returning: TL.UpdatesType.self)
   public struct SendWebViewData: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.sendWebViewData"
+    }
     public var bot: TL.InputUserType
     public var randomId: Int64
     public var buttonText: String

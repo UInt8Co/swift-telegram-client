@@ -14,8 +14,11 @@ extension TL {
 
   /// TL: `invokeWithApnsSecret#0dae54f8 nonce:string secret:string query:!X = X`
   @TLObject(id: 0x0dae54f8)
-  public struct InvokeWithApnsSecret<Query: TLFunction>: TLFunction, Sendable {
+  public struct InvokeWithApnsSecret<Query: TLFunction>: TLFunctionWrapper, Sendable {
     public typealias ReturnType = Query.ReturnType
+    public static var tlMethodName: String {
+      "invokeWithApnsSecret"
+    }
     public var nonce: String
     public var secret: String
     public var query: Query

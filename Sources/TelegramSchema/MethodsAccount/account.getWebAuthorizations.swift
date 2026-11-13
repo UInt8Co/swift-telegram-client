@@ -15,5 +15,8 @@ extension TL.Account {
   /// TL: `account.getWebAuthorizations#182e6d6f = account.WebAuthorizations`
   @TLObject(id: 0x182e6d6f, returning: TL.Account.WebAuthorizations.self)
   public struct GetWebAuthorizations: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getWebAuthorizations"
+    }
   }
 }

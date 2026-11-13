@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.installStickerSet#c78fe460 stickerset:InputStickerSet archived:Bool = messages.StickerSetInstallResult`
   @TLObject(id: 0xc78fe460, returning: TL.Messages.StickerSetInstallResultType.self)
   public struct InstallStickerSet: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.installStickerSet"
+    }
     public var stickerset: TL.InputStickerSetType
     public var archived: Bool
   }

@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.togglePaidReactionPrivacy#435885b5 peer:InputPeer msg_id:int private:PaidReactionPrivacy = Bool`
   @TLObject(id: 0x435885b5, returning: Bool.self)
   public struct TogglePaidReactionPrivacy: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.togglePaidReactionPrivacy"
+    }
     public var peer: TL.InputPeerType
     public var msgId: Int32
     public var `private`: TL.PaidReactionPrivacyType

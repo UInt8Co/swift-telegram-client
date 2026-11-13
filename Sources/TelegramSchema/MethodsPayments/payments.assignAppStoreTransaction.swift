@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.assignAppStoreTransaction#80ed747d receipt:bytes purpose:InputStorePaymentPurpose = Updates`
   @TLObject(id: 0x80ed747d, returning: TL.UpdatesType.self)
   public struct AssignAppStoreTransaction: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.assignAppStoreTransaction"
+    }
     public var receipt: Data
     public var purpose: TL.InputStorePaymentPurposeType
   }

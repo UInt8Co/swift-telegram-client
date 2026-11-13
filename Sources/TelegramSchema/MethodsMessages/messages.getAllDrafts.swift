@@ -15,5 +15,8 @@ extension TL.Messages {
   /// TL: `messages.getAllDrafts#6a3f8d65 = Updates`
   @TLObject(id: 0x6a3f8d65, returning: TL.UpdatesType.self)
   public struct GetAllDrafts: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getAllDrafts"
+    }
   }
 }

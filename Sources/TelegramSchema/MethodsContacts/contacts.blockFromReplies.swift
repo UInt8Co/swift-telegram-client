@@ -16,6 +16,9 @@ extension TL.Contacts {
   @TLObject(id: 0x29a8962c, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct BlockFromReplies: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.blockFromReplies"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var deleteMessage: Bool = false
     @TLConditional("flags", bit: 1) public var deleteHistory: Bool = false

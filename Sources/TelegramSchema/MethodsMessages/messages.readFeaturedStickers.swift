@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.readFeaturedStickers#5b118126 id:Vector<long> = Bool`
   @TLObject(id: 0x5b118126, returning: Bool.self)
   public struct ReadFeaturedStickers: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.readFeaturedStickers"
+    }
     public var id: [Int64]
   }
 }

@@ -16,6 +16,9 @@ extension TL.Stories {
   @TLObject(id: 0xeeb0d625, returning: TL.Stories.AllStoriesType.self)
   @TLFlagsEquatable
   public struct GetAllStories: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.getAllStories"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var next: Bool = false
     @TLConditional("flags", bit: 2) public var hidden: Bool = false

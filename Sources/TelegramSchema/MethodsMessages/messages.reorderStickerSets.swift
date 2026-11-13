@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x78337739, returning: Bool.self)
   @TLFlagsEquatable
   public struct ReorderStickerSets: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.reorderStickerSets"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var masks: Bool = false
     @TLConditional("flags", bit: 1) public var emojis: Bool = false

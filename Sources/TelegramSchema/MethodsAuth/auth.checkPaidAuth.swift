@@ -15,6 +15,9 @@ extension TL.Auth {
   /// TL: `auth.checkPaidAuth#56e59f9c phone_number:string phone_code_hash:string form_id:long = auth.SentCode`
   @TLObject(id: 0x56e59f9c, returning: TL.Auth.SentCodeType.self)
   public struct CheckPaidAuth: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.checkPaidAuth"
+    }
     public var phoneNumber: String
     public var phoneCodeHash: String
     public var formId: Int64

@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x8235057e, returning: Bool.self)
   @TLFlagsEquatable
   public struct ClickSponsoredMessage: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.clickSponsoredMessage"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var media: Bool = false
     @TLConditional("flags", bit: 1) public var fullscreen: Bool = false

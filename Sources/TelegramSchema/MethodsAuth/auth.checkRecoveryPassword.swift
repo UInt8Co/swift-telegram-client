@@ -15,6 +15,9 @@ extension TL.Auth {
   /// TL: `auth.checkRecoveryPassword#0d36bf79 code:string = Bool`
   @TLObject(id: 0x0d36bf79, returning: Bool.self)
   public struct CheckRecoveryPassword: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.checkRecoveryPassword"
+    }
     public var code: String
   }
 }

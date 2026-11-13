@@ -1,17 +1,17 @@
 #!/usr/bin/env -S deno run --allow-read --allow-write
 // Writes Sources/TelegramClient/Peers/ReceivedPeers+Schema.swift from
 // Schemas/api.json: how to find every `User` and `Chat` a received value holds.
+// Also writes Tests/TelegramClientTests/ReceivedPeersSchema+Methods.swift, the
+// Swift type of every method, so the tests can call a method found in the schema.
 //
 // A type "carries peers" when one of its constructors has a field whose type is
 // `User` or `Chat`, or (through vectors and optional fields, at any depth) a type
-// that carries peers. The output is:
-//
-// - a `ReceivedPeerCarrying` conformance for every such type, and for every
-//   constructor of one that has such a field, visiting exactly those fields;
-// - the reader for every method whose result type carries peers, keyed by the
-//   method's constructor number, so a reply can be read knowing only the request;
-// - how to step over the leading fields of every `invokeWith…`-style wrapper
-//   (`query:!X`), so a wrapped request finds the method it wraps.
+// that carries peers. The output is a `ReceivedPeerCarrying` conformance for
+// every such type, and for every constructor of one that has such a field,
+// visiting exactly those fields. `PeerObservingTransport` casts each typed RPC
+// result to the protocol, so a method whose result carries peers needs nothing
+// of its own here, and wrappers (`invokeWith…`, `query:!X`) are seen through by
+// the typed function itself.
 //
 // Swift names follow mtproto-gen-swift's (`ResolvedSchema` / `Naming`), which
 // generated `TelegramSchema` from the same file; a name that disagrees fails to
@@ -23,7 +23,7 @@
 //
 //   ./Scripts/generate-received-peers.ts [--check]
 //
-// `--check` only reports whether the committed file is up to date (exit 1 if not).
+// `--check` only reports whether the committed files are up to date (exit 1 if not).
 
 import { readFileSync, writeFileSync } from "node:fs";
 import process from "node:process";
@@ -31,6 +31,7 @@ import process from "node:process";
 const repoRoot = new URL("..", import.meta.url).pathname.replace(/\/$/, "");
 const SCHEMA = `${repoRoot}/Schemas/api.json`;
 const OUTPUT = `${repoRoot}/Sources/TelegramClient/Peers/ReceivedPeers+Schema.swift`;
+const TEST_OUTPUT = `${repoRoot}/Tests/TelegramClientTests/ReceivedPeersSchema+Methods.swift`;
 // Same as generate-schema.sh's --exclude-namespace: never part of generated code.
 const EXCLUDED_NAMESPACES = new Set(["mtcute"]);
 // The peers themselves; their conformances are written by hand.
@@ -66,7 +67,7 @@ const reservedMemberNames = new Set([
   "TL", "TLCoding", "Swift", "Type",
   "Int32", "Int64", "UInt32", "UInt64", "Double", "String", "Data", "Bool",
   "TLInt128", "TLInt256", "TLWriter", "TLReader", "TLError", "TLFunction",
-  "TLEncodable", "TLDecodable", "TLConstructed", "TLAnyObject",
+  "TLFunctionWrapper", "TLEncodable", "TLDecodable", "TLConstructed", "TLAnyObject",
   "Equatable", "Sendable", "Optional", "Array",
 ]);
 const builtinTypes = new Set(["Bool", "True", "Null", "Vector t", "Object"]);
@@ -151,8 +152,6 @@ for (const type of typeOrder) {
 const methodSwift = new Map<string, string>();
 for (const m of methods) methodSwift.set(nameOf(m), swiftName(nameOf(m)));
 
-const typeReference = (type: string) =>
-  typeEnumSwift.get(type) ?? constructorSwift.get(nameOf(constructorsByType.get(type)![0]))!;
 function caseNameIn(type: string, c: Combinator): string {
   const predicate = nameOf(c);
   return namespaceOf(predicate) === namespaceOf(type)
@@ -192,30 +191,13 @@ function parseValue(text: string): Value | null {
 
 type Field = {
   name: string;
-  flags: boolean;
-  condition: { flags: string; bit: number } | null;
-  value: Value | null; // null: a `true` flag, which occupies no bytes
-  bareSpelling: boolean;
+  value: Value | null; // null: flags, or a `true` flag, which hold no peer
 };
 
 function parseField(param: Param): Field {
-  if (param.type === "#") {
-    return { name: param.name, flags: true, condition: null, value: null, bareSpelling: false };
-  }
+  if (param.type === "#") return { name: param.name, value: null };
   const question = param.type.indexOf("?");
-  if (question >= 0) {
-    const [flags, bit] = param.type.slice(0, question).split(".");
-    const payload = param.type.slice(question + 1);
-    return {
-      name: param.name, flags: false, condition: { flags, bit: Number(bit) },
-      value: parseValue(payload),
-      bareSpelling: payload.startsWith("%") || payload.startsWith("vector<"),
-    };
-  }
-  return {
-    name: param.name, flags: false, condition: null, value: parseValue(param.type),
-    bareSpelling: param.type.startsWith("%") || param.type.startsWith("vector<"),
-  };
+  return { name: param.name, value: parseValue(param.type.slice(question + 1)) };
 }
 
 // The TL type a named reference resolves to: a boxed type, or the type that
@@ -265,8 +247,7 @@ const emit = (line = "") => out.push(line);
 
 emit("// Generated by Scripts/generate-received-peers.ts from Schemas/api.json. DO NOT EDIT.");
 emit("//");
-emit("// Every TL type whose value can hold a `User` or a `Chat`, at any depth; the reader");
-emit("// for every method whose result is one; and how to step into every wrapper method.");
+emit("// Every TL type whose value can hold a `User` or a `Chat`, at any depth.");
 emit("import TLCoding");
 emit("import TelegramSchema");
 emit("");
@@ -304,100 +285,46 @@ for (const type of carrierTypes) {
 }
 
 emit("");
-emit("// MARK: - Methods whose result carries peers");
-emit("");
-emit("extension ReceivedPeerReplies {");
-emit("  static let methods: [UInt32: Reader] = {");
-emit("    var methods: [UInt32: Reader] = [:]");
-let methodCount = 0;
-for (const m of methods) {
-  const result = parseValue(m.type);
-  if (!result || result.kind === "query") continue;
-  const named = namedIn(result);
-  if (named === null || !carries.has(named)) continue;
-  emit(`    methods.add(${methodSwift.get(nameOf(m))}.self, "${nameOf(m)}")`);
-  methodCount++;
-}
-emit("    return methods");
-emit("  }()");
 
-function swiftType(value: Value): string {
-  switch (value.kind) {
-    case "primitive":
-      return value.swift;
-    case "vector":
-      return `[${swiftType(value.element)}]`;
-    case "named": {
-      if (constructorsByType.has(value.tl)) return typeReference(value.tl);
-      const bare = constructorSwift.get(value.tl);
-      if (!bare) throw new Error(`unknown type '${value.tl}'`);
-      return bare;
-    }
-    case "query":
-      throw new Error("a query has no Swift type here");
-  }
-}
+// MARK: - Test support: every method's Swift type
 
-emit("");
-emit("  /// Wrapper methods (`query:!X`), by constructor number: what precedes the query.");
-emit("  static let wrappers: [UInt32: Wrapper] = [");
-const wrapperMethods = methods.filter((m) => m.params.some((p) => p.type === "!X"));
-for (const m of wrapperMethods) {
-  const fields = m.params.map(parseField);
-  const queryIndex = fields.findIndex((f) => f.value?.kind === "query");
-  if (queryIndex !== fields.length - 1) {
-    throw new Error(`${nameOf(m)}: the query is not the last field`);
+const tests: string[] = [];
+const emitTest = (line = "") => tests.push(line);
+
+emitTest("// Generated by Scripts/generate-received-peers.ts from Schemas/api.json. DO NOT EDIT.");
+emitTest("//");
+emitTest("// Every method of `TelegramSchema` except the generic wrappers, in schema order, so");
+emitTest("// `ReceivedPeersSchemaTests` can invoke a method it found in the schema.");
+emitTest("import TLCoding");
+emitTest("import TelegramSchema");
+emitTest("");
+emitTest("let schemaMethods: [any (TLFunction & TLConstructed).Type] = [");
+const plainMethods = methods.filter((m) => !m.params.some((p) => p.type === "!X"));
+for (const m of plainMethods) emitTest(`  ${methodSwift.get(nameOf(m))}.self,`);
+emitTest("]");
+emitTest("");
+
+function update(path: string, generated: string, summary: string) {
+  const file = path.slice(path.lastIndexOf("/") + 1);
+  let current = "";
+  try {
+    current = readFileSync(path, "utf8");
+  } catch {
+    // Missing: written below, or reported stale by --check.
   }
-  const id = (Number(m.id) >>> 0).toString(16).padStart(8, "0");
-  const body: string[] = [];
-  for (const f of fields.slice(0, queryIndex)) {
-    if (f.bareSpelling) throw new Error(`${nameOf(m)}.${f.name}: bare wrapper fields are unsupported`);
-    const flagVar = (name: string) => camelCase(name);
-    if (f.flags) {
-      body.push(`let ${flagVar(f.name)} = try UInt32(tlFrom: &reader)`);
-    } else if (f.condition) {
-      if (f.value === null) continue;
-      body.push(
-        `if ${flagVar(f.condition.flags)} & (1 << ${f.condition.bit}) != 0 { _ = try ${swiftType(f.value)}(tlFrom: &reader) }`,
-      );
-    } else if (f.value !== null) {
-      body.push(`_ = try ${swiftType(f.value)}(tlFrom: &reader)`);
+  if (process.argv.includes("--check")) {
+    if (current !== generated) {
+      console.error(`error: ${file} is stale — run Scripts/generate-received-peers.ts`);
+      process.exit(1);
     }
-  }
-  emit(`    // ${nameOf(m)}#${id}`);
-  if (body.length === 0) {
-    emit(`    0x${id}: Wrapper("${nameOf(m)}") { _ in },`);
+    console.log(`${file} is up to date (${summary}).`);
+  } else if (current !== generated) {
+    writeFileSync(path, generated);
+    console.log(`wrote ${file} (${summary})`);
   } else {
-    emit(`    0x${id}: Wrapper("${nameOf(m)}") { reader in`);
-    for (const line of body) emit(`      ${line}`);
-    emit("    },");
+    console.log(`${file} unchanged (${summary})`);
   }
 }
-emit("  ]");
-emit("}");
-emit("");
 
-const generated = out.join("\n");
-const summary =
-  `${carrierTypes.length} types, ${methodCount} methods, ${wrapperMethods.length} wrappers`;
-
-let current = "";
-try {
-  current = readFileSync(OUTPUT, "utf8");
-} catch {
-  // Missing: written below, or reported stale by --check.
-}
-if (process.argv.includes("--check")) {
-  if (current !== generated) {
-    console.error(
-      "error: ReceivedPeers+Schema.swift is stale — run Scripts/generate-received-peers.ts",
-    );
-    process.exit(1);
-  }
-  console.log(`ReceivedPeers+Schema.swift is up to date (${summary}).`);
-} else if (current !== generated) {
-  writeFileSync(OUTPUT, generated);
-  console.log(`wrote ReceivedPeers+Schema.swift (${summary})`);
-} else {
-  console.log(`ReceivedPeers+Schema.swift unchanged (${summary})`);
-}
+update(OUTPUT, out.join("\n"), `${carrierTypes.length} types`);
+update(TEST_OUTPUT, tests.join("\n"), `${plainMethods.length} methods`);

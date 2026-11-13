@@ -15,6 +15,9 @@ extension TL.Auth {
   /// TL: `auth.exportLoginToken#b7e085fe api_id:int api_hash:string except_ids:Vector<long> = auth.LoginToken`
   @TLObject(id: 0xb7e085fe, returning: TL.Auth.LoginTokenType.self)
   public struct ExportLoginToken: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.exportLoginToken"
+    }
     public var apiId: Int32
     public var apiHash: String
     public var exceptIds: [Int64]

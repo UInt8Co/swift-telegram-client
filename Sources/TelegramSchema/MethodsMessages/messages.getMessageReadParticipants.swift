@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getMessageReadParticipants#31c1c44f peer:InputPeer msg_id:int = Vector<ReadParticipantDate>`
   @TLObject(id: 0x31c1c44f, returning: [TL.ReadParticipantDate].self)
   public struct GetMessageReadParticipants: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getMessageReadParticipants"
+    }
     public var peer: TL.InputPeerType
     public var msgId: Int32
   }

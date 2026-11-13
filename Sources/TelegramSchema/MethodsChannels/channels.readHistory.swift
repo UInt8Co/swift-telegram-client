@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.readHistory#cc104937 channel:InputChannel max_id:int = Bool`
   @TLObject(id: 0xcc104937, returning: Bool.self)
   public struct ReadHistory: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.readHistory"
+    }
     public var channel: TL.InputChannelType
     public var maxId: Int32
   }

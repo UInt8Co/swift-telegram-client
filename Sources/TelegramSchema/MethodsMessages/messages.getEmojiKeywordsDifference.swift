@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getEmojiKeywordsDifference#1508b6af lang_code:string from_version:int = EmojiKeywordsDifference`
   @TLObject(id: 0x1508b6af, returning: TL.EmojiKeywordsDifference.self)
   public struct GetEmojiKeywordsDifference: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getEmojiKeywordsDifference"
+    }
     public var langCode: String
     public var fromVersion: Int32
   }

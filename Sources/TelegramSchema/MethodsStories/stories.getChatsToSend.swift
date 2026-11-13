@@ -15,5 +15,8 @@ extension TL.Stories {
   /// TL: `stories.getChatsToSend#a56a8b60 = messages.Chats`
   @TLObject(id: 0xa56a8b60, returning: TL.Messages.ChatsType.self)
   public struct GetChatsToSend: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.getChatsToSend"
+    }
   }
 }

@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.updateStatus#6628562c offline:Bool = Bool`
   @TLObject(id: 0x6628562c, returning: Bool.self)
   public struct UpdateStatus: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.updateStatus"
+    }
     public var offline: Bool
   }
 }

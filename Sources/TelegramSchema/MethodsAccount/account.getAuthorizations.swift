@@ -15,5 +15,8 @@ extension TL.Account {
   /// TL: `account.getAuthorizations#e320c158 = account.Authorizations`
   @TLObject(id: 0xe320c158, returning: TL.Account.Authorizations.self)
   public struct GetAuthorizations: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getAuthorizations"
+    }
   }
 }

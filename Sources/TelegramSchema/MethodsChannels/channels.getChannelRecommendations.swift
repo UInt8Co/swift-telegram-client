@@ -16,6 +16,9 @@ extension TL.Channels {
   @TLObject(id: 0x25a71742, returning: TL.Messages.ChatsType.self)
   @TLFlagsEquatable
   public struct GetChannelRecommendations: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.getChannelRecommendations"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var channel: TL.InputChannelType? = nil
   }

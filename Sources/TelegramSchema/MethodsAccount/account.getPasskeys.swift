@@ -15,5 +15,8 @@ extension TL.Account {
   /// TL: `account.getPasskeys#ea1f0c52 = account.Passkeys`
   @TLObject(id: 0xea1f0c52, returning: TL.Account.Passkeys.self)
   public struct GetPasskeys: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getPasskeys"
+    }
   }
 }

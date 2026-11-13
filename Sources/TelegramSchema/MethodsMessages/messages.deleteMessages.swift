@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xe58e95d2, returning: TL.Messages.AffectedMessages.self)
   @TLFlagsEquatable
   public struct DeleteMessages: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.deleteMessages"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var revoke: Bool = false
     public var id: [Int32]

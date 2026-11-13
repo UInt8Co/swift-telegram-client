@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.updateEmojiStatus#fbd3de6b emoji_status:EmojiStatus = Bool`
   @TLObject(id: 0xfbd3de6b, returning: Bool.self)
   public struct UpdateEmojiStatus: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.updateEmojiStatus"
+    }
     public var emojiStatus: TL.EmojiStatusType
   }
 }

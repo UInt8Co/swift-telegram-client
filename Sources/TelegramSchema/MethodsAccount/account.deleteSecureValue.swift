@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.deleteSecureValue#b880bc4b types:Vector<SecureValueType> = Bool`
   @TLObject(id: 0xb880bc4b, returning: Bool.self)
   public struct DeleteSecureValue: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.deleteSecureValue"
+    }
     public var types: [TL.SecureValueTypeType]
   }
 }

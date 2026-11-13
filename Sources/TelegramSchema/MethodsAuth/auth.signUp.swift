@@ -16,6 +16,9 @@ extension TL.Auth {
   @TLObject(id: 0xaac7b717, returning: TL.Auth.AuthorizationType.self)
   @TLFlagsEquatable
   public struct SignUp: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.signUp"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var noJoinedNotifications: Bool = false
     public var phoneNumber: String

@@ -15,6 +15,9 @@ extension TL.Chatlists {
   /// TL: `chatlists.leaveChatlist#74fae13a chatlist:InputChatlist peers:Vector<InputPeer> = Updates`
   @TLObject(id: 0x74fae13a, returning: TL.UpdatesType.self)
   public struct LeaveChatlist: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "chatlists.leaveChatlist"
+    }
     public var chatlist: TL.InputChatlistDialogFilter
     public var peers: [TL.InputPeerType]
   }

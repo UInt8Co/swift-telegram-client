@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.launchPrepaidGiveaway#5ff58f20 peer:InputPeer giveaway_id:long purpose:InputStorePaymentPurpose = Updates`
   @TLObject(id: 0x5ff58f20, returning: TL.UpdatesType.self)
   public struct LaunchPrepaidGiveaway: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.launchPrepaidGiveaway"
+    }
     public var peer: TL.InputPeerType
     public var giveawayId: Int64
     public var purpose: TL.InputStorePaymentPurposeType

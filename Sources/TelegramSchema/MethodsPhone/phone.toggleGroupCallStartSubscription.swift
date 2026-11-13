@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.toggleGroupCallStartSubscription#219c34e6 call:InputGroupCall subscribed:Bool = Updates`
   @TLObject(id: 0x219c34e6, returning: TL.UpdatesType.self)
   public struct ToggleGroupCallStartSubscription: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.toggleGroupCallStartSubscription"
+    }
     public var call: TL.InputGroupCallType
     public var subscribed: Bool
   }

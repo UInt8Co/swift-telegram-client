@@ -16,6 +16,9 @@ extension TL.Auth {
   @TLObject(id: 0x8d52a951, returning: TL.Auth.AuthorizationType.self)
   @TLFlagsEquatable
   public struct SignIn: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.signIn"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var phoneNumber: String
     public var phoneCodeHash: String

@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.setBotGuestChatResult#b8f106e3 query_id:long result:InputBotInlineResult = InputBotInlineMessageID`
   @TLObject(id: 0xb8f106e3, returning: TL.InputBotInlineMessageIDType.self)
   public struct SetBotGuestChatResult: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.setBotGuestChatResult"
+    }
     public var queryId: Int64
     public var result: TL.InputBotInlineResultType
   }

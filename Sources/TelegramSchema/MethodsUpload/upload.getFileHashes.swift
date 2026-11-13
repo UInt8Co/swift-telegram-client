@@ -15,6 +15,9 @@ extension TL.Upload {
   /// TL: `upload.getFileHashes#9156982a location:InputFileLocation offset:long = Vector<FileHash>`
   @TLObject(id: 0x9156982a, returning: [TL.FileHash].self)
   public struct GetFileHashes: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "upload.getFileHashes"
+    }
     public var location: TL.InputFileLocationType
     public var offset: Int64
   }

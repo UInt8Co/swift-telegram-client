@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0xd69b8361, returning: Bool.self)
   @TLFlagsEquatable
   public struct SaveAutoSaveSettings: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.saveAutoSaveSettings"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var users: Bool = false
     @TLConditional("flags", bit: 1) public var chats: Bool = false

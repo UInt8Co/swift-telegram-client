@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.toggleParticipantsHidden#6a6e7854 channel:InputChannel enabled:Bool = Updates`
   @TLObject(id: 0x6a6e7854, returning: TL.UpdatesType.self)
   public struct ToggleParticipantsHidden: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.toggleParticipantsHidden"
+    }
     public var channel: TL.InputChannelType
     public var enabled: Bool
   }

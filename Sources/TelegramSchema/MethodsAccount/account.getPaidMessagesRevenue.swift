@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0x19ba4a67, returning: TL.Account.PaidMessagesRevenue.self)
   @TLFlagsEquatable
   public struct GetPaidMessagesRevenue: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getPaidMessagesRevenue"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var parentPeer: TL.InputPeerType? = nil
     public var userId: TL.InputUserType

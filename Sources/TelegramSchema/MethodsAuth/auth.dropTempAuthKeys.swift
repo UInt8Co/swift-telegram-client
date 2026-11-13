@@ -15,6 +15,9 @@ extension TL.Auth {
   /// TL: `auth.dropTempAuthKeys#8e48a188 except_auth_keys:Vector<long> = Bool`
   @TLObject(id: 0x8e48a188, returning: Bool.self)
   public struct DropTempAuthKeys: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.dropTempAuthKeys"
+    }
     public var exceptAuthKeys: [Int64]
   }
 }

@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.getTheme#3a5869ec format:string theme:InputTheme = Theme`
   @TLObject(id: 0x3a5869ec, returning: TL.Theme.self)
   public struct GetTheme: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getTheme"
+    }
     public var format: String
     public var theme: TL.InputThemeType
   }

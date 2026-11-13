@@ -15,6 +15,9 @@ extension TL.Help {
   /// TL: `help.editUserInfo#66b91b70 user_id:InputUser message:string entities:Vector<MessageEntity> = help.UserInfo`
   @TLObject(id: 0x66b91b70, returning: TL.Help.UserInfoType.self)
   public struct EditUserInfo: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.editUserInfo"
+    }
     public var userId: TL.InputUserType
     public var message: String
     public var entities: [TL.MessageEntityType]

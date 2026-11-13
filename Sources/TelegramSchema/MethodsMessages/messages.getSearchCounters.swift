@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x1bbcf300, returning: [TL.Messages.SearchCounter].self)
   @TLFlagsEquatable
   public struct GetSearchCounters: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getSearchCounters"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     @TLConditional("flags", bit: 2) public var savedPeerId: TL.InputPeerType? = nil

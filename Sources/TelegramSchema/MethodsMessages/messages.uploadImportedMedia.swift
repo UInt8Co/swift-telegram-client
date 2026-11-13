@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.uploadImportedMedia#2a862092 peer:InputPeer import_id:long file_name:string media:InputMedia = MessageMedia`
   @TLObject(id: 0x2a862092, returning: TL.MessageMediaType.self)
   public struct UploadImportedMedia: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.uploadImportedMedia"
+    }
     public var peer: TL.InputPeerType
     public var importId: Int64
     public var fileName: String

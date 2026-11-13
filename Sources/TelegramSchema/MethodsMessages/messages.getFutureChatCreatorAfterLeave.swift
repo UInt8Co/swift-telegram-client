@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getFutureChatCreatorAfterLeave#3b7d0ea6 peer:InputPeer = User`
   @TLObject(id: 0x3b7d0ea6, returning: TL.UserType.self)
   public struct GetFutureChatCreatorAfterLeave: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getFutureChatCreatorAfterLeave"
+    }
     public var peer: TL.InputPeerType
   }
 }

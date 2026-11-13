@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.hidePeerSettingsBar#4facb138 peer:InputPeer = Bool`
   @TLObject(id: 0x4facb138, returning: Bool.self)
   public struct HidePeerSettingsBar: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.hidePeerSettingsBar"
+    }
     public var peer: TL.InputPeerType
   }
 }

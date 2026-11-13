@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.getPaymentReceipt#2478d1cc peer:InputPeer msg_id:int = payments.PaymentReceipt`
   @TLObject(id: 0x2478d1cc, returning: TL.Payments.PaymentReceiptType.self)
   public struct GetPaymentReceipt: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getPaymentReceipt"
+    }
     public var peer: TL.InputPeerType
     public var msgId: Int32
   }

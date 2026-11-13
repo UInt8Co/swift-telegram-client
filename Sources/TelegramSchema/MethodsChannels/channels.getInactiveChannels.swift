@@ -15,5 +15,8 @@ extension TL.Channels {
   /// TL: `channels.getInactiveChannels#11e831ee = messages.InactiveChats`
   @TLObject(id: 0x11e831ee, returning: TL.Messages.InactiveChats.self)
   public struct GetInactiveChannels: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.getInactiveChannels"
+    }
   }
 }

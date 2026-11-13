@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getFeaturedEmojiStickers#0ecf6736 hash:long = messages.FeaturedStickers`
   @TLObject(id: 0x0ecf6736, returning: TL.Messages.FeaturedStickersType.self)
   public struct GetFeaturedEmojiStickers: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getFeaturedEmojiStickers"
+    }
     public var hash: Int64
   }
 }

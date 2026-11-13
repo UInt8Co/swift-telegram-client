@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.getNotifySettings#12b3ad31 peer:InputNotifyPeer = PeerNotifySettings`
   @TLObject(id: 0x12b3ad31, returning: TL.PeerNotifySettings.self)
   public struct GetNotifySettings: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getNotifySettings"
+    }
     public var peer: TL.InputNotifyPeerType
   }
 }

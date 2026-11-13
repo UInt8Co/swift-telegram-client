@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.toggleUsername#58d6b376 username:string active:Bool = Bool`
   @TLObject(id: 0x58d6b376, returning: Bool.self)
   public struct ToggleUsername: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.toggleUsername"
+    }
     public var username: String
     public var active: Bool
   }

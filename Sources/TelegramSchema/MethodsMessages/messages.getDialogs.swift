@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xa0f4cb4f, returning: TL.Messages.DialogsType.self)
   @TLFlagsEquatable
   public struct GetDialogs: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getDialogs"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var excludePinned: Bool = false
     @TLConditional("flags", bit: 1) public var folderId: Int32? = nil

@@ -16,6 +16,9 @@ extension TL.Payments {
   @TLObject(id: 0x4fddbee7, returning: TL.StarGiftCollection.self)
   @TLFlagsEquatable
   public struct UpdateStarGiftCollection: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.updateStarGiftCollection"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     public var collectionId: Int32

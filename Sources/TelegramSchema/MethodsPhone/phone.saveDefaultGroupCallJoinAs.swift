@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.saveDefaultGroupCallJoinAs#575e1f8c peer:InputPeer join_as:InputPeer = Bool`
   @TLObject(id: 0x575e1f8c, returning: Bool.self)
   public struct SaveDefaultGroupCallJoinAs: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.saveDefaultGroupCallJoinAs"
+    }
     public var peer: TL.InputPeerType
     public var joinAs: TL.InputPeerType
   }

@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xa731e257, returning: Bool.self)
   @TLFlagsEquatable
   public struct ToggleDialogPin: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.toggleDialogPin"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var pinned: Bool = false
     public var peer: TL.InputDialogPeerType

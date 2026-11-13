@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.editChatAdmin#a85bd1c2 chat_id:long user_id:InputUser is_admin:Bool = Bool`
   @TLObject(id: 0xa85bd1c2, returning: Bool.self)
   public struct EditChatAdmin: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.editChatAdmin"
+    }
     public var chatId: Int64
     public var userId: TL.InputUserType
     public var isAdmin: Bool

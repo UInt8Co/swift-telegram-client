@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.saveDefaultSendAs#4167add1 call:InputGroupCall send_as:InputPeer = Bool`
   @TLObject(id: 0x4167add1, returning: Bool.self)
   public struct SaveDefaultSendAs: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.saveDefaultSendAs"
+    }
     public var call: TL.InputGroupCallType
     public var sendAs: TL.InputPeerType
   }

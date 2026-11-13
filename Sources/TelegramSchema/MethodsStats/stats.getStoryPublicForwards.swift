@@ -15,6 +15,9 @@ extension TL.Stats {
   /// TL: `stats.getStoryPublicForwards#a6437ef6 peer:InputPeer id:int offset:string limit:int = stats.PublicForwards`
   @TLObject(id: 0xa6437ef6, returning: TL.Stats.PublicForwards.self)
   public struct GetStoryPublicForwards: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stats.getStoryPublicForwards"
+    }
     public var peer: TL.InputPeerType
     public var id: Int32
     public var offset: String

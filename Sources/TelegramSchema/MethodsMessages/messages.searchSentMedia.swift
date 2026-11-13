@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.searchSentMedia#107e31a0 q:string filter:MessagesFilter limit:int = messages.Messages`
   @TLObject(id: 0x107e31a0, returning: TL.Messages.MessagesType.self)
   public struct SearchSentMedia: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.searchSentMedia"
+    }
     public var q: String
     public var filter: TL.MessagesFilterType
     public var limit: Int32

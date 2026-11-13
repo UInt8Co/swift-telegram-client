@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getInlineGameHighScores#0f635e1b id:InputBotInlineMessageID user_id:InputUser = messages.HighScores`
   @TLObject(id: 0x0f635e1b, returning: TL.Messages.HighScores.self)
   public struct GetInlineGameHighScores: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getInlineGameHighScores"
+    }
     public var id: TL.InputBotInlineMessageIDType
     public var userId: TL.InputUserType
   }

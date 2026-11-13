@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getMessages#63c66506 id:Vector<InputMessage> = messages.Messages`
   @TLObject(id: 0x63c66506, returning: TL.Messages.MessagesType.self)
   public struct GetMessages: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getMessages"
+    }
     public var id: [TL.InputMessageType]
   }
 }

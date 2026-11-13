@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getFavedStickers#04f1aaa9 hash:long = messages.FavedStickers`
   @TLObject(id: 0x04f1aaa9, returning: TL.Messages.FavedStickersType.self)
   public struct GetFavedStickers: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getFavedStickers"
+    }
     public var hash: Int64
   }
 }

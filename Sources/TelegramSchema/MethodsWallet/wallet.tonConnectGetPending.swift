@@ -16,6 +16,9 @@ extension TL.Wallet {
   @TLObject(id: 0x11aee065, returning: TL.Wallet.TonConnectPending.self)
   @TLFlagsEquatable
   public struct TonConnectGetPending: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.tonConnectGetPending"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var dappClientId: String? = nil
     @TLConditional("flags", bit: 1) public var sessionId: Int64? = nil

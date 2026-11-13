@@ -16,6 +16,9 @@ extension TL.Auth {
   @TLObject(id: 0x9857ad07, returning: TL.Auth.AuthorizationType.self)
   @TLFlagsEquatable
   public struct FinishPasskeyLogin: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.finishPasskeyLogin"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var credential: TL.InputPasskeyCredentialPublicKey
     @TLConditional("flags", bit: 0) public var fromDcId: Int32? = nil

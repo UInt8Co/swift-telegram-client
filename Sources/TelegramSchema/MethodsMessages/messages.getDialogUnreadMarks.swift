@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x21202222, returning: [TL.DialogPeerType].self)
   @TLFlagsEquatable
   public struct GetDialogUnreadMarks: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getDialogUnreadMarks"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var parentPeer: TL.InputPeerType? = nil
   }

@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.updatePersonalChannel#d94305e0 channel:InputChannel = Bool`
   @TLObject(id: 0xd94305e0, returning: Bool.self)
   public struct UpdatePersonalChannel: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.updatePersonalChannel"
+    }
     public var channel: TL.InputChannelType
   }
 }

@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.toggleSlowMode#edd49ef0 channel:InputChannel seconds:int = Updates`
   @TLObject(id: 0xedd49ef0, returning: TL.UpdatesType.self)
   public struct ToggleSlowMode: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.toggleSlowMode"
+    }
     public var channel: TL.InputChannelType
     public var seconds: Int32
   }

@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getCommonChats#e40ca104 user_id:InputUser max_id:long limit:int = messages.Chats`
   @TLObject(id: 0xe40ca104, returning: TL.Messages.ChatsType.self)
   public struct GetCommonChats: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getCommonChats"
+    }
     public var userId: TL.InputUserType
     public var maxId: Int64
     public var limit: Int32

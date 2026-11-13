@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.sendCustomRequest#aa2769ed custom_method:string params:DataJSON = DataJSON`
   @TLObject(id: 0xaa2769ed, returning: TL.DataJSON.self)
   public struct SendCustomRequest: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.sendCustomRequest"
+    }
     public var customMethod: String
     public var params: TL.DataJSON
   }

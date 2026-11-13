@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getEmojiKeywordsLanguages#4e9963b2 lang_codes:Vector<string> = Vector<EmojiLanguage>`
   @TLObject(id: 0x4e9963b2, returning: [TL.EmojiLanguage].self)
   public struct GetEmojiKeywordsLanguages: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getEmojiKeywordsLanguages"
+    }
     public var langCodes: [String]
   }
 }

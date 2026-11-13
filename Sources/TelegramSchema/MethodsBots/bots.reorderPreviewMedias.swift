@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.reorderPreviewMedias#b627f3aa bot:InputUser lang_code:string order:Vector<InputMedia> = Bool`
   @TLObject(id: 0xb627f3aa, returning: Bool.self)
   public struct ReorderPreviewMedias: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.reorderPreviewMedias"
+    }
     public var bot: TL.InputUserType
     public var langCode: String
     public var order: [TL.InputMediaType]

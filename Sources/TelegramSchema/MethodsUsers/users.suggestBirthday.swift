@@ -15,6 +15,9 @@ extension TL.Users {
   /// TL: `users.suggestBirthday#fc533372 id:InputUser birthday:Birthday = Updates`
   @TLObject(id: 0xfc533372, returning: TL.UpdatesType.self)
   public struct SuggestBirthday: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "users.suggestBirthday"
+    }
     public var id: TL.InputUserType
     public var birthday: TL.Birthday
   }

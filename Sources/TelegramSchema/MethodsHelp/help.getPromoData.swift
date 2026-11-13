@@ -15,5 +15,8 @@ extension TL.Help {
   /// TL: `help.getPromoData#c0977421 = help.PromoData`
   @TLObject(id: 0xc0977421, returning: TL.Help.PromoDataType.self)
   public struct GetPromoData: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.getPromoData"
+    }
   }
 }

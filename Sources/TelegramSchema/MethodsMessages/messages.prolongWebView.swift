@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xb0d81a83, returning: Bool.self)
   @TLFlagsEquatable
   public struct ProlongWebView: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.prolongWebView"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 5) public var silent: Bool = false
     public var peer: TL.InputPeerType

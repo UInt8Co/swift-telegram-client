@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.readMessageContents#eab5dc38 channel:InputChannel id:Vector<int> = Bool`
   @TLObject(id: 0xeab5dc38, returning: Bool.self)
   public struct ReadMessageContents: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.readMessageContents"
+    }
     public var channel: TL.InputChannelType
     public var id: [Int32]
   }

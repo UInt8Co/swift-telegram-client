@@ -15,5 +15,8 @@ extension TL.Messages {
   /// TL: `messages.clearAllDrafts#7e58ee9c = Bool`
   @TLObject(id: 0x7e58ee9c, returning: Bool.self)
   public struct ClearAllDrafts: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.clearAllDrafts"
+    }
   }
 }

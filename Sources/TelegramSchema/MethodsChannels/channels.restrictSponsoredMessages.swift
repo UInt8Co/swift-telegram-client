@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.restrictSponsoredMessages#9ae91519 channel:InputChannel restricted:Bool = Updates`
   @TLObject(id: 0x9ae91519, returning: TL.UpdatesType.self)
   public struct RestrictSponsoredMessages: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.restrictSponsoredMessages"
+    }
     public var channel: TL.InputChannelType
     public var restricted: Bool
   }

@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.resetAuthorization#df77f3bc hash:long = Bool`
   @TLObject(id: 0xdf77f3bc, returning: Bool.self)
   public struct ResetAuthorization: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.resetAuthorization"
+    }
     public var hash: Int64
   }
 }

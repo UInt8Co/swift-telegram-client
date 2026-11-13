@@ -15,5 +15,8 @@ extension TL.Premium {
   /// TL: `premium.getMyBoosts#0be77b4a = premium.MyBoosts`
   @TLObject(id: 0x0be77b4a, returning: TL.Premium.MyBoosts.self)
   public struct GetMyBoosts: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "premium.getMyBoosts"
+    }
   }
 }

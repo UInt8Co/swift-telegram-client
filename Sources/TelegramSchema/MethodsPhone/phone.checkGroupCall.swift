@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.checkGroupCall#b59cf977 call:InputGroupCall sources:Vector<int> = Vector<int>`
   @TLObject(id: 0xb59cf977, returning: [Int32].self)
   public struct CheckGroupCall: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.checkGroupCall"
+    }
     public var call: TL.InputGroupCallType
     public var sources: [Int32]
   }

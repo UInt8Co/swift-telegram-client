@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.confirmPhone#5f2178c3 phone_code_hash:string phone_code:string = Bool`
   @TLObject(id: 0x5f2178c3, returning: Bool.self)
   public struct ConfirmPhone: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.confirmPhone"
+    }
     public var phoneCodeHash: String
     public var phoneCode: String
   }

@@ -15,5 +15,8 @@ extension TL.Account {
   /// TL: `account.getConnectedBots#4ea4c80f = account.ConnectedBots`
   @TLObject(id: 0x4ea4c80f, returning: TL.Account.ConnectedBots.self)
   public struct GetConnectedBots: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getConnectedBots"
+    }
   }
 }

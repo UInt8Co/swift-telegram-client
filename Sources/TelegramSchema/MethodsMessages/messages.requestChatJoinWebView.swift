@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xba9ee679, returning: TL.WebViewResultUrl.self)
   @TLFlagsEquatable
   public struct RequestChatJoinWebView: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.requestChatJoinWebView"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var queryId: Int64
     @TLConditional("flags", bit: 0) public var themeParams: TL.DataJSON? = nil

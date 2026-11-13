@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.toggleUsername#053ca973 bot:InputUser username:string active:Bool = Bool`
   @TLObject(id: 0x053ca973, returning: Bool.self)
   public struct ToggleUsername: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.toggleUsername"
+    }
     public var bot: TL.InputUserType
     public var username: String
     public var active: Bool

@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.deletePasskey#f5b5563f id:string = Bool`
   @TLObject(id: 0xf5b5563f, returning: Bool.self)
   public struct DeletePasskey: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.deletePasskey"
+    }
     public var id: String
   }
 }

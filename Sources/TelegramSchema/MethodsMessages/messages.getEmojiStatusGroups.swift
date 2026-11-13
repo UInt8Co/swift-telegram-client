@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getEmojiStatusGroups#2ecd56cd hash:int = messages.EmojiGroups`
   @TLObject(id: 0x2ecd56cd, returning: TL.Messages.EmojiGroupsType.self)
   public struct GetEmojiStatusGroups: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getEmojiStatusGroups"
+    }
     public var hash: Int32
   }
 }

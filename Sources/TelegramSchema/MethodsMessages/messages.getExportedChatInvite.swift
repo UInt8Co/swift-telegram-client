@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getExportedChatInvite#73746f5c peer:InputPeer link:string = messages.ExportedChatInvite`
   @TLObject(id: 0x73746f5c, returning: TL.Messages.ExportedChatInviteType.self)
   public struct GetExportedChatInvite: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getExportedChatInvite"
+    }
     public var peer: TL.InputPeerType
     public var link: String
   }

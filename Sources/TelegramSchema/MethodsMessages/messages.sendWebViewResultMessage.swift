@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.sendWebViewResultMessage#0a4314f5 bot_query_id:string result:InputBotInlineResult = WebViewMessageSent`
   @TLObject(id: 0x0a4314f5, returning: TL.WebViewMessageSent.self)
   public struct SendWebViewResultMessage: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.sendWebViewResultMessage"
+    }
     public var botQueryId: String
     public var result: TL.InputBotInlineResultType
   }

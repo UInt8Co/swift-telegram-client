@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.receivedQueue#55a5bb66 max_qts:int = Vector<long>`
   @TLObject(id: 0x55a5bb66, returning: [Int64].self)
   public struct ReceivedQueue: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.receivedQueue"
+    }
     public var maxQts: Int32
   }
 }

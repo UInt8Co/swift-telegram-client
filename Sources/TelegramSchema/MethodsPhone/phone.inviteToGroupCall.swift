@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.inviteToGroupCall#7b393160 call:InputGroupCall users:Vector<InputUser> = Updates`
   @TLObject(id: 0x7b393160, returning: TL.UpdatesType.self)
   public struct InviteToGroupCall: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.inviteToGroupCall"
+    }
     public var call: TL.InputGroupCallType
     public var users: [TL.InputUserType]
   }

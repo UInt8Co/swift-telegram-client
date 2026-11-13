@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.uploadEncryptedFile#5057c497 peer:InputEncryptedChat file:InputEncryptedFile = EncryptedFile`
   @TLObject(id: 0x5057c497, returning: TL.EncryptedFileType.self)
   public struct UploadEncryptedFile: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.uploadEncryptedFile"
+    }
     public var peer: TL.InputEncryptedChat
     public var file: TL.InputEncryptedFileType
   }

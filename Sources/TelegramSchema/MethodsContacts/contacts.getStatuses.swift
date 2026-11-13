@@ -15,5 +15,8 @@ extension TL.Contacts {
   /// TL: `contacts.getStatuses#c4a353ee = Vector<ContactStatus>`
   @TLObject(id: 0xc4a353ee, returning: [TL.ContactStatus].self)
   public struct GetStatuses: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.getStatuses"
+    }
   }
 }

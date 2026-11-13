@@ -14,8 +14,11 @@ extension TL {
 
   /// TL: `invokeWithoutUpdates#bf9459b7 query:!X = X`
   @TLObject(id: 0xbf9459b7)
-  public struct InvokeWithoutUpdates<Query: TLFunction>: TLFunction, Sendable {
+  public struct InvokeWithoutUpdates<Query: TLFunction>: TLFunctionWrapper, Sendable {
     public typealias ReturnType = Query.ReturnType
+    public static var tlMethodName: String {
+      "invokeWithoutUpdates"
+    }
     public var query: Query
   }
 }

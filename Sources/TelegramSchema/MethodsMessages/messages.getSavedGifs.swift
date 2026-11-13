@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getSavedGifs#5cf09635 hash:long = messages.SavedGifs`
   @TLObject(id: 0x5cf09635, returning: TL.Messages.SavedGifsType.self)
   public struct GetSavedGifs: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getSavedGifs"
+    }
     public var hash: Int64
   }
 }

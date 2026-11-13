@@ -15,6 +15,9 @@ extension TL.Stories {
   /// TL: `stories.toggleAllStoriesHidden#7c2557c4 hidden:Bool = Bool`
   @TLObject(id: 0x7c2557c4, returning: Bool.self)
   public struct ToggleAllStoriesHidden: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.toggleAllStoriesHidden"
+    }
     public var hidden: Bool
   }
 }

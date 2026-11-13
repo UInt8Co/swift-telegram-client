@@ -16,6 +16,9 @@ extension TL.Channels {
   @TLObject(id: 0x9a98ad68, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct EditAdmin: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.editAdmin"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var channel: TL.InputChannelType
     public var userId: TL.InputUserType

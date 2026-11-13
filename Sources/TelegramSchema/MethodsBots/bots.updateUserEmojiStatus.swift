@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.updateUserEmojiStatus#ed9f30c5 user_id:InputUser emoji_status:EmojiStatus = Bool`
   @TLObject(id: 0xed9f30c5, returning: Bool.self)
   public struct UpdateUserEmojiStatus: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.updateUserEmojiStatus"
+    }
     public var userId: TL.InputUserType
     public var emojiStatus: TL.EmojiStatusType
   }

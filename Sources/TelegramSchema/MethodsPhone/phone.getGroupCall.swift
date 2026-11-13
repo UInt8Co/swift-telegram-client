@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.getGroupCall#041845db call:InputGroupCall limit:int = phone.GroupCall`
   @TLObject(id: 0x041845db, returning: TL.Phone.GroupCall.self)
   public struct GetGroupCall: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.getGroupCall"
+    }
     public var call: TL.InputGroupCallType
     public var limit: Int32
   }

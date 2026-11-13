@@ -16,6 +16,9 @@ extension TL.Communities {
   @TLObject(id: 0xa63859ec, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct Create: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "communities.create"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var hidden: Bool = false
     public var title: String

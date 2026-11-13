@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0xc727bb3b, returning: Bool.self)
   @TLFlagsEquatable
   public struct InstallTheme: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.installTheme"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var dark: Bool = false
     @TLConditional("flags", bit: 1) public var theme: TL.InputThemeType? = nil

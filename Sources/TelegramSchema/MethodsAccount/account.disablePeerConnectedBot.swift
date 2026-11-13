@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.disablePeerConnectedBot#5e437ed9 peer:InputPeer = Bool`
   @TLObject(id: 0x5e437ed9, returning: Bool.self)
   public struct DisablePeerConnectedBot: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.disablePeerConnectedBot"
+    }
     public var peer: TL.InputPeerType
   }
 }

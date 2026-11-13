@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x8ef8ecc0, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct SetGameScore: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.setGameScore"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var editMessage: Bool = false
     @TLConditional("flags", bit: 1) public var force: Bool = false

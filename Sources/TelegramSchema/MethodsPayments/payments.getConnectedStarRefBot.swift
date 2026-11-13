@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.getConnectedStarRefBot#b7d998f0 peer:InputPeer bot:InputUser = payments.ConnectedStarRefBots`
   @TLObject(id: 0xb7d998f0, returning: TL.Payments.ConnectedStarRefBots.self)
   public struct GetConnectedStarRefBot: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getConnectedStarRefBot"
+    }
     public var peer: TL.InputPeerType
     public var bot: TL.InputUserType
   }

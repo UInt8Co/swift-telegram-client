@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getPollResults#eda3e33b peer:InputPeer msg_id:int poll_hash:long = Updates`
   @TLObject(id: 0xeda3e33b, returning: TL.UpdatesType.self)
   public struct GetPollResults: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getPollResults"
+    }
     public var peer: TL.InputPeerType
     public var msgId: Int32
     public var pollHash: Int64

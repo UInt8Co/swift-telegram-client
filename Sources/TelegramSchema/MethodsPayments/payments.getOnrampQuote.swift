@@ -16,6 +16,9 @@ extension TL.Payments {
   @TLObject(id: 0xe06645fa, returning: TL.OnrampQuote.self)
   @TLFlagsEquatable
   public struct GetOnrampQuote: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getOnrampQuote"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var provider: String
     public var cryptoCurrency: String

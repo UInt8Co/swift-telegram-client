@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xabbbd346, returning: TL.TextWithEntities.self)
   @TLFlagsEquatable
   public struct SummarizeText: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.summarizeText"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     public var id: Int32

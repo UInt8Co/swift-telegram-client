@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.deleteQuickReplyMessages#e105e910 shortcut_id:int id:Vector<int> = Updates`
   @TLObject(id: 0xe105e910, returning: TL.UpdatesType.self)
   public struct DeleteQuickReplyMessages: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.deleteQuickReplyMessages"
+    }
     public var shortcutId: Int32
     public var id: [Int32]
   }

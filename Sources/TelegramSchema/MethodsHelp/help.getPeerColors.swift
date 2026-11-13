@@ -15,6 +15,9 @@ extension TL.Help {
   /// TL: `help.getPeerColors#da80f42f hash:int = help.PeerColors`
   @TLObject(id: 0xda80f42f, returning: TL.Help.PeerColorsType.self)
   public struct GetPeerColors: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.getPeerColors"
+    }
     public var hash: Int32
   }
 }

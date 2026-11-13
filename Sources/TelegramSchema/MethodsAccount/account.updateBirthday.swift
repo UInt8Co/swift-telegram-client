@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0xcc6e0c11, returning: Bool.self)
   @TLFlagsEquatable
   public struct UpdateBirthday: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.updateBirthday"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var birthday: TL.Birthday? = nil
   }

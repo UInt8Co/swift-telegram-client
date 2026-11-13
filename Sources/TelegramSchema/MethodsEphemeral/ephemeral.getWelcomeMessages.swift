@@ -15,6 +15,9 @@ extension TL.Ephemeral {
   /// TL: `ephemeral.getWelcomeMessages#db9ac18d peer:InputPeer hash:long = ephemeral.WelcomeMessages`
   @TLObject(id: 0xdb9ac18d, returning: TL.Ephemeral.WelcomeMessagesType.self)
   public struct GetWelcomeMessages: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "ephemeral.getWelcomeMessages"
+    }
     public var peer: TL.InputPeerType
     public var hash: Int64
   }

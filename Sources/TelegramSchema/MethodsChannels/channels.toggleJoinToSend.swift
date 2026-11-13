@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.toggleJoinToSend#e4cb9580 channel:InputChannel enabled:Bool = Updates`
   @TLObject(id: 0xe4cb9580, returning: TL.UpdatesType.self)
   public struct ToggleJoinToSend: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.toggleJoinToSend"
+    }
     public var channel: TL.InputChannelType
     public var enabled: Bool
   }

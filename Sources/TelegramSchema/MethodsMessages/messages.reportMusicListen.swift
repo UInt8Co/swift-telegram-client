@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.reportMusicListen#ddbcd819 id:InputDocument listened_duration:int = Bool`
   @TLObject(id: 0xddbcd819, returning: Bool.self)
   public struct ReportMusicListen: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.reportMusicListen"
+    }
     public var id: TL.InputDocumentType
     public var listenedDuration: Int32
   }

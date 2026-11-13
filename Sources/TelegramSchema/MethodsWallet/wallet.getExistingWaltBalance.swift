@@ -15,5 +15,8 @@ extension TL.Wallet {
   /// TL: `wallet.getExistingWaltBalance#691f4360 = wallet.ExistingBalance`
   @TLObject(id: 0x691f4360, returning: TL.Wallet.ExistingBalance.self)
   public struct GetExistingWaltBalance: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.getExistingWaltBalance"
+    }
   }
 }

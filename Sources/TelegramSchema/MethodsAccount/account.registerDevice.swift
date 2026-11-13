@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0xec86017a, returning: Bool.self)
   @TLFlagsEquatable
   public struct RegisterDevice: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.registerDevice"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var noMuted: Bool = false
     public var tokenType: Int32

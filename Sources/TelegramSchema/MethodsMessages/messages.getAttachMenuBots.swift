@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getAttachMenuBots#16fcc2cb hash:long = AttachMenuBots`
   @TLObject(id: 0x16fcc2cb, returning: TL.AttachMenuBotsType.self)
   public struct GetAttachMenuBots: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getAttachMenuBots"
+    }
     public var hash: Int64
   }
 }

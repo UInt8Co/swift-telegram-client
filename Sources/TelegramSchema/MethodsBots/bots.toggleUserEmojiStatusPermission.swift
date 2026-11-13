@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.toggleUserEmojiStatusPermission#06de6392 bot:InputUser enabled:Bool = Bool`
   @TLObject(id: 0x06de6392, returning: Bool.self)
   public struct ToggleUserEmojiStatusPermission: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.toggleUserEmojiStatusPermission"
+    }
     public var bot: TL.InputUserType
     public var enabled: Bool
   }

@@ -1,120 +1,171 @@
-#if canImport(FoundationEssentials)
-import FoundationEssentials
-#else
-import Foundation
-#endif
+import TLCoding
 import TelegramSchema
 
-/// Bounded inspection of serialized RPC requests for payload-free diagnostics.
-/// The supported layouts follow the generated schema; unknown requests remain usable.
+/// Payload-free names for RPC requests, for logs and flood bookkeeping.
 public enum RPCRequestSummary {
-  private struct Method: Sendable {
-    let name: String
-    var peerOffset: Int? = nil
-    var vector = false
-    var bareChat = false
-    var leadingStringFlag: UInt32? = nil
+  /// The TL method a request invokes and the peer it addresses, if it leads with
+  /// one.
+  ///
+  /// The method is the innermost function, looking through `invokeWith…`
+  /// wrappers, so `invokeWithoutUpdates(messages.sendMessage(…))` is named
+  /// `messages.sendMessage`. The peer is `user:ID`, `channel:ID`, `chat:ID` or
+  /// `self`, and a list of peers names its first and appends ` (+N peers)`. It is
+  /// read only for methods known to lead with a peer, and is `nil` for every
+  /// other method and for a peer addressed through a message (`…FromMessage`) or
+  /// left empty — the caller's context names those instead. Access hashes and
+  /// message text are never read. No I/O or cancellation is involved.
+  public static func describe(_ function: some TLFunction) -> (name: String, peer: String?) {
+    let innermost = function.tlInnermostFunction
+    let peer = (innermost as? any RPCLeadingPeerRequest)?.leadingPeerSummary
+    return (type(of: innermost).tlMethodName, peer)
   }
-  /// Reads only a known method's constructor and leading peer identifier. Never decodes
-  /// access hashes or message bodies. Malformed/truncated peers produce nil; unknown
-  /// methods retain their hexadecimal constructor ID. No I/O or cancellation is involved.
-  public static func describe(_ data: Data) -> (name: String, peer: String?) {
-    func uint32(_ offset: Int) -> UInt32? {
-      guard offset >= 0, data.count >= offset + 4 else { return nil }
-      return (0..<4).reduce(UInt32(0)) { $0 | UInt32(data[data.startIndex + offset + $1]) << ($1 * 8) }
+}
+
+/// A request whose leading argument names the peer it addresses.
+///
+/// The peer is diagnostic only: for a method with two, it is the one written
+/// first (`messages.forwardMessages` names its source, `channels.editBanned` its
+/// channel), and an ephemeral message without a peer names its receiver.
+protocol RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { get }
+}
+
+/// Formats input peers for ``RPCRequestSummary`` without their access hashes.
+enum RPCPeerSummary {
+  static func of(_ peer: TL.InputPeerType) -> String? {
+    switch peer {
+    case .inputPeerSelf: "self"
+    case .inputPeerUser(let user): "user:\(user.userId)"
+    case .inputPeerChannel(let channel): "channel:\(channel.channelId)"
+    case .inputPeerChat(let chat): "chat:\(chat.chatId)"
+    // Addressed through a message, or nobody: the caller's context names it.
+    case .inputPeerEmpty, .inputPeerUserFromMessage, .inputPeerChannelFromMessage: nil
     }
-    func int64(_ offset: Int) -> Int64? {
-      guard let low = uint32(offset), let high = uint32(offset + 4) else { return nil }
-      return Int64(bitPattern: UInt64(low) | UInt64(high) << 32)
-    }
-    guard let id = uint32(0) else { return ("invalid TL request", nil) }
-    guard let method = methods[id] else { return ("TL constructor 0x" + String(id, radix: 16), nil) }
-    guard var offset = method.peerOffset else { return (method.name, nil) }
-    var suffix = ""
-    if let flag = method.leadingStringFlag, let flags = uint32(4), flags & flag != 0 {
-      guard offset < data.count else { return (method.name, nil) }
-      let first = Int(data[data.startIndex + offset])
-      let header: Int
-      let length: Int
-      if first < 254 { header = 1; length = first }
-      else {
-        guard first == 254, let bytes = uint32(offset) else { return (method.name, nil) }
-        header = 4; length = Int(bytes >> 8)
-      }
-      offset += (header + length + 3) & ~3
-    }
-    if method.vector {
-      guard uint32(offset) == 0x1cb5c415, let count = uint32(offset + 4), count > 0 else { return (method.name, nil) }
-      offset += 8
-      if count > 1 { suffix = " (+\(count - 1) peers)" }
-    }
-    if method.bareChat { return (method.name, int64(offset).map { "chat:\($0)" + suffix }) }
-    guard let constructor = uint32(offset) else { return (method.name, nil) }
-    let kind: String
-    switch constructor {
-    case TL.InputPeerUser.tlConstructorID, TL.InputUser.tlConstructorID: kind = "user" // inputPeerUser, inputUser
-    case TL.InputPeerChannel.tlConstructorID, TL.InputChannel.tlConstructorID: kind = "channel" // inputPeerChannel, inputChannel
-    case TL.InputPeerChat.tlConstructorID: kind = "chat" // inputPeerChat
-    case TL.InputPeerSelf.tlConstructorID, TL.InputUserSelf.tlConstructorID: return (method.name, "self" + suffix)
-    default: return (method.name, nil) // From-message and future constructors: inherited context instead.
-    }
-    return (method.name, int64(offset + 4).map { "\(kind):\($0)" + suffix })
   }
 
-  // Constructor IDs and leading-peer offsets from the pinned Telegram schema.
-  // Only the leading peer identifier is read, never access hashes or text.
-  // Unknown/new methods still report their constructor ID and task context.
-  private static let methods: [UInt32: Method] = [
-    TL.Auth.LogOut.tlConstructorID: Method(name: "auth.logOut"),
-    TL.Payments.GetSavedStarGift.tlConstructorID: Method(name: "payments.getSavedStarGift"),
-    TL.Payments.GetSavedStarGifts.tlConstructorID: Method(name: "payments.getSavedStarGifts", peerOffset: 8),
-    TL.Bots.ResetBotCommands.tlConstructorID: Method(name: "bots.resetBotCommands"),
-    TL.Bots.SetBotCommands.tlConstructorID: Method(name: "bots.setBotCommands"),
-    TL.Channels.DeleteMessages.tlConstructorID: Method(name: "channels.deleteMessages", peerOffset: 4),
-    TL.Channels.EditBanned.tlConstructorID: Method(name: "channels.editBanned", peerOffset: 4),
-    TL.Channels.GetChannels.tlConstructorID: Method(name: "channels.getChannels", peerOffset: 4, vector: true),
-    TL.Channels.GetFullChannel.tlConstructorID: Method(name: "channels.getFullChannel", peerOffset: 4),
-    TL.Channels.GetMessages.tlConstructorID: Method(name: "channels.getMessages", peerOffset: 4),
-    TL.Channels.GetParticipant.tlConstructorID: Method(name: "channels.getParticipant", peerOffset: 4),
-    TL.Channels.GetParticipants.tlConstructorID: Method(name: "channels.getParticipants", peerOffset: 4),
-    TL.Ephemeral.DeleteMessage.tlConstructorID: Method(name: "ephemeral.deleteMessage", peerOffset: 8),
-    TL.Ephemeral.EditMessage.tlConstructorID: Method(name: "ephemeral.editMessage", peerOffset: 8),
-    TL.Ephemeral.SendMessage.tlConstructorID: Method(name: "ephemeral.sendMessage", peerOffset: 8),
-    TL.Help.GetConfig.tlConstructorID: Method(name: "help.getConfig"),
-    TL.Messages.CreateForumTopic.tlConstructorID: Method(name: "messages.createForumTopic", peerOffset: 8),
-    TL.Messages.DeleteChatUser.tlConstructorID: Method(name: "messages.deleteChatUser", peerOffset: 8, bareChat: true),
-    TL.Messages.DeleteMessages.tlConstructorID: Method(name: "messages.deleteMessages"),
-    TL.Messages.DeleteTopicHistory.tlConstructorID: Method(name: "messages.deleteTopicHistory", peerOffset: 4),
-    TL.Messages.EditForumTopic.tlConstructorID: Method(name: "messages.editForumTopic", peerOffset: 8),
-    TL.Messages.EditMessage.tlConstructorID: Method(name: "messages.editMessage", peerOffset: 8),
-    TL.Messages.ForwardMessages.tlConstructorID: Method(name: "messages.forwardMessages", peerOffset: 8),
-    TL.Messages.GetChats.tlConstructorID: Method(name: "messages.getChats", peerOffset: 4, vector: true, bareChat: true),
-    TL.Messages.GetCustomEmojiDocuments.tlConstructorID: Method(name: "messages.getCustomEmojiDocuments"),
-    TL.Messages.GetFeaturedEmojiStickers.tlConstructorID: Method(name: "messages.getFeaturedEmojiStickers"),
-    TL.Messages.GetFeaturedStickers.tlConstructorID: Method(name: "messages.getFeaturedStickers"),
-    TL.Messages.GetOldFeaturedStickers.tlConstructorID: Method(name: "messages.getOldFeaturedStickers"),
-    TL.Messages.GetForumTopicsByID.tlConstructorID: Method(name: "messages.getForumTopicsByID", peerOffset: 4),
-    TL.Messages.GetFullChat.tlConstructorID: Method(name: "messages.getFullChat", peerOffset: 4, bareChat: true),
-    TL.Messages.GetMessages.tlConstructorID: Method(name: "messages.getMessages"),
-    TL.Messages.GetStickerSet.tlConstructorID: Method(name: "messages.getStickerSet"),
-    TL.Messages.HideChatJoinRequest.tlConstructorID: Method(name: "messages.hideChatJoinRequest", peerOffset: 8),
-    TL.Messages.SendMedia.tlConstructorID: Method(name: "messages.sendMedia", peerOffset: 8),
-    TL.Messages.SendMessage.tlConstructorID: Method(name: "messages.sendMessage", peerOffset: 8),
-    TL.Messages.SetBotCallbackAnswer.tlConstructorID: Method(name: "messages.setBotCallbackAnswer"),
-    TL.Messages.SetBotPrecheckoutResults.tlConstructorID: Method(name: "messages.setBotPrecheckoutResults"),
-    TL.Messages.SetTyping.tlConstructorID: Method(name: "messages.setTyping", peerOffset: 8),
-    TL.Messages.UpdatePinnedMessage.tlConstructorID: Method(name: "messages.updatePinnedMessage", peerOffset: 8),
-    TL.Messages.UploadMedia.tlConstructorID: Method(name: "messages.uploadMedia", peerOffset: 8, leadingStringFlag: 1),
-    TL.Payments.BotCancelStarsSubscription.tlConstructorID: Method(name: "payments.botCancelStarsSubscription", peerOffset: 8),
-    TL.Payments.ExportInvoice.tlConstructorID: Method(name: "payments.exportInvoice"),
-    TL.Payments.RefundStarsCharge.tlConstructorID: Method(name: "payments.refundStarsCharge", peerOffset: 4),
-    TL.Updates.GetChannelDifference.tlConstructorID: Method(name: "updates.getChannelDifference", peerOffset: 8),
-    TL.Updates.GetDifference.tlConstructorID: Method(name: "updates.getDifference"),
-    TL.Updates.GetState.tlConstructorID: Method(name: "updates.getState"),
-    TL.Upload.GetFile.tlConstructorID: Method(name: "upload.getFile"),
-    TL.Upload.SaveBigFilePart.tlConstructorID: Method(name: "upload.saveBigFilePart"),
-    TL.Upload.SaveFilePart.tlConstructorID: Method(name: "upload.saveFilePart"),
-    TL.Users.GetFullUser.tlConstructorID: Method(name: "users.getFullUser", peerOffset: 4),
-    TL.Users.GetUsers.tlConstructorID: Method(name: "users.getUsers", peerOffset: 4, vector: true),
-  ]
+  static func of(_ user: TL.InputUserType) -> String? {
+    switch user {
+    case .inputUserSelf: "self"
+    case .inputUser(let user): "user:\(user.userId)"
+    case .inputUserEmpty, .inputUserFromMessage: nil
+    }
+  }
+
+  static func of(_ channel: TL.InputChannelType) -> String? {
+    switch channel {
+    case .inputChannel(let channel): "channel:\(channel.channelId)"
+    case .inputChannelEmpty, .inputChannelFromMessage: nil
+    }
+  }
+
+  static func chat(_ id: Int64) -> String { "chat:\(id)" }
+
+  /// The first of `peers`, counting the rest: `user:7 (+2 peers)`. `nil` for an
+  /// empty list or a first peer that has no summary.
+  static func first<Peer>(of peers: [Peer], _ summary: (Peer) -> String?) -> String? {
+    guard let first = peers.first, let named = summary(first) else { return nil }
+    return peers.count > 1 ? named + " (+\(peers.count - 1) peers)" : named
+  }
+}
+
+// MARK: - Requests that lead with a peer
+
+extension TL.Channels.DeleteMessages: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(channel) }
+}
+extension TL.Channels.EditBanned: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(channel) }
+}
+extension TL.Channels.GetChannels: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.first(of: id, RPCPeerSummary.of) }
+}
+extension TL.Channels.GetFullChannel: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(channel) }
+}
+extension TL.Channels.GetMessages: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(channel) }
+}
+extension TL.Channels.GetParticipant: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(channel) }
+}
+extension TL.Channels.GetParticipants: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(channel) }
+}
+extension TL.Ephemeral.DeleteMessage: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? {
+    if let peer { RPCPeerSummary.of(peer) } else { RPCPeerSummary.of(receiverId) }
+  }
+}
+extension TL.Ephemeral.EditMessage: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? {
+    if let peer { RPCPeerSummary.of(peer) } else { RPCPeerSummary.of(receiverId) }
+  }
+}
+extension TL.Ephemeral.SendMessage: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? {
+    if let peer { RPCPeerSummary.of(peer) } else { RPCPeerSummary.of(receiverId) }
+  }
+}
+extension TL.Messages.CreateForumTopic: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(peer) }
+}
+extension TL.Messages.DeleteChatUser: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.chat(chatId) }
+}
+extension TL.Messages.DeleteTopicHistory: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(peer) }
+}
+extension TL.Messages.EditForumTopic: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(peer) }
+}
+extension TL.Messages.EditMessage: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(peer) }
+}
+extension TL.Messages.ForwardMessages: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(fromPeer) }
+}
+extension TL.Messages.GetChats: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.first(of: id, RPCPeerSummary.chat) }
+}
+extension TL.Messages.GetForumTopicsByID: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(peer) }
+}
+extension TL.Messages.GetFullChat: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.chat(chatId) }
+}
+extension TL.Messages.HideChatJoinRequest: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(peer) }
+}
+extension TL.Messages.SendMedia: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(peer) }
+}
+extension TL.Messages.SendMessage: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(peer) }
+}
+extension TL.Messages.SetTyping: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(peer) }
+}
+extension TL.Messages.UpdatePinnedMessage: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(peer) }
+}
+extension TL.Messages.UploadMedia: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(peer) }
+}
+extension TL.Payments.BotCancelStarsSubscription: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(userId) }
+}
+extension TL.Payments.GetSavedStarGifts: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(peer) }
+}
+extension TL.Payments.RefundStarsCharge: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(userId) }
+}
+extension TL.Updates.GetChannelDifference: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(channel) }
+}
+extension TL.Users.GetFullUser: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.of(id) }
+}
+extension TL.Users.GetUsers: RPCLeadingPeerRequest {
+  var leadingPeerSummary: String? { RPCPeerSummary.first(of: id, RPCPeerSummary.of) }
 }

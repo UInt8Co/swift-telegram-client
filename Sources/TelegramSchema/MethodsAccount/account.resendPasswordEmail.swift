@@ -15,5 +15,8 @@ extension TL.Account {
   /// TL: `account.resendPasswordEmail#7a7f2a15 = Bool`
   @TLObject(id: 0x7a7f2a15, returning: Bool.self)
   public struct ResendPasswordEmail: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.resendPasswordEmail"
+    }
   }
 }

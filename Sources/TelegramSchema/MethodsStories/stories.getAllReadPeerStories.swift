@@ -15,5 +15,8 @@ extension TL.Stories {
   /// TL: `stories.getAllReadPeerStories#9b5ae7f9 = Updates`
   @TLObject(id: 0x9b5ae7f9, returning: TL.UpdatesType.self)
   public struct GetAllReadPeerStories: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.getAllReadPeerStories"
+    }
   }
 }

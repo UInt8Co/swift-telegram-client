@@ -15,5 +15,8 @@ extension TL.Help {
   /// TL: `help.getTermsOfServiceUpdate#2ca51fd1 = help.TermsOfServiceUpdate`
   @TLObject(id: 0x2ca51fd1, returning: TL.Help.TermsOfServiceUpdateType.self)
   public struct GetTermsOfServiceUpdate: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.getTermsOfServiceUpdate"
+    }
   }
 }

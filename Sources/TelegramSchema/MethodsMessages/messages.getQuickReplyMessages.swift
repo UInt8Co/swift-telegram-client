@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x94a495c3, returning: TL.Messages.MessagesType.self)
   @TLFlagsEquatable
   public struct GetQuickReplyMessages: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getQuickReplyMessages"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var shortcutId: Int32
     @TLConditional("flags", bit: 0) public var id: [Int32]? = nil

@@ -15,6 +15,9 @@ extension TL.Help {
   /// TL: `help.setBotUpdatesStatus#ec22cfcd pending_updates_count:int message:string = Bool`
   @TLObject(id: 0xec22cfcd, returning: Bool.self)
   public struct SetBotUpdatesStatus: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.setBotUpdatesStatus"
+    }
     public var pendingUpdatesCount: Int32
     public var message: String
   }

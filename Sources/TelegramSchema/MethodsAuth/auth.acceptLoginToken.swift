@@ -15,6 +15,9 @@ extension TL.Auth {
   /// TL: `auth.acceptLoginToken#e894ad4d token:bytes = Authorization`
   @TLObject(id: 0xe894ad4d, returning: TL.Authorization.self)
   public struct AcceptLoginToken: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.acceptLoginToken"
+    }
     public var token: Data
   }
 }

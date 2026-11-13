@@ -15,5 +15,8 @@ extension TL.Auth {
   /// TL: `auth.logOut#3e72ba19 = auth.LoggedOut`
   @TLObject(id: 0x3e72ba19, returning: TL.Auth.LoggedOut.self)
   public struct LogOut: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.logOut"
+    }
   }
 }

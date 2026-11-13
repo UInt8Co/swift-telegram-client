@@ -15,5 +15,8 @@ extension TL.Help {
   /// TL: `help.getNearestDc#1fb33026 = NearestDc`
   @TLObject(id: 0x1fb33026, returning: TL.NearestDc.self)
   public struct GetNearestDc: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.getNearestDc"
+    }
   }
 }

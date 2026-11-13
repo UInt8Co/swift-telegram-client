@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.reorderQuickReplies#60331907 order:Vector<int> = Bool`
   @TLObject(id: 0x60331907, returning: Bool.self)
   public struct ReorderQuickReplies: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.reorderQuickReplies"
+    }
     public var order: [Int32]
   }
 }

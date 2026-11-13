@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getOutboxReadDate#8c4bfe5d peer:InputPeer msg_id:int = OutboxReadDate`
   @TLObject(id: 0x8c4bfe5d, returning: TL.OutboxReadDate.self)
   public struct GetOutboxReadDate: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getOutboxReadDate"
+    }
     public var peer: TL.InputPeerType
     public var msgId: Int32
   }

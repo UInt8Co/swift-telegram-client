@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.allowSendMessage#f132e3ef bot:InputUser = Updates`
   @TLObject(id: 0xf132e3ef, returning: TL.UpdatesType.self)
   public struct AllowSendMessage: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.allowSendMessage"
+    }
     public var bot: TL.InputUserType
   }
 }

@@ -16,6 +16,9 @@ extension TL.Phone {
   @TLObject(id: 0x59ead627, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct SetCallRating: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.setCallRating"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var userInitiative: Bool = false
     public var peer: TL.InputPhoneCall

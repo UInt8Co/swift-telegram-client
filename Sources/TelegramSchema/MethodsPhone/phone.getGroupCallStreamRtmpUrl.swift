@@ -16,6 +16,9 @@ extension TL.Phone {
   @TLObject(id: 0x5af4c73a, returning: TL.Phone.GroupCallStreamRtmpUrl.self)
   @TLFlagsEquatable
   public struct GetGroupCallStreamRtmpUrl: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.getGroupCallStreamRtmpUrl"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var liveStory: Bool = false
     public var peer: TL.InputPeerType

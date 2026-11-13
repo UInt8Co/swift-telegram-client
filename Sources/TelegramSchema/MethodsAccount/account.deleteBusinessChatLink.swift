@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.deleteBusinessChatLink#60073674 slug:string = Bool`
   @TLObject(id: 0x60073674, returning: Bool.self)
   public struct DeleteBusinessChatLink: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.deleteBusinessChatLink"
+    }
     public var slug: String
   }
 }

@@ -16,6 +16,9 @@ extension TL.Bots {
   @TLObject(id: 0x10cf3123, returning: Bool.self)
   @TLFlagsEquatable
   public struct SetBotInfo: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.setBotInfo"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 2) public var bot: TL.InputUserType? = nil
     public var langCode: String

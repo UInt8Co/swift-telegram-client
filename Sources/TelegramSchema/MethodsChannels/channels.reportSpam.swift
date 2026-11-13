@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.reportSpam#f44a8315 channel:InputChannel participant:InputPeer id:Vector<int> = Bool`
   @TLObject(id: 0xf44a8315, returning: Bool.self)
   public struct ReportSpam: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.reportSpam"
+    }
     public var channel: TL.InputChannelType
     public var participant: TL.InputPeerType
     public var id: [Int32]

@@ -16,6 +16,9 @@ extension TL.Stats {
   @TLObject(id: 0x374fef40, returning: TL.Stats.StoryStats.self)
   @TLFlagsEquatable
   public struct GetStoryStats: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stats.getStoryStats"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var dark: Bool = false
     public var peer: TL.InputPeerType

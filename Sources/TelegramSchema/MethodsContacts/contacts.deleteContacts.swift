@@ -15,6 +15,9 @@ extension TL.Contacts {
   /// TL: `contacts.deleteContacts#096a0e00 id:Vector<InputUser> = Updates`
   @TLObject(id: 0x096a0e00, returning: TL.UpdatesType.self)
   public struct DeleteContacts: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.deleteContacts"
+    }
     public var id: [TL.InputUserType]
   }
 }

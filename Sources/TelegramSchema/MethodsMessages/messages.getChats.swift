@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getChats#49e9528f id:Vector<long> = messages.Chats`
   @TLObject(id: 0x49e9528f, returning: TL.Messages.ChatsType.self)
   public struct GetChats: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getChats"
+    }
     public var id: [Int64]
   }
 }

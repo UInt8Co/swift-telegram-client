@@ -16,6 +16,9 @@ extension TL.Stories {
   @TLObject(id: 0x57bbd166, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct ActivateStealthMode: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.activateStealthMode"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var past: Bool = false
     @TLConditional("flags", bit: 1) public var future: Bool = false

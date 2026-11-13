@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.editPhoto#f12e57c9 channel:InputChannel photo:InputChatPhoto = Updates`
   @TLObject(id: 0xf12e57c9, returning: TL.UpdatesType.self)
   public struct EditPhoto: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.editPhoto"
+    }
     public var channel: TL.InputChannelType
     public var photo: TL.InputChatPhotoType
   }

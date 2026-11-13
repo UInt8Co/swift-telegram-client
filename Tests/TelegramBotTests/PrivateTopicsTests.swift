@@ -46,15 +46,10 @@ import Testing
     #expect(ForumTopicGone(PrivateTopicCreationRefusal.wrongHome) == nil)
   }
 
-  private struct FailingTransport: TLClientTransport {
-    let error: any Error
-    func send(_ requestBody: Data) async throws -> Data { throw error }
-  }
-
   @Test(arguments: PrivateTopicCreationRefusal.allCases, [400, 403, 500])
   func createThrowsTypedRefusals(fact: PrivateTopicCreationRefusal, code: Int32) async throws {
     let rpc = MTProtoRPCError(code: code, message: fact.rawValue)
-    let client = PrivateTopicClient(api: TLClient(transport: FailingTransport(error: rpc)))
+    let client = PrivateTopicClient(api: TLClient(transport: CannedTransport { _ in throw rpc }))
     await #expect(throws: fact) {
       try await client.create(with: .inputPeerSelf(.init()), userID: 7, title: "Topic", randomID: 99)
     }
@@ -72,7 +67,7 @@ import Testing
     + ForumTopicGone.allCases.map(\.rawValue) + ["INTERNAL", "UNKNOWN", "FLOOD_WAIT_5"])
   func createPreservesOtherRPCErrors(message: String) async throws {
     let rpc = MTProtoRPCError(code: 400, message: message)
-    let client = PrivateTopicClient(api: TLClient(transport: FailingTransport(error: rpc)))
+    let client = PrivateTopicClient(api: TLClient(transport: CannedTransport { _ in throw rpc }))
     do {
       _ = try await client.create(with: .inputPeerSelf(.init()), userID: 7, title: "Topic", randomID: 99)
       Issue.record("Expected creation to fail")
@@ -85,12 +80,12 @@ import Testing
   @Test func createPreservesOtherErrorsByIdentityAndCancellation() async {
     final class TransportFailure: Error {}
     let failure = TransportFailure()
-    let client = PrivateTopicClient(api: TLClient(transport: FailingTransport(error: failure)))
+    let client = PrivateTopicClient(api: TLClient(transport: CannedTransport { _ in throw failure }))
     do {
       _ = try await client.create(with: .inputPeerSelf(.init()), userID: 7, title: "Topic", randomID: 99)
       Issue.record("Expected creation to fail")
     } catch { #expect(error as? TransportFailure === failure) }
-    let cancelled = PrivateTopicClient(api: TLClient(transport: FailingTransport(error: CancellationError())))
+    let cancelled = PrivateTopicClient(api: TLClient(transport: CannedTransport { _ in throw CancellationError() }))
     await #expect(throws: CancellationError.self) {
       try await cancelled.create(with: .inputPeerSelf(.init()), userID: 7, title: "Topic", randomID: 99)
     }
@@ -176,16 +171,13 @@ import Testing
   }
 
   @Test func createdTopicRecordsDistinguishUserMessageAndTopicIDs() async throws {
-    struct Transport: TLClientTransport {
-      let response: Data
-      func send(_ requestBody: Data) async throws -> Data { response }
-    }
     let message = TL.MessageType.messageService(.init(out: true, id: 23,
       peerId: .peerUser(.init(userId: 7)),
       replyTo: .messageReplyHeader(.init(forumTopic: true, replyToTopId: 300)), date: 10,
       action: .messageActionTopicCreate(.init(title: "Topic", iconColor: 0))))
     let response = TL.Messages.MessagesType.messages(.init(messages: [message], topics: [], chats: [], users: []))
-    let client = PrivateTopicClient(api: TLClient(transport: Transport(response: response.tlSerialized())))
+    let client = PrivateTopicClient(
+      api: TLClient(transport: CannedTransport([response.tlSerialized()])))
     let result = try await client.createdTopics(among: [23])
     #expect(result.topics == [.init(userID: 7, creationMessageID: 23, topicID: 300)])
     #expect(result.topics.first?.userID == 7 && result.topics.first?.creationMessageID == 23 && result.topics.first?.topicID == 300)

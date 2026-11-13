@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.deletePreviewMedia#2d0135b3 bot:InputUser lang_code:string media:Vector<InputMedia> = Bool`
   @TLObject(id: 0x2d0135b3, returning: Bool.self)
   public struct DeletePreviewMedia: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.deletePreviewMedia"
+    }
     public var bot: TL.InputUserType
     public var langCode: String
     public var media: [TL.InputMediaType]

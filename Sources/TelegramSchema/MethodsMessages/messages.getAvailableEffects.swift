@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getAvailableEffects#dea20a39 hash:int = messages.AvailableEffects`
   @TLObject(id: 0xdea20a39, returning: TL.Messages.AvailableEffectsType.self)
   public struct GetAvailableEffects: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getAvailableEffects"
+    }
     public var hash: Int32
   }
 }

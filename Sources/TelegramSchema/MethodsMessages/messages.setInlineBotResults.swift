@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xbb12a419, returning: Bool.self)
   @TLFlagsEquatable
   public struct SetInlineBotResults: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.setInlineBotResults"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var gallery: Bool = false
     @TLConditional("flags", bit: 1) public var `private`: Bool = false

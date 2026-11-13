@@ -15,6 +15,9 @@ extension TL.Wallet {
   /// TL: `wallet.tonConnectCreateSession#cc931046 dapp_client_id:string manifest_url:string = TonConnectSession`
   @TLObject(id: 0xcc931046, returning: TL.TonConnectSession.self)
   public struct TonConnectCreateSession: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.tonConnectCreateSession"
+    }
     public var dappClientId: String
     public var manifestUrl: String
   }

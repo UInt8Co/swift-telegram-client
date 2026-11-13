@@ -15,6 +15,9 @@ extension TL.Ephemeral {
   /// TL: `ephemeral.deleteWelcomeMessage#e882a9e1 peer:InputPeer id:int = Bool`
   @TLObject(id: 0xe882a9e1, returning: Bool.self)
   public struct DeleteWelcomeMessage: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "ephemeral.deleteWelcomeMessage"
+    }
     public var peer: TL.InputPeerType
     public var id: Int32
   }

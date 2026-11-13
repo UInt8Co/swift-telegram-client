@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x570d6f6f, returning: TL.Messages.WebPagePreview.self)
   @TLFlagsEquatable
   public struct GetWebPagePreview: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getWebPagePreview"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var message: String
     @TLConditional("flags", bit: 3) public var entities: [TL.MessageEntityType]? = nil

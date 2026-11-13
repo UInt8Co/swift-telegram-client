@@ -16,6 +16,9 @@ extension TL.Payments {
   @TLObject(id: 0x3f3e00dc, returning: [TL.OnrampProviderInfo].self)
   @TLFlagsEquatable
   public struct GetOnrampProviders: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getOnrampProviders"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var cryptoCurrency: String? = nil
   }

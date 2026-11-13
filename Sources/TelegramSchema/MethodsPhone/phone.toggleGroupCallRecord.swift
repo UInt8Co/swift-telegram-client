@@ -16,6 +16,9 @@ extension TL.Phone {
   @TLObject(id: 0xf128c708, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct ToggleGroupCallRecord: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.toggleGroupCallRecord"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var start: Bool = false
     @TLConditional("flags", bit: 2) public var video: Bool = false

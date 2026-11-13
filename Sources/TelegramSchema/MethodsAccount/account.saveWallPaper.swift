@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.saveWallPaper#6c5a5b37 wallpaper:InputWallPaper unsave:Bool settings:WallPaperSettings = Bool`
   @TLObject(id: 0x6c5a5b37, returning: Bool.self)
   public struct SaveWallPaper: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.saveWallPaper"
+    }
     public var wallpaper: TL.InputWallPaperType
     public var unsave: Bool
     public var settings: TL.WallPaperSettings

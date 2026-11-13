@@ -16,6 +16,9 @@ extension TL.Phone {
   @TLObject(id: 0x1dbfeca0, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct DeleteGroupCallParticipantMessages: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.deleteGroupCallParticipantMessages"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var reportSpam: Bool = false
     public var call: TL.InputGroupCallType

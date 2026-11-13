@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.checkDownloadFileParams#50077589 bot:InputUser file_name:string url:string = Bool`
   @TLObject(id: 0x50077589, returning: Bool.self)
   public struct CheckDownloadFileParams: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.checkDownloadFileParams"
+    }
     public var bot: TL.InputUserType
     public var fileName: String
     public var url: String

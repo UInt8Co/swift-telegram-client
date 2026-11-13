@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x29ee847a, returning: TL.Messages.MessagesType.self)
   @TLFlagsEquatable
   public struct Search: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.search"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     public var q: String

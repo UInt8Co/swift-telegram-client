@@ -16,6 +16,9 @@ extension TL.Contacts {
   @TLObject(id: 0x94c65c76, returning: Bool.self)
   @TLFlagsEquatable
   public struct SetBlocked: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.setBlocked"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var myStoriesFrom: Bool = false
     public var id: [TL.InputPeerType]

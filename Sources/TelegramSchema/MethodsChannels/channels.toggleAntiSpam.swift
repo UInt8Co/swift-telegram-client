@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.toggleAntiSpam#68f3e4eb channel:InputChannel enabled:Bool = Updates`
   @TLObject(id: 0x68f3e4eb, returning: TL.UpdatesType.self)
   public struct ToggleAntiSpam: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.toggleAntiSpam"
+    }
     public var channel: TL.InputChannelType
     public var enabled: Bool
   }

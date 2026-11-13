@@ -15,6 +15,9 @@ extension TL.Communities {
   /// TL: `communities.getParticipantJoinedChats#f87eabab community:InputChannel participant:InputPeer = communities.ParticipantJoinedChats`
   @TLObject(id: 0xf87eabab, returning: TL.Communities.ParticipantJoinedChats.self)
   public struct GetParticipantJoinedChats: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "communities.getParticipantJoinedChats"
+    }
     public var community: TL.InputChannelType
     public var participant: TL.InputPeerType
   }

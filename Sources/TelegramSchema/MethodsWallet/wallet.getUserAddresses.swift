@@ -16,6 +16,9 @@ extension TL.Wallet {
   @TLObject(id: 0x5275dfdd, returning: TL.Wallet.UserAddresses.self)
   @TLFlagsEquatable
   public struct GetUserAddresses: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.getUserAddresses"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var force: Bool = false
     public var id: [TL.InputUserType]

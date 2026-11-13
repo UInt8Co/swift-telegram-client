@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.getStarGiftCollections#981b91dd peer:InputPeer hash:long = payments.StarGiftCollections`
   @TLObject(id: 0x981b91dd, returning: TL.Payments.StarGiftCollectionsType.self)
   public struct GetStarGiftCollections: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getStarGiftCollections"
+    }
     public var peer: TL.InputPeerType
     public var hash: Int64
   }

@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.getWebBrowserSettings#56655768 hash:long = account.WebBrowserSettings`
   @TLObject(id: 0x56655768, returning: TL.Account.WebBrowserSettingsType.self)
   public struct GetWebBrowserSettings: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getWebBrowserSettings"
+    }
     public var hash: Int64
   }
 }

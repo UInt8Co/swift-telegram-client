@@ -16,6 +16,9 @@ extension TL.Phone {
   @TLObject(id: 0x974392f2, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct ToggleGroupCallSettings: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.toggleGroupCallSettings"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var resetInviteHash: Bool = false
     public var call: TL.InputGroupCallType

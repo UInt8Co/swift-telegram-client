@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.acceptAuthorization#f3ed4c73 bot_id:long scope:string public_key:string value_hashes:Vector<SecureValueHash> credentials:SecureCredentialsEncrypted = Bool`
   @TLObject(id: 0xf3ed4c73, returning: Bool.self)
   public struct AcceptAuthorization: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.acceptAuthorization"
+    }
     public var botId: Int64
     public var scope: String
     public var publicKey: String

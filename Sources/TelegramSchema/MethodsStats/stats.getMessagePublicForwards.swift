@@ -15,6 +15,9 @@ extension TL.Stats {
   /// TL: `stats.getMessagePublicForwards#5f150144 channel:InputChannel msg_id:int offset:string limit:int = stats.PublicForwards`
   @TLObject(id: 0x5f150144, returning: TL.Stats.PublicForwards.self)
   public struct GetMessagePublicForwards: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stats.getMessagePublicForwards"
+    }
     public var channel: TL.InputChannelType
     public var msgId: Int32
     public var offset: String

@@ -15,6 +15,9 @@ extension TL.Help {
   /// TL: `help.saveAppLog#6f02f748 events:Vector<InputAppEvent> = Bool`
   @TLObject(id: 0x6f02f748, returning: Bool.self)
   public struct SaveAppLog: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.saveAppLog"
+    }
     public var events: [TL.InputAppEvent]
   }
 }

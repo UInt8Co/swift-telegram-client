@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0x40f48462, returning: Bool.self)
   @TLFlagsEquatable
   public struct ChangeAuthorizationSettings: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.changeAuthorizationSettings"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 3) public var confirmed: Bool = false
     public var hash: Int64

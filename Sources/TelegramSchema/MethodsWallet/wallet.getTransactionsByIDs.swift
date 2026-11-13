@@ -15,6 +15,9 @@ extension TL.Wallet {
   /// TL: `wallet.getTransactionsByIDs#811ceab6 id:Vector<string> = wallet.Transactions`
   @TLObject(id: 0x811ceab6, returning: TL.Wallet.Transactions.self)
   public struct GetTransactionsByIDs: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.getTransactionsByIDs"
+    }
     public var id: [String]
   }
 }

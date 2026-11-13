@@ -16,6 +16,9 @@ extension TL.Bots {
   @TLObject(id: 0xe3ac4c61, returning: Bool.self)
   @TLFlagsEquatable
   public struct CheckUsername: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.checkUsername"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var additional: Bool = false
     public var username: String

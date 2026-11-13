@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getMessagesReactions#8bba90e6 peer:InputPeer id:Vector<int> = Updates`
   @TLObject(id: 0x8bba90e6, returning: TL.UpdatesType.self)
   public struct GetMessagesReactions: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getMessagesReactions"
+    }
     public var peer: TL.InputPeerType
     public var id: [Int32]
   }

@@ -16,6 +16,9 @@ extension TL.Channels {
   @TLObject(id: 0xf2c4f24d, returning: TL.Messages.MessagesType.self)
   @TLFlagsEquatable
   public struct SearchPosts: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.searchPosts"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var hashtag: String? = nil
     @TLConditional("flags", bit: 1) public var query: String? = nil

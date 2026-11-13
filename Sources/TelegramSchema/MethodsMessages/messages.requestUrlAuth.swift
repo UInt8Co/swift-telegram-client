@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x894cc99c, returning: TL.UrlAuthResultType.self)
   @TLFlagsEquatable
   public struct RequestUrlAuth: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.requestUrlAuth"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var peer: TL.InputPeerType? = nil
     @TLConditional("flags", bit: 1) public var msgId: Int32? = nil

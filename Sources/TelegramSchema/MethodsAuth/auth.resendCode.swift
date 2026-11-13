@@ -16,6 +16,9 @@ extension TL.Auth {
   @TLObject(id: 0xcae47523, returning: TL.Auth.SentCodeType.self)
   @TLFlagsEquatable
   public struct ResendCode: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.resendCode"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var phoneNumber: String
     public var phoneCodeHash: String

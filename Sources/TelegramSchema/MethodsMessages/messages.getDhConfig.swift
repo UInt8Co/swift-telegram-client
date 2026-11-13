@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getDhConfig#26cf8950 version:int random_length:int = messages.DhConfig`
   @TLObject(id: 0x26cf8950, returning: TL.Messages.DhConfigType.self)
   public struct GetDhConfig: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getDhConfig"
+    }
     public var version: Int32
     public var randomLength: Int32
   }

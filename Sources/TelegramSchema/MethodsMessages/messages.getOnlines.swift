@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getOnlines#6e2be050 peer:InputPeer = ChatOnlines`
   @TLObject(id: 0x6e2be050, returning: TL.ChatOnlines.self)
   public struct GetOnlines: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getOnlines"
+    }
     public var peer: TL.InputPeerType
   }
 }

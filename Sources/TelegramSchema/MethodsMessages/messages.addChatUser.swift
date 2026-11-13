@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.addChatUser#cbc6d107 chat_id:long user_id:InputUser fwd_limit:int = messages.InvitedUsers`
   @TLObject(id: 0xcbc6d107, returning: TL.Messages.InvitedUsers.self)
   public struct AddChatUser: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.addChatUser"
+    }
     public var chatId: Int64
     public var userId: TL.InputUserType
     public var fwdLimit: Int32

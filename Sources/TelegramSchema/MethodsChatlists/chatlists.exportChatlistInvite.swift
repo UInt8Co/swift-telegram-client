@@ -15,6 +15,9 @@ extension TL.Chatlists {
   /// TL: `chatlists.exportChatlistInvite#8472478e chatlist:InputChatlist title:string peers:Vector<InputPeer> = chatlists.ExportedChatlistInvite`
   @TLObject(id: 0x8472478e, returning: TL.Chatlists.ExportedChatlistInvite.self)
   public struct ExportChatlistInvite: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "chatlists.exportChatlistInvite"
+    }
     public var chatlist: TL.InputChatlistDialogFilter
     public var title: String
     public var peers: [TL.InputPeerType]

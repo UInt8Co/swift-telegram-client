@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.getBotRecommendations#a1b70815 bot:InputUser = users.Users`
   @TLObject(id: 0xa1b70815, returning: TL.Users.UsersType.self)
   public struct GetBotRecommendations: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.getBotRecommendations"
+    }
     public var bot: TL.InputUserType
   }
 }

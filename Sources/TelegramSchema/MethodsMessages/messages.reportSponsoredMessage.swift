@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.reportSponsoredMessage#12cbf0c4 random_id:bytes option:bytes = channels.SponsoredMessageReportResult`
   @TLObject(id: 0x12cbf0c4, returning: TL.Channels.SponsoredMessageReportResultType.self)
   public struct ReportSponsoredMessage: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.reportSponsoredMessage"
+    }
     public var randomId: Data
     public var option: Data
   }

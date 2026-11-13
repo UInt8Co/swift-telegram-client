@@ -15,5 +15,8 @@ extension TL.Channels {
   /// TL: `channels.getGroupsForDiscussion#f5dad378 = messages.Chats`
   @TLObject(id: 0xf5dad378, returning: TL.Messages.ChatsType.self)
   public struct GetGroupsForDiscussion: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.getGroupsForDiscussion"
+    }
   }
 }

@@ -15,6 +15,9 @@ extension TL.Stories {
   /// TL: `stories.getPeerStories#2c4ada50 peer:InputPeer = stories.PeerStories`
   @TLObject(id: 0x2c4ada50, returning: TL.Stories.PeerStories.self)
   public struct GetPeerStories: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.getPeerStories"
+    }
     public var peer: TL.InputPeerType
   }
 }

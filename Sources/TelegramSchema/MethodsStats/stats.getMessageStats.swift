@@ -16,6 +16,9 @@ extension TL.Stats {
   @TLObject(id: 0xb6e0a3f5, returning: TL.Stats.MessageStats.self)
   @TLFlagsEquatable
   public struct GetMessageStats: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stats.getMessageStats"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var dark: Bool = false
     public var channel: TL.InputChannelType

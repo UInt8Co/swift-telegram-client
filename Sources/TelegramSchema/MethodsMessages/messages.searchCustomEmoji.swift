@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.searchCustomEmoji#2c11c0d7 emoticon:string hash:long = EmojiList`
   @TLObject(id: 0x2c11c0d7, returning: TL.EmojiListType.self)
   public struct SearchCustomEmoji: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.searchCustomEmoji"
+    }
     public var emoticon: String
     public var hash: Int64
   }

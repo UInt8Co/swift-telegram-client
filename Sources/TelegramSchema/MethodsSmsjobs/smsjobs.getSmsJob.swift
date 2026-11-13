@@ -15,6 +15,9 @@ extension TL.Smsjobs {
   /// TL: `smsjobs.getSmsJob#778d902f job_id:string = SmsJob`
   @TLObject(id: 0x778d902f, returning: TL.SmsJob.self)
   public struct GetSmsJob: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "smsjobs.getSmsJob"
+    }
     public var jobId: String
   }
 }

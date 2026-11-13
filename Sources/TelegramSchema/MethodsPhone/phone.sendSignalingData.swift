@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.sendSignalingData#ff7a9383 peer:InputPhoneCall data:bytes = Bool`
   @TLObject(id: 0xff7a9383, returning: Bool.self)
   public struct SendSignalingData: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.sendSignalingData"
+    }
     public var peer: TL.InputPhoneCall
     public var data: Data
   }

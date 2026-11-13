@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getScheduledHistory#f516760b peer:InputPeer hash:long = messages.Messages`
   @TLObject(id: 0xf516760b, returning: TL.Messages.MessagesType.self)
   public struct GetScheduledHistory: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getScheduledHistory"
+    }
     public var peer: TL.InputPeerType
     public var hash: Int64
   }

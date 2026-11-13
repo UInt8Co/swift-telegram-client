@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.faveSticker#b9ffc55b id:InputDocument unfave:Bool = Bool`
   @TLObject(id: 0xb9ffc55b, returning: Bool.self)
   public struct FaveSticker: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.faveSticker"
+    }
     public var id: TL.InputDocumentType
     public var unfave: Bool
   }

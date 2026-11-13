@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.uploadRingtone#831a83a2 file:InputFile file_name:string mime_type:string = Document`
   @TLObject(id: 0x831a83a2, returning: TL.DocumentType.self)
   public struct UploadRingtone: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.uploadRingtone"
+    }
     public var file: TL.InputFileType
     public var fileName: String
     public var mimeType: String

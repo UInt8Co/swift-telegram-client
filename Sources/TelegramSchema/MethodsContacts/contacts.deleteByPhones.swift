@@ -15,6 +15,9 @@ extension TL.Contacts {
   /// TL: `contacts.deleteByPhones#1013fd9e phones:Vector<string> = Bool`
   @TLObject(id: 0x1013fd9e, returning: Bool.self)
   public struct DeleteByPhones: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.deleteByPhones"
+    }
     public var phones: [String]
   }
 }

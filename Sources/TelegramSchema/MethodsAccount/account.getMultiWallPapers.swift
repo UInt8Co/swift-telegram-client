@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.getMultiWallPapers#65ad71dc wallpapers:Vector<InputWallPaper> = Vector<WallPaper>`
   @TLObject(id: 0x65ad71dc, returning: [TL.WallPaperType].self)
   public struct GetMultiWallPapers: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getMultiWallPapers"
+    }
     public var wallpapers: [TL.InputWallPaperType]
   }
 }

@@ -15,6 +15,9 @@ extension TL.Aicompose {
   /// TL: `aicompose.getTones#abd59201 hash:long = aicompose.Tones`
   @TLObject(id: 0xabd59201, returning: TL.Aicompose.TonesType.self)
   public struct GetTones: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "aicompose.getTones"
+    }
     public var hash: Int64
   }
 }

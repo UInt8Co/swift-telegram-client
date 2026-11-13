@@ -16,6 +16,9 @@ extension TL.Smsjobs {
   @TLObject(id: 0x093fa0bf, returning: Bool.self)
   @TLFlagsEquatable
   public struct UpdateSettings: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "smsjobs.updateSettings"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var allowInternational: Bool = false
   }

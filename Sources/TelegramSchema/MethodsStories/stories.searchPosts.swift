@@ -16,6 +16,9 @@ extension TL.Stories {
   @TLObject(id: 0xd1810907, returning: TL.Stories.FoundStories.self)
   @TLFlagsEquatable
   public struct SearchPosts: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.searchPosts"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var hashtag: String? = nil
     @TLConditional("flags", bit: 1) public var area: TL.MediaAreaType? = nil

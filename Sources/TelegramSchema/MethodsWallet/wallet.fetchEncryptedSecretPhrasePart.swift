@@ -15,6 +15,9 @@ extension TL.Wallet {
   /// TL: `wallet.fetchEncryptedSecretPhrasePart#f53925cf token:string public_key:bytes = wallet.EncryptedSecretPhrasePart`
   @TLObject(id: 0xf53925cf, returning: TL.Wallet.EncryptedSecretPhrasePart.self)
   public struct FetchEncryptedSecretPhrasePart: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.fetchEncryptedSecretPhrasePart"
+    }
     public var token: String
     public var publicKey: Data
   }

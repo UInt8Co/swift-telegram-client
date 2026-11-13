@@ -14,8 +14,11 @@ extension TL {
 
   /// TL: `initConnection#c1cd5ea9 flags:# api_id:int device_model:string system_version:string app_version:string system_lang_code:string lang_pack:string lang_code:string proxy:flags.0?InputClientProxy params:flags.1?JSONValue query:!X = X`
   @TLObject(id: 0xc1cd5ea9)
-  public struct InitConnection<Query: TLFunction>: TLFunction, Sendable {
+  public struct InitConnection<Query: TLFunction>: TLFunctionWrapper, Sendable {
     public typealias ReturnType = Query.ReturnType
+    public static var tlMethodName: String {
+      "initConnection"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var apiId: Int32
     public var deviceModel: String

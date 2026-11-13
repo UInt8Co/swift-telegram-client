@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0x66a08c7e, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct UpdateConnectedBot: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.updateConnectedBot"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var deleted: Bool = false
     @TLConditional("flags", bit: 0) public var rights: TL.BusinessBotRights? = nil

@@ -15,5 +15,8 @@ extension TL.Wallet {
   /// TL: `wallet.getProofChallenge#2025e697 = wallet.ProofChallenge`
   @TLObject(id: 0x2025e697, returning: TL.Wallet.ProofChallenge.self)
   public struct GetProofChallenge: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.getProofChallenge"
+    }
   }
 }

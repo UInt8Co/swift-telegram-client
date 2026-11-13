@@ -14,8 +14,11 @@ extension TL {
 
   /// TL: `invokeAfterMsg#cb9f372d msg_id:long query:!X = X`
   @TLObject(id: 0xcb9f372d)
-  public struct InvokeAfterMsg<Query: TLFunction>: TLFunction, Sendable {
+  public struct InvokeAfterMsg<Query: TLFunction>: TLFunctionWrapper, Sendable {
     public typealias ReturnType = Query.ReturnType
+    public static var tlMethodName: String {
+      "invokeAfterMsg"
+    }
     public var msgId: Int64
     public var query: Query
   }

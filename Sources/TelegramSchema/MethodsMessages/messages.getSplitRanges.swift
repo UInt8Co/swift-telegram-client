@@ -15,5 +15,8 @@ extension TL.Messages {
   /// TL: `messages.getSplitRanges#1cff7e08 = Vector<MessageRange>`
   @TLObject(id: 0x1cff7e08, returning: [TL.MessageRange].self)
   public struct GetSplitRanges: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getSplitRanges"
+    }
   }
 }

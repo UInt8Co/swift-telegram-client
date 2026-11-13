@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xa423bb51, returning: Bool.self)
   @TLFlagsEquatable
   public struct EditInlineBotMessage: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.editInlineBotMessage"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var noWebpage: Bool = false
     @TLConditional("flags", bit: 16) public var invertMedia: Bool = false

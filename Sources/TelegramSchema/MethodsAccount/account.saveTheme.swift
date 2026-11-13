@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.saveTheme#f257106c theme:InputTheme unsave:Bool = Bool`
   @TLObject(id: 0xf257106c, returning: Bool.self)
   public struct SaveTheme: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.saveTheme"
+    }
     public var theme: TL.InputThemeType
     public var unsave: Bool
   }

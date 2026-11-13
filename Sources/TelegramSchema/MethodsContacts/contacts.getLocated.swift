@@ -16,6 +16,9 @@ extension TL.Contacts {
   @TLObject(id: 0xd348bc44, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct GetLocated: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.getLocated"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var background: Bool = false
     public var geoPoint: TL.InputGeoPointType

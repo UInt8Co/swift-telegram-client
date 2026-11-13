@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getPersonalChannelHistory#55fb0996 user_id:InputUser limit:int max_id:int min_id:int hash:long = messages.Messages`
   @TLObject(id: 0x55fb0996, returning: TL.Messages.MessagesType.self)
   public struct GetPersonalChannelHistory: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getPersonalChannelHistory"
+    }
     public var userId: TL.InputUserType
     public var limit: Int32
     public var maxId: Int32

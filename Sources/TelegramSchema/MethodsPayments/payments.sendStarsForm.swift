@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.sendStarsForm#7998c914 form_id:long invoice:InputInvoice = payments.PaymentResult`
   @TLObject(id: 0x7998c914, returning: TL.Payments.PaymentResultType.self)
   public struct SendStarsForm: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.sendStarsForm"
+    }
     public var formId: Int64
     public var invoice: TL.InputInvoiceType
   }

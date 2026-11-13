@@ -15,6 +15,9 @@ extension TL.Help {
   /// TL: `help.getAppConfig#61e3f854 hash:int = help.AppConfig`
   @TLObject(id: 0x61e3f854, returning: TL.Help.AppConfigType.self)
   public struct GetAppConfig: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.getAppConfig"
+    }
     public var hash: Int32
   }
 }

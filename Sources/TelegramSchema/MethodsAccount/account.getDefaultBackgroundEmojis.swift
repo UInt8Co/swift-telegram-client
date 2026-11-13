@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.getDefaultBackgroundEmojis#a60ab9ce hash:long = EmojiList`
   @TLObject(id: 0xa60ab9ce, returning: TL.EmojiListType.self)
   public struct GetDefaultBackgroundEmojis: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getDefaultBackgroundEmojis"
+    }
     public var hash: Int64
   }
 }

@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x1bf89d74, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct SendMultiMedia: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.sendMultiMedia"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 5) public var silent: Bool = false
     @TLConditional("flags", bit: 6) public var background: Bool = false

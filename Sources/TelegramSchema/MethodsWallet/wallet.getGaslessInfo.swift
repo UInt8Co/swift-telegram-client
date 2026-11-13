@@ -15,5 +15,8 @@ extension TL.Wallet {
   /// TL: `wallet.getGaslessInfo#742df0a1 = Updates`
   @TLObject(id: 0x742df0a1, returning: TL.UpdatesType.self)
   public struct GetGaslessInfo: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.getGaslessInfo"
+    }
   }
 }

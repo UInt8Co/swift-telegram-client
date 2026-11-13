@@ -16,6 +16,9 @@ extension TL.Stickers {
   @TLObject(id: 0xa76a5392, returning: TL.Messages.StickerSetType.self)
   @TLFlagsEquatable
   public struct SetStickerSetThumb: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stickers.setStickerSetThumb"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var stickerset: TL.InputStickerSetType
     @TLConditional("flags", bit: 0) public var thumb: TL.InputDocumentType? = nil

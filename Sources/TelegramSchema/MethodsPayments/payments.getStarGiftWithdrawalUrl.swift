@@ -16,6 +16,9 @@ extension TL.Payments {
   @TLObject(id: 0xc8ca817b, returning: TL.Payments.StarGiftWithdrawalUrl.self)
   @TLFlagsEquatable
   public struct GetStarGiftWithdrawalUrl: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getStarGiftWithdrawalUrl"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var stargift: TL.InputSavedStarGiftType
     public var tmpPassword: Data

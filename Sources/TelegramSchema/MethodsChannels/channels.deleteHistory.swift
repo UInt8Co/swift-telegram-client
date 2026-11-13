@@ -16,6 +16,9 @@ extension TL.Channels {
   @TLObject(id: 0x9baa9647, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct DeleteHistory: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.deleteHistory"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var forEveryone: Bool = false
     public var channel: TL.InputChannelType

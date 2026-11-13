@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.receivedCall#17d54f61 peer:InputPhoneCall = Bool`
   @TLObject(id: 0x17d54f61, returning: Bool.self)
   public struct ReceivedCall: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.receivedCall"
+    }
     public var peer: TL.InputPhoneCall
   }
 }

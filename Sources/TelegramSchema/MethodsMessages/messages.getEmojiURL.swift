@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getEmojiURL#d5b10c26 lang_code:string = EmojiURL`
   @TLObject(id: 0xd5b10c26, returning: TL.EmojiURL.self)
   public struct GetEmojiURL: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getEmojiURL"
+    }
     public var langCode: String
   }
 }

@@ -16,6 +16,9 @@ extension TL.Auth {
   @TLObject(id: 0x37096c70, returning: TL.Auth.AuthorizationType.self)
   @TLFlagsEquatable
   public struct RecoverPassword: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.recoverPassword"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var code: String
     @TLConditional("flags", bit: 0) public var newSettings: TL.Account.PasswordInputSettings? = nil

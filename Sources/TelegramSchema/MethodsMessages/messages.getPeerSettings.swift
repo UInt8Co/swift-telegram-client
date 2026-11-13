@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getPeerSettings#efd9a6a2 peer:InputPeer = messages.PeerSettings`
   @TLObject(id: 0xefd9a6a2, returning: TL.Messages.PeerSettings.self)
   public struct GetPeerSettings: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getPeerSettings"
+    }
     public var peer: TL.InputPeerType
   }
 }

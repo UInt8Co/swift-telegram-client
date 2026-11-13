@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.getGroupParticipants#c558d8ab call:InputGroupCall ids:Vector<InputPeer> sources:Vector<int> offset:string limit:int = phone.GroupParticipants`
   @TLObject(id: 0xc558d8ab, returning: TL.Phone.GroupParticipants.self)
   public struct GetGroupParticipants: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.getGroupParticipants"
+    }
     public var call: TL.InputGroupCallType
     public var ids: [TL.InputPeerType]
     public var sources: [Int32]

@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x53618bce, returning: TL.WebViewResultUrl.self)
   @TLFlagsEquatable
   public struct RequestAppWebView: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.requestAppWebView"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var writeAllowed: Bool = false
     @TLConditional("flags", bit: 7) public var compact: Bool = false

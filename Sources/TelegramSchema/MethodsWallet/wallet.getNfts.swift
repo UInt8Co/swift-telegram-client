@@ -15,6 +15,9 @@ extension TL.Wallet {
   /// TL: `wallet.getNfts#8c12f3a4 offset:string limit:int = wallet.NftItems`
   @TLObject(id: 0x8c12f3a4, returning: TL.Wallet.NftItems.self)
   public struct GetNfts: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.getNfts"
+    }
     public var offset: String
     public var limit: Int32
   }

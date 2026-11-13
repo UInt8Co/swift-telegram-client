@@ -15,5 +15,8 @@ extension TL.Contacts {
   /// TL: `contacts.resetSaved#879537f1 = Bool`
   @TLObject(id: 0x879537f1, returning: Bool.self)
   public struct ResetSaved: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.resetSaved"
+    }
   }
 }

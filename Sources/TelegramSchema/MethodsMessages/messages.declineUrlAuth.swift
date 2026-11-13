@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.declineUrlAuth#35436bbc url:string = Bool`
   @TLObject(id: 0x35436bbc, returning: Bool.self)
   public struct DeclineUrlAuth: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.declineUrlAuth"
+    }
     public var url: String
   }
 }

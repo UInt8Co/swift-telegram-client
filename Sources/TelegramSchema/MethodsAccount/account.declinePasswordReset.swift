@@ -15,5 +15,8 @@ extension TL.Account {
   /// TL: `account.declinePasswordReset#4c9409f6 = Bool`
   @TLObject(id: 0x4c9409f6, returning: Bool.self)
   public struct DeclinePasswordReset: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.declinePasswordReset"
+    }
   }
 }

@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0x1d2652ee, returning: Bool.self)
   @TLFlagsEquatable
   public struct FinishTakeoutSession: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.finishTakeoutSession"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var success: Bool = false
   }

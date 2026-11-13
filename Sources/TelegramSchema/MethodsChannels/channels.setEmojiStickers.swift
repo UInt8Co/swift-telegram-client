@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.setEmojiStickers#3cd930b7 channel:InputChannel stickerset:InputStickerSet = Bool`
   @TLObject(id: 0x3cd930b7, returning: Bool.self)
   public struct SetEmojiStickers: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.setEmojiStickers"
+    }
     public var channel: TL.InputChannelType
     public var stickerset: TL.InputStickerSetType
   }

@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.deleteTopicHistory#d2816f10 peer:InputPeer top_msg_id:int = messages.AffectedHistory`
   @TLObject(id: 0xd2816f10, returning: TL.Messages.AffectedHistory.self)
   public struct DeleteTopicHistory: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.deleteTopicHistory"
+    }
     public var peer: TL.InputPeerType
     public var topMsgId: Int32
   }

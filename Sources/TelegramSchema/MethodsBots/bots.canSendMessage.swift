@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.canSendMessage#1359f4e6 bot:InputUser = Bool`
   @TLObject(id: 0x1359f4e6, returning: Bool.self)
   public struct CanSendMessage: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.canSendMessage"
+    }
     public var bot: TL.InputUserType
   }
 }

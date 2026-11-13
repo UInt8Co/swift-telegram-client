@@ -15,5 +15,8 @@ extension TL.Messages {
   /// TL: `messages.getDialogFilters#efd48c89 = messages.DialogFilters`
   @TLObject(id: 0xefd48c89, returning: TL.Messages.DialogFilters.self)
   public struct GetDialogFilters: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getDialogFilters"
+    }
   }
 }

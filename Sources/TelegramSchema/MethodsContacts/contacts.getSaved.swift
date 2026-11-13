@@ -15,5 +15,8 @@ extension TL.Contacts {
   /// TL: `contacts.getSaved#82f1e39f = Vector<SavedContact>`
   @TLObject(id: 0x82f1e39f, returning: [TL.SavedPhoneContact].self)
   public struct GetSaved: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.getSaved"
+    }
   }
 }

@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xf9cbe409, returning: TL.Messages.AffectedFoundMessages.self)
   @TLFlagsEquatable
   public struct DeletePhoneCallHistory: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.deletePhoneCallHistory"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var revoke: Bool = false
   }

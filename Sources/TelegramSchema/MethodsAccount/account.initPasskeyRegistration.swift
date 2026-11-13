@@ -15,5 +15,8 @@ extension TL.Account {
   /// TL: `account.initPasskeyRegistration#429547e8 = account.PasskeyRegistrationOptions`
   @TLObject(id: 0x429547e8, returning: TL.Account.PasskeyRegistrationOptions.self)
   public struct InitPasskeyRegistration: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.initPasskeyRegistration"
+    }
   }
 }

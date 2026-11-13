@@ -16,6 +16,9 @@ extension TL.Wallet {
   @TLObject(id: 0x0b0bf0da, returning: TL.WalletStateType.self)
   @TLFlagsEquatable
   public struct DisableBackup: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.disableBackup"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var password: TL.InputCheckPasswordSRPType? = nil
     @TLConditional("flags", bit: 1) public var newPublicKey: Data? = nil

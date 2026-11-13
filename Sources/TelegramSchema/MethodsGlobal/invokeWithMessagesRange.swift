@@ -14,8 +14,11 @@ extension TL {
 
   /// TL: `invokeWithMessagesRange#365275f2 range:MessageRange query:!X = X`
   @TLObject(id: 0x365275f2)
-  public struct InvokeWithMessagesRange<Query: TLFunction>: TLFunction, Sendable {
+  public struct InvokeWithMessagesRange<Query: TLFunction>: TLFunctionWrapper, Sendable {
     public typealias ReturnType = Query.ReturnType
+    public static var tlMethodName: String {
+      "invokeWithMessagesRange"
+    }
     public var range: TL.MessageRange
     public var query: Query
   }

@@ -15,6 +15,9 @@ extension TL.Stories {
   /// TL: `stories.canSendStory#30eb63f0 peer:InputPeer = stories.CanSendStoryCount`
   @TLObject(id: 0x30eb63f0, returning: TL.Stories.CanSendStoryCount.self)
   public struct CanSendStory: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.canSendStory"
+    }
     public var peer: TL.InputPeerType
   }
 }

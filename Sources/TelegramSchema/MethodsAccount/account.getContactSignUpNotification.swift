@@ -15,5 +15,8 @@ extension TL.Account {
   /// TL: `account.getContactSignUpNotification#9f07c728 = Bool`
   @TLObject(id: 0x9f07c728, returning: Bool.self)
   public struct GetContactSignUpNotification: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getContactSignUpNotification"
+    }
   }
 }

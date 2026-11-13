@@ -15,5 +15,8 @@ extension TL.Payments {
   /// TL: `payments.getCurrencyRates#d35983e8 = payments.CurrencyRates`
   @TLObject(id: 0xd35983e8, returning: TL.Payments.CurrencyRates.self)
   public struct GetCurrencyRates: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getCurrencyRates"
+    }
   }
 }

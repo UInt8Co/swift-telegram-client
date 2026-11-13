@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xe47cb579, returning: Bool.self)
   @TLFlagsEquatable
   public struct TogglePeerTranslations: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.togglePeerTranslations"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var disabled: Bool = false
     public var peer: TL.InputPeerType

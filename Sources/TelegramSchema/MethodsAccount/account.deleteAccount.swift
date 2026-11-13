@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0xa2c0cf74, returning: Bool.self)
   @TLFlagsEquatable
   public struct DeleteAccount: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.deleteAccount"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var reason: String
     @TLConditional("flags", bit: 0) public var password: TL.InputCheckPasswordSRPType? = nil

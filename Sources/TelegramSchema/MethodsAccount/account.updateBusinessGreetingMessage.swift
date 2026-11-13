@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0x66cdafc4, returning: Bool.self)
   @TLFlagsEquatable
   public struct UpdateBusinessGreetingMessage: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.updateBusinessGreetingMessage"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var message: TL.InputBusinessGreetingMessage? = nil
   }

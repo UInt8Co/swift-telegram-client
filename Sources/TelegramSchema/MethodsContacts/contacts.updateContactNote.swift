@@ -15,6 +15,9 @@ extension TL.Contacts {
   /// TL: `contacts.updateContactNote#139f63fb id:InputUser note:TextWithEntities = Bool`
   @TLObject(id: 0x139f63fb, returning: Bool.self)
   public struct UpdateContactNote: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.updateContactNote"
+    }
     public var id: TL.InputUserType
     public var note: TL.TextWithEntities
   }

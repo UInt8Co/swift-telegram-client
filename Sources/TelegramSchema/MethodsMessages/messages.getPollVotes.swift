@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xb86e380e, returning: TL.Messages.VotesList.self)
   @TLFlagsEquatable
   public struct GetPollVotes: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getPollVotes"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     public var id: Int32

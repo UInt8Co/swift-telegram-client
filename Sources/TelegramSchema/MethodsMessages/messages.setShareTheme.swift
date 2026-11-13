@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.setShareTheme#698a9b1a peer:InputPeer theme:ShareTheme = Bool`
   @TLObject(id: 0x698a9b1a, returning: Bool.self)
   public struct SetShareTheme: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.setShareTheme"
+    }
     public var peer: TL.InputPeerType
     public var theme: TL.ShareThemeType
   }

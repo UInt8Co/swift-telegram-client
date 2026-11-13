@@ -15,6 +15,9 @@ extension TL.Contacts {
   /// TL: `contacts.acceptContact#f831a20f id:InputUser = Updates`
   @TLObject(id: 0xf831a20f, returning: TL.UpdatesType.self)
   public struct AcceptContact: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.acceptContact"
+    }
     public var id: TL.InputUserType
   }
 }

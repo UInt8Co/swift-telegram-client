@@ -15,6 +15,9 @@ extension TL.Help {
   /// TL: `help.hidePromoData#1e251c95 peer:InputPeer = Bool`
   @TLObject(id: 0x1e251c95, returning: Bool.self)
   public struct HidePromoData: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.hidePromoData"
+    }
     public var peer: TL.InputPeerType
   }
 }

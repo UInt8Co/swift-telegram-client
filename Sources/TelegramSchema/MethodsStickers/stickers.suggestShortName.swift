@@ -15,6 +15,9 @@ extension TL.Stickers {
   /// TL: `stickers.suggestShortName#4dafc503 title:string = stickers.SuggestedShortName`
   @TLObject(id: 0x4dafc503, returning: TL.Stickers.SuggestedShortName.self)
   public struct SuggestShortName: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stickers.suggestShortName"
+    }
     public var title: String
   }
 }

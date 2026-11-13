@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getPreparedInlineMessage#857ebdb8 bot:InputUser id:string = messages.PreparedInlineMessage`
   @TLObject(id: 0x857ebdb8, returning: TL.Messages.PreparedInlineMessage.self)
   public struct GetPreparedInlineMessage: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getPreparedInlineMessage"
+    }
     public var bot: TL.InputUserType
     public var id: String
   }

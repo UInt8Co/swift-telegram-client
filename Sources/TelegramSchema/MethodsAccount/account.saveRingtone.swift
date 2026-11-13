@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.saveRingtone#3dea5b03 id:InputDocument unsave:Bool = account.SavedRingtone`
   @TLObject(id: 0x3dea5b03, returning: TL.Account.SavedRingtoneType.self)
   public struct SaveRingtone: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.saveRingtone"
+    }
     public var id: TL.InputDocumentType
     public var unsave: Bool
   }

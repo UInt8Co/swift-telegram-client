@@ -2,12 +2,6 @@ import Synchronization
 import TLCoding
 import TelegramSchema
 
-#if canImport(FoundationEssentials)
-  import FoundationEssentials
-#else
-  import Foundation
-#endif
-
 /// Where a connection hands every user and chat it receives, and the observer
 /// they go to once one is attached.
 ///
@@ -317,16 +311,13 @@ public final class ReceivedPeerObservation: Sendable {
 /// double, or a decorator of a connection's transport — that must observe the
 /// same way.
 ///
-/// The request's constructor number says what its result decodes to; a wrapper
-/// (`invokeWithoutUpdates`, `invokeWithLayer`, …) is stepped into to find the
-/// method it carries. Every method of ``TelegramSchema`` whose result can hold a
-/// peer is known (`Scripts/generate-received-peers.ts`); a method from another
-/// schema generated on top of it is passed through unobserved.
-///
-/// A result is decoded once here and again by `TLClient`: the transport hands
-/// over bytes and receives bytes, so the decoded value cannot be shared. A
-/// result that does not decode here is passed on untouched, and `TLClient` fails
-/// it with the same error.
+/// The result is the value the transport below decoded, read where it is and
+/// handed on as it is: nothing is decoded a second time. It is observed when its
+/// type can hold a peer — every such type of ``TelegramSchema`` is known
+/// (`Scripts/generate-received-peers.ts`) — whichever method returned it; a
+/// result of another type is passed through unobserved. The call is named after
+/// the function a wrapper (`invokeWithoutUpdates`, `invokeWithLayer`, …)
+/// carries, not the wrapper.
 ///
 /// The observer runs on the caller's task, so concurrent calls observe
 /// concurrently, and a slow observer delays exactly the calls whose results it is
@@ -350,25 +341,27 @@ public struct PeerObservingTransport: TLClientTransport {
     self.callersWait = callersWait
   }
 
-  public func send(_ requestBody: Data) async throws -> Data {
+  public func invoke<Function: TLFunction>(_ function: Function) async throws -> Function.ReturnType {
     let context = ReceivedPeers.context
-    let reply = try await base.send(requestBody)
-    guard let reader = ReceivedPeerReplies.reader(forRequest: requestBody),
-      let read = try? reader.read(reply), !read.peers.isEmpty
-    else { return reply }
+    let result = try await base.invoke(function)
+    guard let carrier = result as? any ReceivedPeerCarrying else { return result }
+    var list = ReceivedPeerList()
+    carrier.collectReceivedPeers(into: &list)
+    guard !list.isEmpty else { return result }
+    let invoked = type(of: function.tlInnermostFunction)
     let peers = ReceivedPeers(
-      users: read.peers.users, chats: read.peers.chats,
+      users: list.users, chats: list.chats,
       origin: .result(
         .init(
-          method: reader.method, function: reader.function, result: read.result,
+          method: invoked.tlMethodName, function: invoked, result: result,
           context: context, withholdsResultOnFailure: callersWait)))
     do {
       try await observation.observe(result: peers, callerWaits: callersWait)
     } catch is CancellationError {
       throw CancellationError()
     } catch {
-      throw PeerObservationFailure(method: reader.method, underlying: error)
+      throw PeerObservationFailure(method: invoked.tlMethodName, underlying: error)
     }
-    return reply
+    return result
   }
 }

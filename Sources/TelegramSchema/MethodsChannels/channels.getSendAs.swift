@@ -16,6 +16,9 @@ extension TL.Channels {
   @TLObject(id: 0xe785a43f, returning: TL.Channels.SendAsPeers.self)
   @TLFlagsEquatable
   public struct GetSendAs: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.getSendAs"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var forPaidReactions: Bool = false
     @TLConditional("flags", bit: 1) public var forLiveStories: Bool = false

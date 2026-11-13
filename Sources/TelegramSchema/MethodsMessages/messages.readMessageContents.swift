@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.readMessageContents#36a73f77 id:Vector<int> = messages.AffectedMessages`
   @TLObject(id: 0x36a73f77, returning: TL.Messages.AffectedMessages.self)
   public struct ReadMessageContents: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.readMessageContents"
+    }
     public var id: [Int32]
   }
 }

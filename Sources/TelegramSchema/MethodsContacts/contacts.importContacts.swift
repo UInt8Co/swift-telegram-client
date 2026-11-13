@@ -15,6 +15,9 @@ extension TL.Contacts {
   /// TL: `contacts.importContacts#2c800be5 contacts:Vector<InputContact> = contacts.ImportedContacts`
   @TLObject(id: 0x2c800be5, returning: TL.Contacts.ImportedContacts.self)
   public struct ImportContacts: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.importContacts"
+    }
     public var contacts: [TL.InputPhoneContact]
   }
 }

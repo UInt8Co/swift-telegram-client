@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.viewSponsoredMessage#269e3643 random_id:bytes = Bool`
   @TLObject(id: 0x269e3643, returning: Bool.self)
   public struct ViewSponsoredMessage: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.viewSponsoredMessage"
+    }
     public var randomId: Data
   }
 }

@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getDocumentByHash#b1f2061f sha256:bytes size:long mime_type:string = Document`
   @TLObject(id: 0xb1f2061f, returning: TL.DocumentType.self)
   public struct GetDocumentByHash: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getDocumentByHash"
+    }
     public var sha256: Data
     public var size: Int64
     public var mimeType: String

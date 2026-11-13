@@ -16,6 +16,9 @@ extension TL.Chatlists {
   @TLObject(id: 0x653db63d, returning: TL.ExportedChatlistInvite.self)
   @TLFlagsEquatable
   public struct EditExportedInvite: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "chatlists.editExportedInvite"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var chatlist: TL.InputChatlistDialogFilter
     public var slug: String

@@ -15,6 +15,9 @@ extension TL.Help {
   /// TL: `help.getRecentMeUrls#3dc0f114 referer:string = help.RecentMeUrls`
   @TLObject(id: 0x3dc0f114, returning: TL.Help.RecentMeUrls.self)
   public struct GetRecentMeUrls: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.getRecentMeUrls"
+    }
     public var referer: String
   }
 }

@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x461b3f48, returning: TL.Messages.MessageReactionsList.self)
   @TLFlagsEquatable
   public struct GetMessageReactionsList: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getMessageReactionsList"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     public var id: Int32

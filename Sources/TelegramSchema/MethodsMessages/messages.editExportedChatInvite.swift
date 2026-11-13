@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xbdca2f75, returning: TL.Messages.ExportedChatInviteType.self)
   @TLFlagsEquatable
   public struct EditExportedChatInvite: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.editExportedChatInvite"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 2) public var revoked: Bool = false
     public var peer: TL.InputPeerType

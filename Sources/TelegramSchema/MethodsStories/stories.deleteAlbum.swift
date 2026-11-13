@@ -15,6 +15,9 @@ extension TL.Stories {
   /// TL: `stories.deleteAlbum#8d3456d0 peer:InputPeer album_id:int = Bool`
   @TLObject(id: 0x8d3456d0, returning: Bool.self)
   public struct DeleteAlbum: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.deleteAlbum"
+    }
     public var peer: TL.InputPeerType
     public var albumId: Int32
   }

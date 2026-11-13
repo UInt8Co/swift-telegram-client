@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x92ceddd4, returning: TL.Messages.InvitedUsers.self)
   @TLFlagsEquatable
   public struct CreateChat: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.createChat"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var users: [TL.InputUserType]
     public var title: String

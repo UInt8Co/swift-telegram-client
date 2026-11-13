@@ -15,6 +15,9 @@ extension TL.Users {
   /// TL: `users.getFullUser#b60f5918 id:InputUser = users.UserFull`
   @TLObject(id: 0xb60f5918, returning: TL.Users.UserFull.self)
   public struct GetFullUser: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "users.getFullUser"
+    }
     public var id: TL.InputUserType
   }
 }

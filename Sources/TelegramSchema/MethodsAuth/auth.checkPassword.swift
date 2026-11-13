@@ -15,6 +15,9 @@ extension TL.Auth {
   /// TL: `auth.checkPassword#d18b4d16 password:InputCheckPasswordSRP = auth.Authorization`
   @TLObject(id: 0xd18b4d16, returning: TL.Auth.AuthorizationType.self)
   public struct CheckPassword: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.checkPassword"
+    }
     public var password: TL.InputCheckPasswordSRPType
   }
 }

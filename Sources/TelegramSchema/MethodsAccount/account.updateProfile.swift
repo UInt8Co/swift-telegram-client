@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0x78515775, returning: TL.UserType.self)
   @TLFlagsEquatable
   public struct UpdateProfile: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.updateProfile"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var firstName: String? = nil
     @TLConditional("flags", bit: 1) public var lastName: String? = nil

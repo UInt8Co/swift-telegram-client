@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.sendEncryptedService#32d439a4 peer:InputEncryptedChat random_id:long data:bytes = messages.SentEncryptedMessage`
   @TLObject(id: 0x32d439a4, returning: TL.Messages.SentEncryptedMessageType.self)
   public struct SendEncryptedService: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.sendEncryptedService"
+    }
     public var peer: TL.InputEncryptedChat
     public var randomId: Int64
     public var data: Data

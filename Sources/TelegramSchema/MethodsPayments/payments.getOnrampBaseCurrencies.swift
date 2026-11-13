@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.getOnrampBaseCurrencies#1c8bedf3 provider:string crypto_currency:string = Vector<string>`
   @TLObject(id: 0x1c8bedf3, returning: [String].self)
   public struct GetOnrampBaseCurrencies: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getOnrampBaseCurrencies"
+    }
     public var provider: String
     public var cryptoCurrency: String
   }

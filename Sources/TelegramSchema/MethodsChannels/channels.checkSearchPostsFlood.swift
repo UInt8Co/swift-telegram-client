@@ -16,6 +16,9 @@ extension TL.Channels {
   @TLObject(id: 0x22567115, returning: TL.SearchPostsFlood.self)
   @TLFlagsEquatable
   public struct CheckSearchPostsFlood: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.checkSearchPostsFlood"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var query: String? = nil
   }

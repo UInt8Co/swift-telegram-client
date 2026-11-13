@@ -1,12 +1,6 @@
 import TLCoding
 import TelegramSchema
 
-#if canImport(FoundationEssentials)
-  import FoundationEssentials
-#else
-  import Foundation
-#endif
-
 /// The users and chats one received value carried, exactly as Telegram sent them,
 /// and what carried them.
 ///
@@ -188,64 +182,5 @@ extension Array: ReceivedPeerCarrying where Element: ReceivedPeerCarrying {
 extension Optional: ReceivedPeerCarrying where Wrapped: ReceivedPeerCarrying {
   func collectReceivedPeers(into peers: inout ReceivedPeerList) {
     self?.collectReceivedPeers(into: &peers)
-  }
-}
-
-/// Which methods' results carry peers, and how to read them from a reply body.
-enum ReceivedPeerReplies {
-  /// Reads the peers out of one method's reply body, decoding it as the type
-  /// `TLClient` will.
-  struct Reader: Sendable {
-    let method: String
-    let function: any TLFunction.Type
-    let read: @Sendable (Data) throws -> (peers: ReceivedPeerList, result: any Sendable)
-
-    init<Function: TLFunction>(_: Function.Type, _ method: String)
-    where Function.ReturnType: ReceivedPeerCarrying {
-      self.method = method
-      self.function = Function.self
-      self.read = { reply in
-        var list = ReceivedPeerList()
-        let result = try Function.ReturnType(tlData: reply)
-        result.collectReceivedPeers(into: &list)
-        return (list, result)
-      }
-    }
-  }
-
-  /// Steps over a wrapper method's fields up to the query it wraps.
-  struct Wrapper: Sendable {
-    let method: String
-    let skip: @Sendable (inout TLReader) throws -> Void
-
-    init(_ method: String, skip: @escaping @Sendable (inout TLReader) throws -> Void) {
-      self.method = method
-      self.skip = skip
-    }
-  }
-
-  /// Wrappers nest a handful deep in practice (`invokeWithLayer(initConnection(…))`);
-  /// anything deeper is not a request this library builds.
-  static let maximumWrapperDepth = 8
-
-  /// The reader for the method `body` invokes, looking through wrappers; `nil`
-  /// for a method whose result cannot carry a peer, or one this schema does not
-  /// define.
-  static func reader(forRequest body: Data) -> Reader? {
-    var reader = TLReader(body)
-    for _ in 0..<maximumWrapperDepth {
-      guard let id = try? reader.readUInt32() else { return nil }
-      if let method = methods[id] { return method }
-      guard let wrapper = wrappers[id], (try? wrapper.skip(&reader)) != nil else { return nil }
-    }
-    return nil
-  }
-}
-
-extension [UInt32: ReceivedPeerReplies.Reader] {
-  mutating func add<Function: TLFunction & TLConstructed>(
-    _ function: Function.Type, _ method: String
-  ) where Function.ReturnType: ReceivedPeerCarrying {
-    self[Function.tlConstructorID] = .init(function, method)
   }
 }

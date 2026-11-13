@@ -15,6 +15,9 @@ extension TL.Chatlists {
   /// TL: `chatlists.checkChatlistInvite#41c10fff slug:string = chatlists.ChatlistInvite`
   @TLObject(id: 0x41c10fff, returning: TL.Chatlists.ChatlistInviteType.self)
   public struct CheckChatlistInvite: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "chatlists.checkChatlistInvite"
+    }
     public var slug: String
   }
 }

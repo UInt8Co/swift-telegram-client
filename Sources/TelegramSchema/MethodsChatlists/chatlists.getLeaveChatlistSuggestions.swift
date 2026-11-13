@@ -15,6 +15,9 @@ extension TL.Chatlists {
   /// TL: `chatlists.getLeaveChatlistSuggestions#fdbcd714 chatlist:InputChatlist = Vector<Peer>`
   @TLObject(id: 0xfdbcd714, returning: [TL.PeerType].self)
   public struct GetLeaveChatlistSuggestions: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "chatlists.getLeaveChatlistSuggestions"
+    }
     public var chatlist: TL.InputChatlistDialogFilter
   }
 }

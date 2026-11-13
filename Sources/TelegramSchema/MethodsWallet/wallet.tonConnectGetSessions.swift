@@ -15,5 +15,8 @@ extension TL.Wallet {
   /// TL: `wallet.tonConnectGetSessions#a7ffb56e = wallet.TonConnectSessions`
   @TLObject(id: 0xa7ffb56e, returning: TL.Wallet.TonConnectSessions.self)
   public struct TonConnectGetSessions: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.tonConnectGetSessions"
+    }
   }
 }

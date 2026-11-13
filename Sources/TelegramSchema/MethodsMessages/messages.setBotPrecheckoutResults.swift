@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x09c2dd95, returning: Bool.self)
   @TLFlagsEquatable
   public struct SetBotPrecheckoutResults: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.setBotPrecheckoutResults"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var success: Bool = false
     public var queryId: Int64

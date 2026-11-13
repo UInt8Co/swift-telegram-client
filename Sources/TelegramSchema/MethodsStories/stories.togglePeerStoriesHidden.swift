@@ -15,6 +15,9 @@ extension TL.Stories {
   /// TL: `stories.togglePeerStoriesHidden#bd0415c4 peer:InputPeer hidden:Bool = Bool`
   @TLObject(id: 0xbd0415c4, returning: Bool.self)
   public struct TogglePeerStoriesHidden: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.togglePeerStoriesHidden"
+    }
     public var peer: TL.InputPeerType
     public var hidden: Bool
   }

@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getStickerSet#c8a0ec74 stickerset:InputStickerSet hash:int = messages.StickerSet`
   @TLObject(id: 0xc8a0ec74, returning: TL.Messages.StickerSetType.self)
   public struct GetStickerSet: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getStickerSet"
+    }
     public var stickerset: TL.InputStickerSetType
     public var hash: Int32
   }

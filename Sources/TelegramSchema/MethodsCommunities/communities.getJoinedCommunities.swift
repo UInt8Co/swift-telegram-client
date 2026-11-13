@@ -15,5 +15,8 @@ extension TL.Communities {
   /// TL: `communities.getJoinedCommunities#a663e830 = messages.Chats`
   @TLObject(id: 0xa663e830, returning: TL.Messages.ChatsType.self)
   public struct GetJoinedCommunities: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "communities.getJoinedCommunities"
+    }
   }
 }

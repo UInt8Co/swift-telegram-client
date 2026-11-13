@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.getSecureValue#73665bc2 types:Vector<SecureValueType> = Vector<SecureValue>`
   @TLObject(id: 0x73665bc2, returning: [TL.SecureValue].self)
   public struct GetSecureValue: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getSecureValue"
+    }
     public var types: [TL.SecureValueTypeType]
   }
 }

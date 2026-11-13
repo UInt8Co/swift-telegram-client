@@ -15,6 +15,9 @@ extension TL.Help {
   /// TL: `help.getCountriesList#735787a8 lang_code:string hash:int = help.CountriesList`
   @TLObject(id: 0x735787a8, returning: TL.Help.CountriesListType.self)
   public struct GetCountriesList: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.getCountriesList"
+    }
     public var langCode: String
     public var hash: Int32
   }

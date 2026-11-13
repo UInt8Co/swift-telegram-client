@@ -15,6 +15,9 @@ extension TL.Stickers {
   /// TL: `stickers.renameStickerSet#124b1c00 stickerset:InputStickerSet title:string = messages.StickerSet`
   @TLObject(id: 0x124b1c00, returning: TL.Messages.StickerSetType.self)
   public struct RenameStickerSet: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stickers.renameStickerSet"
+    }
     public var stickerset: TL.InputStickerSetType
     public var title: String
   }

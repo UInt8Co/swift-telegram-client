@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.updateUsername#3e0bdd7c username:string = User`
   @TLObject(id: 0x3e0bdd7c, returning: TL.UserType.self)
   public struct UpdateUsername: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.updateUsername"
+    }
     public var username: String
   }
 }

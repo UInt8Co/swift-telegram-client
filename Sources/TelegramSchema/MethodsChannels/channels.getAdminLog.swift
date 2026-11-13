@@ -16,6 +16,9 @@ extension TL.Channels {
   @TLObject(id: 0x33ddf480, returning: TL.Channels.AdminLogResults.self)
   @TLFlagsEquatable
   public struct GetAdminLog: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.getAdminLog"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var channel: TL.InputChannelType
     public var q: String

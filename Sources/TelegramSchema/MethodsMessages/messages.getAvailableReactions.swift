@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getAvailableReactions#18dea0ac hash:int = messages.AvailableReactions`
   @TLObject(id: 0x18dea0ac, returning: TL.Messages.AvailableReactionsType.self)
   public struct GetAvailableReactions: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getAvailableReactions"
+    }
     public var hash: Int32
   }
 }

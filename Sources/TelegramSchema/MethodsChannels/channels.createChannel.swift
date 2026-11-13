@@ -16,6 +16,9 @@ extension TL.Channels {
   @TLObject(id: 0x91006707, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct CreateChannel: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.createChannel"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var broadcast: Bool = false
     @TLConditional("flags", bit: 1) public var megagroup: Bool = false

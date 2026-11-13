@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.getStarGiftAuctionState#5c9ff4d6 auction:InputStarGiftAuction version:int = payments.StarGiftAuctionState`
   @TLObject(id: 0x5c9ff4d6, returning: TL.Payments.StarGiftAuctionState.self)
   public struct GetStarGiftAuctionState: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getStarGiftAuctionState"
+    }
     public var auction: TL.InputStarGiftAuctionType
     public var version: Int32
   }

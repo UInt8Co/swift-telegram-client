@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.getBankCardData#2e79d779 number:string = payments.BankCardData`
   @TLObject(id: 0x2e79d779, returning: TL.Payments.BankCardData.self)
   public struct GetBankCardData: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getBankCardData"
+    }
     public var number: String
   }
 }

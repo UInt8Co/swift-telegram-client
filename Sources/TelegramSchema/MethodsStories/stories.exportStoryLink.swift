@@ -15,6 +15,9 @@ extension TL.Stories {
   /// TL: `stories.exportStoryLink#7b8def20 peer:InputPeer id:int = ExportedStoryLink`
   @TLObject(id: 0x7b8def20, returning: TL.ExportedStoryLink.self)
   public struct ExportStoryLink: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.exportStoryLink"
+    }
     public var peer: TL.InputPeerType
     public var id: Int32
   }

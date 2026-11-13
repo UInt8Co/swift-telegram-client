@@ -15,6 +15,9 @@ extension TL.Folders {
   /// TL: `folders.editPeerFolders#6847d0ab folder_peers:Vector<InputFolderPeer> = Updates`
   @TLObject(id: 0x6847d0ab, returning: TL.UpdatesType.self)
   public struct EditPeerFolders: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "folders.editPeerFolders"
+    }
     public var folderPeers: [TL.InputFolderPeer]
   }
 }

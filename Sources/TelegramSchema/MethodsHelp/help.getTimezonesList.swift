@@ -15,6 +15,9 @@ extension TL.Help {
   /// TL: `help.getTimezonesList#49b30240 hash:int = help.TimezonesList`
   @TLObject(id: 0x49b30240, returning: TL.Help.TimezonesListType.self)
   public struct GetTimezonesList: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.getTimezonesList"
+    }
     public var hash: Int32
   }
 }

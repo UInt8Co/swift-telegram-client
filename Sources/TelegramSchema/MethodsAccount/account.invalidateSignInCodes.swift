@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.invalidateSignInCodes#ca8ae8ba codes:Vector<string> = Bool`
   @TLObject(id: 0xca8ae8ba, returning: Bool.self)
   public struct InvalidateSignInCodes: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.invalidateSignInCodes"
+    }
     public var codes: [String]
   }
 }

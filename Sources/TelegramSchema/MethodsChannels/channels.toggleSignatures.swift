@@ -16,6 +16,9 @@ extension TL.Channels {
   @TLObject(id: 0x418d549c, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct ToggleSignatures: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.toggleSignatures"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var signaturesEnabled: Bool = false
     @TLConditional("flags", bit: 1) public var profilesEnabled: Bool = false

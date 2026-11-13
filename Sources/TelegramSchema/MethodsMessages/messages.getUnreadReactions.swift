@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xbd7f90ac, returning: TL.Messages.MessagesType.self)
   @TLFlagsEquatable
   public struct GetUnreadReactions: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getUnreadReactions"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     @TLConditional("flags", bit: 0) public var topMsgId: Int32? = nil

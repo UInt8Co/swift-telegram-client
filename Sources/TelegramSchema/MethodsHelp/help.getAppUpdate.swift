@@ -15,6 +15,9 @@ extension TL.Help {
   /// TL: `help.getAppUpdate#522d5a7d source:string = help.AppUpdate`
   @TLObject(id: 0x522d5a7d, returning: TL.Help.AppUpdateType.self)
   public struct GetAppUpdate: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.getAppUpdate"
+    }
     public var source: String
   }
 }

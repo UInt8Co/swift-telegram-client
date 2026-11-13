@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.editChatTitle#73783ffd chat_id:long title:string = Updates`
   @TLObject(id: 0x73783ffd, returning: TL.UpdatesType.self)
   public struct EditChatTitle: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.editChatTitle"
+    }
     public var chatId: Int64
     public var title: String
   }

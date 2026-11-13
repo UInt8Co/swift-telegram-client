@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.declineConferenceCallInvite#3c479971 msg_id:int = Updates`
   @TLObject(id: 0x3c479971, returning: TL.UpdatesType.self)
   public struct DeclineConferenceCallInvite: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.declineConferenceCallInvite"
+    }
     public var msgId: Int32
   }
 }

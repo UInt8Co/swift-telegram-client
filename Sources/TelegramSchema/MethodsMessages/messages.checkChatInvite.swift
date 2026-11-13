@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.checkChatInvite#3eadb1bb hash:string = ChatInvite`
   @TLObject(id: 0x3eadb1bb, returning: TL.ChatInviteType.self)
   public struct CheckChatInvite: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.checkChatInvite"
+    }
     public var hash: String
   }
 }

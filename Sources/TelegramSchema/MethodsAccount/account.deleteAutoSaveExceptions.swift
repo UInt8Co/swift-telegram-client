@@ -15,5 +15,8 @@ extension TL.Account {
   /// TL: `account.deleteAutoSaveExceptions#53bc0020 = Bool`
   @TLObject(id: 0x53bc0020, returning: Bool.self)
   public struct DeleteAutoSaveExceptions: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.deleteAutoSaveExceptions"
+    }
   }
 }

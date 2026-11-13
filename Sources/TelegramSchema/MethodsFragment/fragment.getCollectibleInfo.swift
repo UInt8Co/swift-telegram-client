@@ -15,6 +15,9 @@ extension TL.Fragment {
   /// TL: `fragment.getCollectibleInfo#be1e85ba collectible:InputCollectible = fragment.CollectibleInfo`
   @TLObject(id: 0xbe1e85ba, returning: TL.Fragment.CollectibleInfo.self)
   public struct GetCollectibleInfo: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "fragment.getCollectibleInfo"
+    }
     public var collectible: TL.InputCollectibleType
   }
 }

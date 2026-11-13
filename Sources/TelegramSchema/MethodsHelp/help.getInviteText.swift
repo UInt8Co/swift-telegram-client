@@ -15,5 +15,8 @@ extension TL.Help {
   /// TL: `help.getInviteText#4d392343 = help.InviteText`
   @TLObject(id: 0x4d392343, returning: TL.Help.InviteText.self)
   public struct GetInviteText: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.getInviteText"
+    }
   }
 }

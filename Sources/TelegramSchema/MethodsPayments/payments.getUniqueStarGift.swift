@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.getUniqueStarGift#a1974d72 slug:string = payments.UniqueStarGift`
   @TLObject(id: 0xa1974d72, returning: TL.Payments.UniqueStarGift.self)
   public struct GetUniqueStarGift: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getUniqueStarGift"
+    }
     public var slug: String
   }
 }

@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.assignPlayMarketTransaction#dffd50d3 receipt:DataJSON purpose:InputStorePaymentPurpose = Updates`
   @TLObject(id: 0xdffd50d3, returning: TL.UpdatesType.self)
   public struct AssignPlayMarketTransaction: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.assignPlayMarketTransaction"
+    }
     public var receipt: TL.DataJSON
     public var purpose: TL.InputStorePaymentPurposeType
   }

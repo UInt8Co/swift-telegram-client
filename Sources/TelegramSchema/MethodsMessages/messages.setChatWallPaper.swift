@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x8ffacae1, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct SetChatWallPaper: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.setChatWallPaper"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 3) public var forBoth: Bool = false
     @TLConditional("flags", bit: 4) public var revert: Bool = false

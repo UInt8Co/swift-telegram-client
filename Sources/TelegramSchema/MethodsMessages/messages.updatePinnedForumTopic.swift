@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.updatePinnedForumTopic#175df251 peer:InputPeer topic_id:int pinned:Bool = Updates`
   @TLObject(id: 0x175df251, returning: TL.UpdatesType.self)
   public struct UpdatePinnedForumTopic: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.updatePinnedForumTopic"
+    }
     public var peer: TL.InputPeerType
     public var topicId: Int32
     public var pinned: Bool

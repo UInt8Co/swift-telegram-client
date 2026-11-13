@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0x4b00e066, returning: Bool.self)
   @TLFlagsEquatable
   public struct UpdateBusinessWorkHours: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.updateBusinessWorkHours"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var businessWorkHours: TL.BusinessWorkHours? = nil
   }

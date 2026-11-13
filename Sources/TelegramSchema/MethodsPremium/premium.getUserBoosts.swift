@@ -15,6 +15,9 @@ extension TL.Premium {
   /// TL: `premium.getUserBoosts#39854d1f peer:InputPeer user_id:InputUser = premium.BoostsList`
   @TLObject(id: 0x39854d1f, returning: TL.Premium.BoostsList.self)
   public struct GetUserBoosts: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "premium.getUserBoosts"
+    }
     public var peer: TL.InputPeerType
     public var userId: TL.InputUserType
   }

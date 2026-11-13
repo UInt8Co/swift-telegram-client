@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.getFullChannel#08736a09 channel:InputChannel = messages.ChatFull`
   @TLObject(id: 0x08736a09, returning: TL.Messages.ChatFull.self)
   public struct GetFullChannel: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.getFullChannel"
+    }
     public var channel: TL.InputChannelType
   }
 }

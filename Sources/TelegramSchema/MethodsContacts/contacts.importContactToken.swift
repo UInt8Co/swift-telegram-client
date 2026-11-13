@@ -15,6 +15,9 @@ extension TL.Contacts {
   /// TL: `contacts.importContactToken#13005788 token:string = User`
   @TLObject(id: 0x13005788, returning: TL.UserType.self)
   public struct ImportContactToken: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.importContactToken"
+    }
     public var token: String
   }
 }

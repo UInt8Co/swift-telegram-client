@@ -15,5 +15,8 @@ extension TL.Account {
   /// TL: `account.deleteWebBrowserSettingsExceptions#86a0765d = account.WebBrowserSettings`
   @TLObject(id: 0x86a0765d, returning: TL.Account.WebBrowserSettingsType.self)
   public struct DeleteWebBrowserSettingsExceptions: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.deleteWebBrowserSettingsExceptions"
+    }
   }
 }

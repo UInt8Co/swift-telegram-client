@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.resolveBusinessChatLink#5492e5ee slug:string = account.ResolvedBusinessChatLinks`
   @TLObject(id: 0x5492e5ee, returning: TL.Account.ResolvedBusinessChatLinks.self)
   public struct ResolveBusinessChatLink: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.resolveBusinessChatLink"
+    }
     public var slug: String
   }
 }

@@ -16,6 +16,9 @@ extension TL.Payments {
   @TLObject(id: 0xa2197cf6, returning: TL.OnrampSession.self)
   @TLFlagsEquatable
   public struct CreateOnrampSession: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.createOnrampSession"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var provider: String
     public var cryptoCurrency: String

@@ -15,6 +15,9 @@ extension TL.Stickers {
   /// TL: `stickers.checkShortName#284b3639 short_name:string = Bool`
   @TLObject(id: 0x284b3639, returning: Bool.self)
   public struct CheckShortName: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stickers.checkShortName"
+    }
     public var shortName: String
   }
 }

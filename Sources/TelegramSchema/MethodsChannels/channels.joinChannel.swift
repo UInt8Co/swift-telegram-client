@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.joinChannel#7f6a1e22 channel:InputChannel = messages.ChatInviteJoinResult`
   @TLObject(id: 0x7f6a1e22, returning: TL.Messages.ChatInviteJoinResultType.self)
   public struct JoinChannel: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.joinChannel"
+    }
     public var channel: TL.InputChannelType
   }
 }

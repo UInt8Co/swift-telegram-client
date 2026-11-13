@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x3d6ce850, returning: TL.Messages.SponsoredMessagesType.self)
   @TLFlagsEquatable
   public struct GetSponsoredMessages: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getSponsoredMessages"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     @TLConditional("flags", bit: 0) public var msgId: Int32? = nil

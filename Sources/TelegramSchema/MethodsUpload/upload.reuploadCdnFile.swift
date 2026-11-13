@@ -15,6 +15,9 @@ extension TL.Upload {
   /// TL: `upload.reuploadCdnFile#9b2754a8 file_token:bytes request_token:bytes = Vector<FileHash>`
   @TLObject(id: 0x9b2754a8, returning: [TL.FileHash].self)
   public struct ReuploadCdnFile: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "upload.reuploadCdnFile"
+    }
     public var fileToken: Data
     public var requestToken: Data
   }

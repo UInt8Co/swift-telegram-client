@@ -15,6 +15,9 @@ extension TL.Chatlists {
   /// TL: `chatlists.getExportedInvites#ce03da83 chatlist:InputChatlist = chatlists.ExportedInvites`
   @TLObject(id: 0xce03da83, returning: TL.Chatlists.ExportedInvites.self)
   public struct GetExportedInvites: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "chatlists.getExportedInvites"
+    }
     public var chatlist: TL.InputChatlistDialogFilter
   }
 }

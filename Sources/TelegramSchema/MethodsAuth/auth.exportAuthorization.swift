@@ -15,6 +15,9 @@ extension TL.Auth {
   /// TL: `auth.exportAuthorization#e5bfffcd dc_id:int = auth.ExportedAuthorization`
   @TLObject(id: 0xe5bfffcd, returning: TL.Auth.ExportedAuthorization.self)
   public struct ExportAuthorization: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.exportAuthorization"
+    }
     public var dcId: Int32
   }
 }

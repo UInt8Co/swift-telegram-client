@@ -15,6 +15,9 @@ extension TL.Auth {
   /// TL: `auth.finishFirebasePnvLogin#2c85094c google_token:string = auth.Authorization`
   @TLObject(id: 0x2c85094c, returning: TL.Auth.AuthorizationType.self)
   public struct FinishFirebasePnvLogin: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.finishFirebasePnvLogin"
+    }
     public var googleToken: String
   }
 }

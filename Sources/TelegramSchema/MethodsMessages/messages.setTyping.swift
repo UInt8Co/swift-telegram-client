@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x58943ee2, returning: Bool.self)
   @TLFlagsEquatable
   public struct SetTyping: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.setTyping"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     @TLConditional("flags", bit: 0) public var topMsgId: Int32? = nil

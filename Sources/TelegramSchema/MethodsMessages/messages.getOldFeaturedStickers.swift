@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getOldFeaturedStickers#7ed094a1 offset:int limit:int hash:long = messages.FeaturedStickers`
   @TLObject(id: 0x7ed094a1, returning: TL.Messages.FeaturedStickersType.self)
   public struct GetOldFeaturedStickers: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getOldFeaturedStickers"
+    }
     public var offset: Int32
     public var limit: Int32
     public var hash: Int64

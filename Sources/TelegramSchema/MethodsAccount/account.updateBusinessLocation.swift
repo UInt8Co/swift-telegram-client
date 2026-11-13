@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0x9e6b131a, returning: Bool.self)
   @TLFlagsEquatable
   public struct UpdateBusinessLocation: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.updateBusinessLocation"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var geoPoint: TL.InputGeoPointType? = nil
     @TLConditional("flags", bit: 0) public var address: String? = nil

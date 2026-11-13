@@ -16,6 +16,9 @@ extension TL.Ephemeral {
   @TLObject(id: 0xba8d5f35, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct SendMessage: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "ephemeral.sendMessage"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 6) public var invertMedia: Bool = false
     @TLConditional("flags", bit: 7) public var welcome: Bool = false

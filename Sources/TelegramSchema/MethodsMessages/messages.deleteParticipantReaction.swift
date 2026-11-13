@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.deleteParticipantReaction#e3b7f82c peer:InputPeer msg_id:int participant:InputPeer = Updates`
   @TLObject(id: 0xe3b7f82c, returning: TL.UpdatesType.self)
   public struct DeleteParticipantReaction: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.deleteParticipantReaction"
+    }
     public var peer: TL.InputPeerType
     public var msgId: Int32
     public var participant: TL.InputPeerType

@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getExtendedMedia#84f80814 peer:InputPeer id:Vector<int> = Updates`
   @TLObject(id: 0x84f80814, returning: TL.UpdatesType.self)
   public struct GetExtendedMedia: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getExtendedMedia"
+    }
     public var peer: TL.InputPeerType
     public var id: [Int32]
   }

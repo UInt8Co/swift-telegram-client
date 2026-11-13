@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.setAuthorizationTTL#bf899aa0 authorization_ttl_days:int = Bool`
   @TLObject(id: 0xbf899aa0, returning: Bool.self)
   public struct SetAuthorizationTTL: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.setAuthorizationTTL"
+    }
     public var authorizationTtlDays: Int32
   }
 }

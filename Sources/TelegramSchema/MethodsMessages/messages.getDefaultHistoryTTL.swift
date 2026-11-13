@@ -15,5 +15,8 @@ extension TL.Messages {
   /// TL: `messages.getDefaultHistoryTTL#658b7188 = DefaultHistoryTTL`
   @TLObject(id: 0x658b7188, returning: TL.DefaultHistoryTTL.self)
   public struct GetDefaultHistoryTTL: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getDefaultHistoryTTL"
+    }
   }
 }

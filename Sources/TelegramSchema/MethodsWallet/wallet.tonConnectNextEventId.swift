@@ -15,6 +15,9 @@ extension TL.Wallet {
   /// TL: `wallet.tonConnectNextEventId#775d7244 session_id:long = TonConnectNextEventId`
   @TLObject(id: 0x775d7244, returning: TL.TonConnectNextEventId.self)
   public struct TonConnectNextEventId: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.tonConnectNextEventId"
+    }
     public var sessionId: Int64
   }
 }

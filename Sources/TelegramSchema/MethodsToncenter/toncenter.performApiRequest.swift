@@ -16,6 +16,9 @@ extension TL.Toncenter {
   @TLObject(id: 0x8d7bdd61, returning: TL.Toncenter.ApiResponse.self)
   @TLFlagsEquatable
   public struct PerformApiRequest: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "toncenter.performApiRequest"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var post: Bool = false
     public var endpoint: String

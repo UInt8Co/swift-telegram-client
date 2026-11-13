@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.leaveChannel#f836aa95 channel:InputChannel = Updates`
   @TLObject(id: 0xf836aa95, returning: TL.UpdatesType.self)
   public struct LeaveChannel: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.leaveChannel"
+    }
     public var channel: TL.InputChannelType
   }
 }

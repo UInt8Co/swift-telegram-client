@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.getDefaultProfilePhotoEmojis#e2750328 hash:long = EmojiList`
   @TLObject(id: 0xe2750328, returning: TL.EmojiListType.self)
   public struct GetDefaultProfilePhotoEmojis: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getDefaultProfilePhotoEmojis"
+    }
     public var hash: Int64
   }
 }

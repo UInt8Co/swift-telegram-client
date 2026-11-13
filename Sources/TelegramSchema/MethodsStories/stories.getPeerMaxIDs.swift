@@ -15,6 +15,9 @@ extension TL.Stories {
   /// TL: `stories.getPeerMaxIDs#78499170 id:Vector<InputPeer> = Vector<RecentStory>`
   @TLObject(id: 0x78499170, returning: [TL.RecentStory].self)
   public struct GetPeerMaxIDs: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.getPeerMaxIDs"
+    }
     public var id: [TL.InputPeerType]
   }
 }

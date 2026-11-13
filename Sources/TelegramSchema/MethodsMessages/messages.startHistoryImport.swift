@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.startHistoryImport#b43df344 peer:InputPeer import_id:long = Bool`
   @TLObject(id: 0xb43df344, returning: Bool.self)
   public struct StartHistoryImport: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.startHistoryImport"
+    }
     public var peer: TL.InputPeerType
     public var importId: Int64
   }

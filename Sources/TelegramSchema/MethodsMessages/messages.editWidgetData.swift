@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xeac343c0, returning: Bool.self)
   @TLFlagsEquatable
   public struct EditWidgetData: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.editWidgetData"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var widgetId: Int64
     public var publicData: String

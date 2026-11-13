@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x8c5006f8, returning: Bool.self)
   @TLFlagsEquatable
   public struct MarkDialogUnread: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.markDialogUnread"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var unread: Bool = false
     @TLConditional("flags", bit: 1) public var parentPeer: TL.InputPeerType? = nil

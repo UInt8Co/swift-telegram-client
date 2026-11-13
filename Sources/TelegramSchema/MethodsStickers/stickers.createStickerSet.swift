@@ -16,6 +16,9 @@ extension TL.Stickers {
   @TLObject(id: 0x9021ab67, returning: TL.Messages.StickerSetType.self)
   @TLFlagsEquatable
   public struct CreateStickerSet: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stickers.createStickerSet"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var masks: Bool = false
     @TLConditional("flags", bit: 5) public var emojis: Bool = false

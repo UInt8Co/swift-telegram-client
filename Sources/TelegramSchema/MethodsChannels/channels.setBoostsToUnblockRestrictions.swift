@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.setBoostsToUnblockRestrictions#ad399cee channel:InputChannel boosts:int = Updates`
   @TLObject(id: 0xad399cee, returning: TL.UpdatesType.self)
   public struct SetBoostsToUnblockRestrictions: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.setBoostsToUnblockRestrictions"
+    }
     public var channel: TL.InputChannelType
     public var boosts: Int32
   }

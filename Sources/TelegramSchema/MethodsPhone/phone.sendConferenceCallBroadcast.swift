@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.sendConferenceCallBroadcast#c6701900 call:InputGroupCall block:bytes = Updates`
   @TLObject(id: 0xc6701900, returning: TL.UpdatesType.self)
   public struct SendConferenceCallBroadcast: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.sendConferenceCallBroadcast"
+    }
     public var call: TL.InputGroupCallType
     public var block: Data
   }

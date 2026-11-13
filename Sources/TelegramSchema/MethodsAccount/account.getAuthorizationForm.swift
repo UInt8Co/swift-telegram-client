@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.getAuthorizationForm#a929597a bot_id:long scope:string public_key:string = account.AuthorizationForm`
   @TLObject(id: 0xa929597a, returning: TL.Account.AuthorizationForm.self)
   public struct GetAuthorizationForm: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getAuthorizationForm"
+    }
     public var botId: Int64
     public var scope: String
     public var publicKey: String

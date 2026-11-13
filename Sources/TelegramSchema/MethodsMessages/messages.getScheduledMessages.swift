@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getScheduledMessages#bdbb0464 peer:InputPeer id:Vector<int> = messages.Messages`
   @TLObject(id: 0xbdbb0464, returning: TL.Messages.MessagesType.self)
   public struct GetScheduledMessages: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getScheduledMessages"
+    }
     public var peer: TL.InputPeerType
     public var id: [Int32]
   }

@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getPinnedDialogs#d6b94df2 folder_id:int = messages.PeerDialogs`
   @TLObject(id: 0xd6b94df2, returning: TL.Messages.PeerDialogs.self)
   public struct GetPinnedDialogs: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getPinnedDialogs"
+    }
     public var folderId: Int32
   }
 }

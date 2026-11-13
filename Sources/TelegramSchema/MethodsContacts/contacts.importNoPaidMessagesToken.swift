@@ -15,6 +15,9 @@ extension TL.Contacts {
   /// TL: `contacts.importNoPaidMessagesToken#35a7c6ca user_id:InputUser token:string = User`
   @TLObject(id: 0x35a7c6ca, returning: TL.UserType.self)
   public struct ImportNoPaidMessagesToken: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.importNoPaidMessagesToken"
+    }
     public var userId: TL.InputUserType
     public var token: String
   }

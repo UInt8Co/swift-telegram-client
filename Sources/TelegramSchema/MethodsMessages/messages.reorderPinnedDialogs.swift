@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x3b1adf37, returning: Bool.self)
   @TLFlagsEquatable
   public struct ReorderPinnedDialogs: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.reorderPinnedDialogs"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var force: Bool = false
     public var folderId: Int32

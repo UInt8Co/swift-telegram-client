@@ -15,5 +15,8 @@ extension TL.Smsjobs {
   /// TL: `smsjobs.leave#9898ad73 = Bool`
   @TLObject(id: 0x9898ad73, returning: Bool.self)
   public struct Leave: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "smsjobs.leave"
+    }
   }
 }

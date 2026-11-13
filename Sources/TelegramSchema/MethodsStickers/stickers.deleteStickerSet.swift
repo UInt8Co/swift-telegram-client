@@ -15,6 +15,9 @@ extension TL.Stickers {
   /// TL: `stickers.deleteStickerSet#87704394 stickerset:InputStickerSet = Bool`
   @TLObject(id: 0x87704394, returning: Bool.self)
   public struct DeleteStickerSet: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stickers.deleteStickerSet"
+    }
     public var stickerset: TL.InputStickerSetType
   }
 }

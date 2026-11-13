@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x60297dec, returning: Bool.self)
   @TLFlagsEquatable
   public struct UpdateSavedReactionTag: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.updateSavedReactionTag"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var reaction: TL.ReactionType
     @TLConditional("flags", bit: 0) public var title: String? = nil

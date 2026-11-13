@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.getPrivacy#dadbc950 key:InputPrivacyKey = account.PrivacyRules`
   @TLObject(id: 0xdadbc950, returning: TL.Account.PrivacyRules.self)
   public struct GetPrivacy: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getPrivacy"
+    }
     public var key: TL.InputPrivacyKeyType
   }
 }

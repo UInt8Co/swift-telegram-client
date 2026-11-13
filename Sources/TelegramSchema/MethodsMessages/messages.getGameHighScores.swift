@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getGameHighScores#e822649d peer:InputPeer id:int user_id:InputUser = messages.HighScores`
   @TLObject(id: 0xe822649d, returning: TL.Messages.HighScores.self)
   public struct GetGameHighScores: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getGameHighScores"
+    }
     public var peer: TL.InputPeerType
     public var id: Int32
     public var userId: TL.InputUserType

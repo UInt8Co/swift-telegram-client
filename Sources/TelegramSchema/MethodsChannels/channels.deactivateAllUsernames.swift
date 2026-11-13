@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.deactivateAllUsernames#0a245dd3 channel:InputChannel = Bool`
   @TLObject(id: 0x0a245dd3, returning: Bool.self)
   public struct DeactivateAllUsernames: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.deactivateAllUsernames"
+    }
     public var channel: TL.InputChannelType
   }
 }

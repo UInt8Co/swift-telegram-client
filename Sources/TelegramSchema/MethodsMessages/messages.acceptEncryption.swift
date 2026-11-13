@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.acceptEncryption#3dbc0415 peer:InputEncryptedChat g_b:bytes key_fingerprint:long = EncryptedChat`
   @TLObject(id: 0x3dbc0415, returning: TL.EncryptedChatType.self)
   public struct AcceptEncryption: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.acceptEncryption"
+    }
     public var peer: TL.InputEncryptedChat
     public var gB: Data
     public var keyFingerprint: Int64

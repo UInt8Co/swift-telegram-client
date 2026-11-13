@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x1ad4a04a, returning: Bool.self)
   @TLFlagsEquatable
   public struct UpdateDialogFilter: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.updateDialogFilter"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var id: Int32
     @TLConditional("flags", bit: 0) public var filter: TL.DialogFilterType? = nil

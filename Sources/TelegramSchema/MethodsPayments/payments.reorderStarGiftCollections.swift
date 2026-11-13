@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.reorderStarGiftCollections#c32af4cc peer:InputPeer order:Vector<int> = Bool`
   @TLObject(id: 0xc32af4cc, returning: Bool.self)
   public struct ReorderStarGiftCollections: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.reorderStarGiftCollections"
+    }
     public var peer: TL.InputPeerType
     public var order: [Int32]
   }

@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.setMainProfileTab#5dee78b0 tab:ProfileTab = Bool`
   @TLObject(id: 0x5dee78b0, returning: Bool.self)
   public struct SetMainProfileTab: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.setMainProfileTab"
+    }
     public var tab: TL.ProfileTabType
   }
 }

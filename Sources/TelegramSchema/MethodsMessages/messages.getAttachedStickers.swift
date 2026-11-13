@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getAttachedStickers#cc5b67cc media:InputStickeredMedia = Vector<StickerSetCovered>`
   @TLObject(id: 0xcc5b67cc, returning: [TL.StickerSetCoveredType].self)
   public struct GetAttachedStickers: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getAttachedStickers"
+    }
     public var media: TL.InputStickeredMediaType
   }
 }

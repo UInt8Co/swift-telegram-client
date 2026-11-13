@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.sendQuickReplyMessages#6c750de1 peer:InputPeer shortcut_id:int id:Vector<int> random_id:Vector<long> = Updates`
   @TLObject(id: 0x6c750de1, returning: TL.UpdatesType.self)
   public struct SendQuickReplyMessages: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.sendQuickReplyMessages"
+    }
     public var peer: TL.InputPeerType
     public var shortcutId: Int32
     public var id: [Int32]

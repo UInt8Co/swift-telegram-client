@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.requestEncryption#f64daf43 user_id:InputUser random_id:int g_a:bytes = EncryptedChat`
   @TLObject(id: 0xf64daf43, returning: TL.EncryptedChatType.self)
   public struct RequestEncryption: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.requestEncryption"
+    }
     public var userId: TL.InputUserType
     public var randomId: Int32
     public var gA: Data

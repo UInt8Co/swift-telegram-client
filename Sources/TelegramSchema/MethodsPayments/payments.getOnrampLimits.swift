@@ -16,6 +16,9 @@ extension TL.Payments {
   @TLObject(id: 0x80e851fd, returning: TL.OnrampLimits.self)
   @TLFlagsEquatable
   public struct GetOnrampLimits: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getOnrampLimits"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var provider: String
     public var cryptoCurrency: String

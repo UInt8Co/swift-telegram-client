@@ -16,6 +16,9 @@ extension TL.Stories {
   @TLObject(id: 0x2c63a72b, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct EditStory: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.editStory"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     public var id: Int32

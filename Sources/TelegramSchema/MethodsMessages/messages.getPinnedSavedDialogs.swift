@@ -15,5 +15,8 @@ extension TL.Messages {
   /// TL: `messages.getPinnedSavedDialogs#d63d94e0 = messages.SavedDialogs`
   @TLObject(id: 0xd63d94e0, returning: TL.Messages.SavedDialogsType.self)
   public struct GetPinnedSavedDialogs: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getPinnedSavedDialogs"
+    }
   }
 }

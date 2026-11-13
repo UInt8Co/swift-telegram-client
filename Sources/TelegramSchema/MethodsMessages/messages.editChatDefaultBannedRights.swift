@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.editChatDefaultBannedRights#a5866b41 peer:InputPeer banned_rights:ChatBannedRights = Updates`
   @TLObject(id: 0xa5866b41, returning: TL.UpdatesType.self)
   public struct EditChatDefaultBannedRights: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.editChatDefaultBannedRights"
+    }
     public var peer: TL.InputPeerType
     public var bannedRights: TL.ChatBannedRights
   }

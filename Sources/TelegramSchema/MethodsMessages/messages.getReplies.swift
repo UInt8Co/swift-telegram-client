@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getReplies#22ddd30c peer:InputPeer msg_id:int offset_id:int offset_date:int add_offset:int limit:int max_id:int min_id:int hash:long = messages.Messages`
   @TLObject(id: 0x22ddd30c, returning: TL.Messages.MessagesType.self)
   public struct GetReplies: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getReplies"
+    }
     public var peer: TL.InputPeerType
     public var msgId: Int32
     public var offsetId: Int32

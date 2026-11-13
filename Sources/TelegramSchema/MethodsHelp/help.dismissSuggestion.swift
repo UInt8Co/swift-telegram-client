@@ -15,6 +15,9 @@ extension TL.Help {
   /// TL: `help.dismissSuggestion#f50dbaa1 peer:InputPeer suggestion:string = Bool`
   @TLObject(id: 0xf50dbaa1, returning: Bool.self)
   public struct DismissSuggestion: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.dismissSuggestion"
+    }
     public var peer: TL.InputPeerType
     public var suggestion: String
   }

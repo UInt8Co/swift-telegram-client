@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.addPollAnswer#19bc4b6d peer:InputPeer msg_id:int answer:PollAnswer = Updates`
   @TLObject(id: 0x19bc4b6d, returning: TL.UpdatesType.self)
   public struct AddPollAnswer: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.addPollAnswer"
+    }
     public var peer: TL.InputPeerType
     public var msgId: Int32
     public var answer: TL.PollAnswerType

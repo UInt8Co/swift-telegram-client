@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.readDiscussion#f731a9f4 peer:InputPeer msg_id:int read_max_id:int = Bool`
   @TLObject(id: 0xf731a9f4, returning: Bool.self)
   public struct ReadDiscussion: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.readDiscussion"
+    }
     public var peer: TL.InputPeerType
     public var msgId: Int32
     public var readMaxId: Int32

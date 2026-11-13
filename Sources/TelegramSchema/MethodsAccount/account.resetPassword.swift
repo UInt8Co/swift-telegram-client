@@ -15,5 +15,8 @@ extension TL.Account {
   /// TL: `account.resetPassword#9308ce1b = account.ResetPasswordResult`
   @TLObject(id: 0x9308ce1b, returning: TL.Account.ResetPasswordResultType.self)
   public struct ResetPassword: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.resetPassword"
+    }
   }
 }

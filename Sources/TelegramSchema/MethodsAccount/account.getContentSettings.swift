@@ -15,5 +15,8 @@ extension TL.Account {
   /// TL: `account.getContentSettings#8b9b4dae = account.ContentSettings`
   @TLObject(id: 0x8b9b4dae, returning: TL.Account.ContentSettings.self)
   public struct GetContentSettings: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getContentSettings"
+    }
   }
 }

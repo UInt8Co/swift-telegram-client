@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.saveCallLog#41248786 peer:InputPhoneCall file:InputFile = Bool`
   @TLObject(id: 0x41248786, returning: Bool.self)
   public struct SaveCallLog: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.saveCallLog"
+    }
     public var peer: TL.InputPhoneCall
     public var file: TL.InputFileType
   }

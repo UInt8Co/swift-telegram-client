@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.deleteRevokedExportedChatInvites#56987bd5 peer:InputPeer admin_id:InputUser = Bool`
   @TLObject(id: 0x56987bd5, returning: Bool.self)
   public struct DeleteRevokedExportedChatInvites: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.deleteRevokedExportedChatInvites"
+    }
     public var peer: TL.InputPeerType
     public var adminId: TL.InputUserType
   }

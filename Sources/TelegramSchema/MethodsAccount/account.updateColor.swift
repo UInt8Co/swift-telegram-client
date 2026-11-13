@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0x684d214e, returning: Bool.self)
   @TLFlagsEquatable
   public struct UpdateColor: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.updateColor"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 1) public var forProfile: Bool = false
     @TLConditional("flags", bit: 2) public var color: TL.PeerColorType? = nil

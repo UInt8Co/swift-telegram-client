@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.checkUrlAuthMatchCode#c9a47b0b url:string match_code:string = Bool`
   @TLObject(id: 0xc9a47b0b, returning: Bool.self)
   public struct CheckUrlAuthMatchCode: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.checkUrlAuthMatchCode"
+    }
     public var url: String
     public var matchCode: String
   }

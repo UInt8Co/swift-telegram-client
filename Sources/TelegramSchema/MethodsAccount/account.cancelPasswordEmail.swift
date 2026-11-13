@@ -15,5 +15,8 @@ extension TL.Account {
   /// TL: `account.cancelPasswordEmail#c1cbd5b6 = Bool`
   @TLObject(id: 0xc1cbd5b6, returning: Bool.self)
   public struct CancelPasswordEmail: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.cancelPasswordEmail"
+    }
   }
 }

@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.checkHistoryImportPeer#5dc60f03 peer:InputPeer = messages.CheckedHistoryImportPeer`
   @TLObject(id: 0x5dc60f03, returning: TL.Messages.CheckedHistoryImportPeer.self)
   public struct CheckHistoryImportPeer: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.checkHistoryImportPeer"
+    }
     public var peer: TL.InputPeerType
   }
 }

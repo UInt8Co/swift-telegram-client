@@ -15,6 +15,9 @@ extension TL.Contacts {
   /// TL: `contacts.resetTopPeerRating#1ae373ac category:TopPeerCategory peer:InputPeer = Bool`
   @TLObject(id: 0x1ae373ac, returning: Bool.self)
   public struct ResetTopPeerRating: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.resetTopPeerRating"
+    }
     public var category: TL.TopPeerCategoryType
     public var peer: TL.InputPeerType
   }

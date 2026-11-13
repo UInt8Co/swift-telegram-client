@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x392718f8, returning: Bool.self)
   @TLFlagsEquatable
   public struct SaveRecentSticker: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.saveRecentSticker"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var attached: Bool = false
     public var id: TL.InputDocumentType

@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.migrateChat#a2875319 chat_id:long = Updates`
   @TLObject(id: 0xa2875319, returning: TL.UpdatesType.self)
   public struct MigrateChat: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.migrateChat"
+    }
     public var chatId: Int64
   }
 }

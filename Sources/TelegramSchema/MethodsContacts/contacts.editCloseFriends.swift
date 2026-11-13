@@ -15,6 +15,9 @@ extension TL.Contacts {
   /// TL: `contacts.editCloseFriends#ba6705f0 id:Vector<long> = Bool`
   @TLObject(id: 0xba6705f0, returning: Bool.self)
   public struct EditCloseFriends: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.editCloseFriends"
+    }
     public var id: [Int64]
   }
 }

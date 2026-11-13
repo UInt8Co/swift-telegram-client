@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getRecentLocations#702a40e0 peer:InputPeer limit:int hash:long = messages.Messages`
   @TLObject(id: 0x702a40e0, returning: TL.Messages.MessagesType.self)
   public struct GetRecentLocations: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getRecentLocations"
+    }
     public var peer: TL.InputPeerType
     public var limit: Int32
     public var hash: Int64

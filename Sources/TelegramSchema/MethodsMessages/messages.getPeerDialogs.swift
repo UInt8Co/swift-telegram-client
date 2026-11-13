@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getPeerDialogs#e470bcfd peers:Vector<InputDialogPeer> = messages.PeerDialogs`
   @TLObject(id: 0xe470bcfd, returning: TL.Messages.PeerDialogs.self)
   public struct GetPeerDialogs: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getPeerDialogs"
+    }
     public var peers: [TL.InputDialogPeerType]
   }
 }

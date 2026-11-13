@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.getPopularAppBots#c2510192 offset:string limit:int = bots.PopularAppBots`
   @TLObject(id: 0xc2510192, returning: TL.Bots.PopularAppBots.self)
   public struct GetPopularAppBots: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.getPopularAppBots"
+    }
     public var offset: String
     public var limit: Int32
   }

@@ -5,6 +5,7 @@ import Foundation
 #endif
 import MTProtoClientKit
 import Synchronization
+import TLCoding
 import TelegramSchema
 import Testing
 @testable import TelegramClient
@@ -13,16 +14,10 @@ import Testing
   private struct GateTransport: TLClientTransport {
     let base: any TLClientTransport
     let floodGate: FloodGate
-    static func describe(_ data: Data) -> (name: String, peer: String?) {
-      let id = data.prefix(4).enumerated().reduce(UInt32(0)) { $0 | UInt32($1.element) << ($1.offset * 8) }
-      let names: [UInt32: String] = [0x0d91a548: "users.getUsers",
-        0xb60f5918: "users.getFullUser", 0xfef48f62: "messages.sendMessage"]
-      return (names[id] ?? "unknown", nil)
-    }
-    func send(_ data: Data) async throws -> Data {
-      let method = Self.describe(data).name
+    func invoke<Function: TLFunction>(_ function: Function) async throws -> Function.ReturnType {
+      let method = RPCRequestSummary.describe(function).name
       if let error = floodGate.rejection(for: method) { throw error }
-      do { return try await base.send(data) }
+      do { return try await base.invoke(function) }
       catch {
         if case .floodWait(let seconds) = MTProtoDirective(error) {
           floodGate.record(method: method, wait: .seconds(seconds))
@@ -37,38 +32,55 @@ import Testing
     func advance(_ duration: Duration) { value.withLock { $0 += duration } }
   }
 
+  /// Fails the methods it is told to, and otherwise answers each with an empty
+  /// reply of its result type.
   private final class FakeTransport: TLClientTransport {
     struct State {
       var errors: [String: [MTProtoRPCError]] = [:]
       var calls: [String] = []
     }
     let state = Mutex(State())
+    let replies = CannedTransport { function in
+      try #require(FakeTransport.replies[function.methodName], "no reply for \(function.methodName)")
+    }
+    static let replies: [String: Data] = [
+      "users.getUsers": [TL.UserType]().tlSerialized(),
+      "users.getFullUser": TL.Users.UserFull(
+        fullUser: TL.UserFull(
+          id: 1, settings: TL.PeerSettings(), notifySettings: TL.PeerNotifySettings(),
+          commonChatsCount: 0),
+        chats: [], users: []
+      ).tlSerialized(),
+      "messages.sendMessage": TL.UpdatesType.updatesTooLong(TL.UpdatesTooLong()).tlSerialized(),
+    ]
     func fail(_ method: String, _ message: String = "FLOOD_WAIT_30", code: Int32 = 420) {
       state.withLock { $0.errors[method, default: []].append(.init(code: code, message: message)) }
     }
-    func send(_ requestBody: Data) async throws -> Data {
-      let method = GateTransport.describe(requestBody).name
+    func invoke<Function: TLFunction>(_ function: Function) async throws -> Function.ReturnType {
+      let method = function.methodName
       let error = state.withLock { state -> MTProtoRPCError? in
         state.calls.append(method)
         guard state.errors[method]?.isEmpty == false else { return nil }
         return state.errors[method]?.removeFirst()
       }
       if let error { throw error }
-      return Data()
+      return try await replies.invoke(function)
     }
     var calls: [String] { state.withLock { $0.calls } }
   }
 
-  private func users(_ id: Int64 = 7) -> Data {
-    TL.Users.GetUsers(id: [.inputUser(.init(userId: id, accessHash: 999))]).tlSerialized()
+  private func users(_ id: Int64 = 7) -> TL.Users.GetUsers {
+    TL.Users.GetUsers(id: [.inputUser(.init(userId: id, accessHash: 999))])
   }
-  private func sendMessage(_ chat: Int64) -> Data {
+  private func sendMessage(_ chat: Int64) -> TL.Messages.SendMessage {
     TL.Messages.SendMessage(peer: .inputPeerChannel(.init(channelId: chat, accessHash: 999)),
-                message: "PRIVATE BODY", randomId: 123).tlSerialized()
+                message: "PRIVATE BODY", randomId: 123)
   }
-  private func failure(_ transport: any TLClientTransport, _ request: Data) async throws -> MTProtoRPCError {
+  private func failure(
+    _ transport: any TLClientTransport, _ request: some TLFunction
+  ) async throws -> MTProtoRPCError {
     do {
-      _ = try await transport.send(request)
+      _ = try await transport.invoke(request)
       Issue.record("Expected a flood rejection")
       throw TestFailure.missingError
     } catch let error as MTProtoRPCError { return error }
@@ -84,14 +96,17 @@ import Testing
     let helper = GateTransport(base: base, floodGate: gate)
     #expect(try await failure(transport, users()).message == "FLOOD_WAIT_30")
     #expect(try await failure(helper, users(8)).message == "FLOOD_WAIT_30")
-    _ = try await helper.send(TL.Users.GetFullUser(id: .inputUserSelf(.init())).tlSerialized())
+    #expect(
+      try await failure(helper, TL.InvokeWithoutUpdates(query: users(9))).message
+        == "FLOOD_WAIT_30")
+    _ = try await helper.invoke(TL.Users.GetFullUser(id: .inputUserSelf(.init())))
     #expect(base.calls == ["users.getUsers", "users.getFullUser"])
     clock.advance(.milliseconds(29_100))
     let error = try await failure(helper, users())
     #expect(error.message == "FLOOD_WAIT_1")
     #expect(MTProtoDirective(error)?.wait == .seconds(2))
     clock.advance(.milliseconds(900))
-    _ = try await helper.send(users())
+    _ = try await helper.invoke(users())
     #expect(base.calls.count == 3)
     #expect(gate.deadlineCount == 0)
   }
@@ -102,8 +117,8 @@ import Testing
     let transport = GateTransport(base: base, floodGate: gate)
     base.fail("messages.sendMessage")
     _ = try await failure(transport, sendMessage(1))
-    _ = try await transport.send(sendMessage(2))
-    _ = try await transport.send(users())
+    _ = try await transport.invoke(sendMessage(2))
+    _ = try await transport.invoke(users())
     #expect(base.calls.count == 3)
     #expect(gate.deadlineCount == 0)
     for name in ["messages.sendMessage", "messages.sendMedia", "messages.forwardMessages",
@@ -130,7 +145,8 @@ import Testing
     #expect(gate.deadlineCount == 0)
   }
 
-  private actor InFlightTransport: TLClientTransport {
+  /// Holds the first call open until ``finishFirst()``; fails every later one.
+  private actor InFlightReplies {
     var first: CheckedContinuation<Data, any Error>?
     var started: CheckedContinuation<Void, Never>?
     var calls = 0
@@ -138,7 +154,7 @@ import Testing
       if first != nil { return }
       await withCheckedContinuation { started = $0 }
     }
-    func send(_ requestBody: Data) async throws -> Data {
+    func respond() async throws -> Data {
       calls += 1
       if calls == 1 {
         return try await withCheckedThrowingContinuation {
@@ -158,8 +174,9 @@ import Testing
   @Test func lateShorterServerFloodCannotShortenAnotherInFlightRequestsDeadline() async throws {
     let clock = Clock()
     let gate = FloodGate(now: clock.now, randomUnit: { 0 })
-    let base = InFlightTransport()
-    let transport = GateTransport(base: base, floodGate: gate)
+    let base = InFlightReplies()
+    let transport = GateTransport(
+      base: CannedTransport { _ in try await base.respond() }, floodGate: gate)
     let firstRequest = users()
     let first = Task { try await failure(transport, firstRequest) }
     await base.waitForFirst()
@@ -184,7 +201,7 @@ import Testing
     clock.advance(.seconds(30))
     #expect(try await failure(transport, users()).message == "FLOOD_WAIT_8")
     clock.advance(.seconds(5))
-    _ = try await transport.send(users())
+    _ = try await transport.invoke(users())
     #expect(base.calls.count == 2)
   }
 

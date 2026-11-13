@@ -16,6 +16,9 @@ extension TL.Premium {
   @TLObject(id: 0x60f67660, returning: TL.Premium.BoostsList.self)
   @TLFlagsEquatable
   public struct GetBoostsList: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "premium.getBoostsList"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var gifts: Bool = false
     public var peer: TL.InputPeerType

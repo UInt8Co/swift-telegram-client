@@ -15,5 +15,8 @@ extension TL.Smsjobs {
   /// TL: `smsjobs.join#a74ece2d = Bool`
   @TLObject(id: 0xa74ece2d, returning: Bool.self)
   public struct Join: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "smsjobs.join"
+    }
   }
 }

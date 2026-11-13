@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.toggleConnectedBotPaused#646e1097 peer:InputPeer paused:Bool = Bool`
   @TLObject(id: 0x646e1097, returning: Bool.self)
   public struct ToggleConnectedBotPaused: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.toggleConnectedBotPaused"
+    }
     public var peer: TL.InputPeerType
     public var paused: Bool
   }

@@ -15,5 +15,8 @@ extension TL.Wallet {
   /// TL: `wallet.getBackupHolderDcs#d179d494 = Vector<wallet.HolderDc>`
   @TLObject(id: 0xd179d494, returning: [TL.Wallet.HolderDc].self)
   public struct GetBackupHolderDcs: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.getBackupHolderDcs"
+    }
   }
 }

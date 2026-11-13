@@ -15,5 +15,8 @@ extension TL.Auth {
   /// TL: `auth.resetAuthorizations#9fab0d1a = Bool`
   @TLObject(id: 0x9fab0d1a, returning: Bool.self)
   public struct ResetAuthorizations: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.resetAuthorizations"
+    }
   }
 }

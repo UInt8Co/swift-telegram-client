@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getQuickReplies#d483f2a8 hash:long = messages.QuickReplies`
   @TLObject(id: 0xd483f2a8, returning: TL.Messages.QuickRepliesType.self)
   public struct GetQuickReplies: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getQuickReplies"
+    }
     public var hash: Int64
   }
 }

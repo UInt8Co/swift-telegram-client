@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xd2aaf7ec, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct UpdatePinnedMessage: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.updatePinnedMessage"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var silent: Bool = false
     @TLConditional("flags", bit: 1) public var unpin: Bool = false

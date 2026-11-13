@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.requestWebViewButton#31a2a35e user_id:InputUser button:KeyboardButton = bots.RequestedButton`
   @TLObject(id: 0x31a2a35e, returning: TL.Bots.RequestedButton.self)
   public struct RequestWebViewButton: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.requestWebViewButton"
+    }
     public var userId: TL.InputUserType
     public var button: TL.KeyboardButton
   }

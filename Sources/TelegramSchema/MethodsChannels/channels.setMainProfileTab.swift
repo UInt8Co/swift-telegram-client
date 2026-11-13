@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.setMainProfileTab#3583fcb1 channel:InputChannel tab:ProfileTab = Bool`
   @TLObject(id: 0x3583fcb1, returning: Bool.self)
   public struct SetMainProfileTab: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.setMainProfileTab"
+    }
     public var channel: TL.InputChannelType
     public var tab: TL.ProfileTabType
   }

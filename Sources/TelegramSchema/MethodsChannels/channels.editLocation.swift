@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.editLocation#58e63f6d channel:InputChannel geo_point:InputGeoPoint address:string = Bool`
   @TLObject(id: 0x58e63f6d, returning: Bool.self)
   public struct EditLocation: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.editLocation"
+    }
     public var channel: TL.InputChannelType
     public var geoPoint: TL.InputGeoPointType
     public var address: String

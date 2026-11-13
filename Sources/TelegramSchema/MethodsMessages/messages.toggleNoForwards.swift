@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0xb2081a35, returning: TL.UpdatesType.self)
   @TLFlagsEquatable
   public struct ToggleNoForwards: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.toggleNoForwards"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var peer: TL.InputPeerType
     public var enabled: Bool

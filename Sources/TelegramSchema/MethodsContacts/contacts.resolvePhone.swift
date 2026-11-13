@@ -15,6 +15,9 @@ extension TL.Contacts {
   /// TL: `contacts.resolvePhone#8af94344 phone:string = contacts.ResolvedPeer`
   @TLObject(id: 0x8af94344, returning: TL.Contacts.ResolvedPeer.self)
   public struct ResolvePhone: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.resolvePhone"
+    }
     public var phone: String
   }
 }

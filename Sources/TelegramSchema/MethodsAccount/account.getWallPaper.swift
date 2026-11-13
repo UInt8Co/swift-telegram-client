@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.getWallPaper#fc8ddbea wallpaper:InputWallPaper = WallPaper`
   @TLObject(id: 0xfc8ddbea, returning: TL.WallPaperType.self)
   public struct GetWallPaper: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getWallPaper"
+    }
     public var wallpaper: TL.InputWallPaperType
   }
 }

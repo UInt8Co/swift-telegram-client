@@ -1,3 +1,4 @@
+import Synchronization
 import TelegramBot
 import TelegramSchema
 import Testing
@@ -8,14 +9,16 @@ import Testing
   import Foundation
 #endif
 
-private actor DraftAPITransport: TLClientTransport {
-  var requests: [Data] = []
-  var fail = false
-  func setFailure() { fail = true }
-  func send(_ requestBody: Data) throws -> Data {
-    requests.append(requestBody)
-    if fail { throw CancellationError() }
-    return true.tlSerialized()
+/// Answers `true` until ``fail()`` is called, then cancellation.
+private final class DraftAPI: Sendable {
+  private let failing = Mutex(false)
+  func fail() { failing.withLock { $0 = true } }
+
+  var transport: CannedTransport {
+    CannedTransport { [self] _ in
+      if failing.withLock({ $0 }) { throw CancellationError() }
+      return true.tlSerialized()
+    }
   }
 }
 
@@ -44,7 +47,8 @@ private actor DraftAPITransport: TLClientTransport {
   }
 
   @Test func serializesPeerTopicFlagsAndRichMessage() async throws {
-    let transport = DraftAPITransport()
+    let api = DraftAPI()
+    let transport = api.transport
     let client = DraftClient(api: .init(transport: transport))
     let peer = TL.InputPeerType.inputPeerUser(.init(userId: 7, accessHash: 8))
     let rich = TL.InputRichMessageType.inputRichMessage(
@@ -55,7 +59,8 @@ private actor DraftAPITransport: TLClientTransport {
     #expect(
       try await client.show(
         peer: peer, richMessage: rich, draftID: 456, canStop: false, keepOnStop: false))
-    let requests = try await transport.requests.map { try TL.Messages.SetTyping(tlData: $0) }
+    let requests = transport.requests(TL.Messages.SetTyping.self)
+    try #require(requests.count == 2)
     #expect(requests[0].peer == peer && requests[0].topMsgId == 42)
     #expect(
       requests[0].action
@@ -70,8 +75,8 @@ private actor DraftAPITransport: TLClientTransport {
     await #expect(throws: DraftClientError.zeroDraftID) {
       try await client.show(peer: peer, richMessage: rich, draftID: 0)
     }
-    #expect(await transport.requests.count == 2)
-    await transport.setFailure()
+    #expect(transport.requests.count == 2)
+    api.fail()
     await #expect(throws: CancellationError.self) {
       try await client.show(peer: peer, richMessage: rich, draftID: 123)
     }

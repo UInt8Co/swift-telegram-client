@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.startBot#e6df7378 bot:InputUser peer:InputPeer random_id:long start_param:string = Updates`
   @TLObject(id: 0xe6df7378, returning: TL.UpdatesType.self)
   public struct StartBot: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.startBot"
+    }
     public var bot: TL.InputUserType
     public var peer: TL.InputPeerType
     public var randomId: Int64

@@ -696,8 +696,6 @@ private actor IntakeState {
   func attempt(_ id: Int) -> Int { attempts[id, default: 0] += 1; return attempts[id, default: 0] }
 }
 
-private struct IntakeFloodTransport: TLClientTransport {
-  func send(_ requestBody: Data) async throws -> Data {
-    throw MTProtoRPCError(code: 420, message: "FLOOD_WAIT_30")
-  }
+private func intakeFloodTransport() -> CannedTransport {
+  CannedTransport { _ in throw MTProtoRPCError(code: 420, message: "FLOOD_WAIT_30") }
 }

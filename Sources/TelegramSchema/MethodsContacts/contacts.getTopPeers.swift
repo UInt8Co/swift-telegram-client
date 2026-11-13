@@ -16,6 +16,9 @@ extension TL.Contacts {
   @TLObject(id: 0x973478b6, returning: TL.Contacts.TopPeersType.self)
   @TLFlagsEquatable
   public struct GetTopPeers: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.getTopPeers"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var correspondents: Bool = false
     @TLConditional("flags", bit: 1) public var botsPm: Bool = false

@@ -3,12 +3,6 @@ import Synchronization
 import TLCoding
 import TelegramSchema
 
-#if canImport(FoundationEssentials)
-  import FoundationEssentials
-#else
-  import Foundation
-#endif
-
 /// The application a connection presents itself as: the API credentials
 /// Telegram issues per application, and the client description every session
 /// opens with.
@@ -42,29 +36,6 @@ public struct TelegramApp: Sendable {
   }
 }
 
-/// A query whose body the caller already serialized.
-///
-/// `TLClientTransport` hands over bytes rather than a value, so the
-/// `initConnection`/`invokeWithLayer` envelope is built around this instead of
-/// re-deriving those two constructor numbers by hand. It is never decoded — the
-/// transport returns the reply body to the generated client, which decodes it as
-/// the type the original request declared.
-struct TLSerializedQuery: TLFunction {
-  typealias ReturnType = TLOpaqueReply
-  var body: Data
-
-  func tlEncode(to writer: inout TLWriter) { writer.writeRawData(body) }
-}
-
-/// The undecoded reply body of a ``TLSerializedQuery``.
-struct TLOpaqueReply: TLDecodable, Sendable {
-  var body: Data
-
-  init(tlFrom reader: inout TLReader) throws {
-    body = try reader.readRawBytes(reader.bytesRemaining)
-  }
-}
-
 /// Opens an MTProto session with `invokeWithLayer(initConnection(…))` the way
 /// Telegram requires, and leaves every later query alone.
 ///
@@ -84,28 +55,40 @@ final class TelegramSessionOpener: Sendable {
     self.layer = layer
   }
 
-  /// The bytes to put on the wire for `query`, wrapped if this is the first one.
-  func body(for query: Data) -> Data {
+  /// The envelope to send `query` in if it is this connection's first query;
+  /// `nil` for every later one, which goes out bare.
+  ///
+  /// The envelope's result is the query's own, so the reply decodes as the type
+  /// the query declares either way.
+  func opening<Query: TLFunction>(
+    _ query: Query
+  ) -> TL.InvokeWithLayer<TL.InitConnection<Query>>? {
     // `exchanged` is true only for the call that won the swap, which is the
     // first query of this connection and so the one that opens the session.
     let (isFirstQuery, _) = opened.compareExchange(
       expected: false, desired: true, ordering: .relaxed)
-    return isFirstQuery ? envelope(around: query) : query
+    return isFirstQuery ? envelope(around: query) : nil
   }
 
-  func envelope(around query: Data) -> Data {
+  func envelope<Query: TLFunction>(
+    around query: Query
+  ) -> TL.InvokeWithLayer<TL.InitConnection<Query>> {
     TL.InvokeWithLayer(
       layer: layer,
       query: TL.InitConnection(
         apiId: app.apiID, deviceModel: app.deviceModel, systemVersion: app.systemVersion,
         appVersion: app.appVersion, systemLangCode: app.systemLangCode,
         langPack: app.langPack, langCode: app.langCode,
-        query: TLSerializedQuery(body: query))
-    ).tlSerialized()
+        query: query))
   }
 }
 
-/// Delivers one serialized query over an MTProto session.
+/// Invokes queries over an MTProto session: the bottom of a `TLClient`'s
+/// transport chain, and the one place a query is serialized and its reply
+/// decoded.
+///
+/// The connection's first query is sent inside the session's
+/// `invokeWithLayer(initConnection(…))` envelope; every later one goes out bare.
 public final class TelegramTransport: TLClientTransport {
   public let client: MTProtoClient
   public let app: TelegramApp
@@ -121,7 +104,10 @@ public final class TelegramTransport: TLClientTransport {
     self.opener = TelegramSessionOpener(app: app, layer: layer)
   }
 
-  public func send(_ requestBody: Data) async throws -> Data {
-    try await client.invokeRaw(opener.body(for: requestBody))
+  public func invoke<Function: TLFunction>(_ function: Function) async throws -> Function.ReturnType {
+    if let envelope = opener.opening(function) {
+      return try await client.invoke(envelope)
+    }
+    return try await client.invoke(function)
   }
 }

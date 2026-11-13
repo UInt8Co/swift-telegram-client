@@ -16,6 +16,9 @@ extension TL.Contacts {
   @TLObject(id: 0x05f58d0f, returning: TL.Contacts.Found.self)
   @TLFlagsEquatable
   public struct Search: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "contacts.search"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var broadcasts: Bool = false
     @TLConditional("flags", bit: 1) public var bots: Bool = false

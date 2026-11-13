@@ -15,6 +15,9 @@ extension TL.Users {
   /// TL: `users.getUsers#0d91a548 id:Vector<InputUser> = Vector<User>`
   @TLObject(id: 0x0d91a548, returning: [TL.UserType].self)
   public struct GetUsers: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "users.getUsers"
+    }
     public var id: [TL.InputUserType]
   }
 }

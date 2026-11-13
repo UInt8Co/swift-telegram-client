@@ -15,6 +15,9 @@ extension TL.Help {
   /// TL: `help.acceptTermsOfService#ee72f79a id:DataJSON = Bool`
   @TLObject(id: 0xee72f79a, returning: Bool.self)
   public struct AcceptTermsOfService: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.acceptTermsOfService"
+    }
     public var id: TL.DataJSON
   }
 }

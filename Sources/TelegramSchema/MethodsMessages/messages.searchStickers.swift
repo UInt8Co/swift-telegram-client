@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x29b1c66a, returning: TL.Messages.FoundStickersType.self)
   @TLFlagsEquatable
   public struct SearchStickers: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.searchStickers"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var emojis: Bool = false
     public var q: String

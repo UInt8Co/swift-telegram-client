@@ -16,6 +16,9 @@ extension TL.Messages {
   @TLObject(id: 0x514e999d, returning: TL.Messages.BotResults.self)
   @TLFlagsEquatable
   public struct GetInlineBotResults: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getInlineBotResults"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var bot: TL.InputUserType
     public var peer: TL.InputPeerType

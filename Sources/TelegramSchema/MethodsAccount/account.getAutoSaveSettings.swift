@@ -15,5 +15,8 @@ extension TL.Account {
   /// TL: `account.getAutoSaveSettings#adcbbcda = account.AutoSaveSettings`
   @TLObject(id: 0xadcbbcda, returning: TL.Account.AutoSaveSettings.self)
   public struct GetAutoSaveSettings: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getAutoSaveSettings"
+    }
   }
 }

@@ -15,6 +15,9 @@ extension TL.Auth {
   /// TL: `auth.importBotAuthorization#67a3ff2c flags:int api_id:int api_hash:string bot_auth_token:string = auth.Authorization`
   @TLObject(id: 0x67a3ff2c, returning: TL.Auth.AuthorizationType.self)
   public struct ImportBotAuthorization: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.importBotAuthorization"
+    }
     public var flags: Int32
     public var apiId: Int32
     public var apiHash: String

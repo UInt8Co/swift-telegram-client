@@ -16,6 +16,9 @@ extension TL.Auth {
   @TLObject(id: 0x783f6b56, returning: TL.Auth.AuthorizationType.self)
   @TLFlagsEquatable
   public struct FirebasePnvSignUp: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "auth.firebasePnvSignUp"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var noJoinedNotifications: Bool = false
     public var firstName: String

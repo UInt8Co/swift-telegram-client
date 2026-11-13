@@ -15,5 +15,8 @@ extension TL.Payments {
   /// TL: `payments.getSavedInfo#227d824b = payments.SavedInfo`
   @TLObject(id: 0x227d824b, returning: TL.Payments.SavedInfo.self)
   public struct GetSavedInfo: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.getSavedInfo"
+    }
   }
 }

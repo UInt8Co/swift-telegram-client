@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.updatePasswordSettings#a59b102f password:InputCheckPasswordSRP new_settings:account.PasswordInputSettings = Bool`
   @TLObject(id: 0xa59b102f, returning: Bool.self)
   public struct UpdatePasswordSettings: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.updatePasswordSettings"
+    }
     public var password: TL.InputCheckPasswordSRPType
     public var newSettings: TL.Account.PasswordInputSettings
   }

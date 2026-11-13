@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.saveGif#327a30cb id:InputDocument unsave:Bool = Bool`
   @TLObject(id: 0x327a30cb, returning: Bool.self)
   public struct SaveGif: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.saveGif"
+    }
     public var id: TL.InputDocumentType
     public var unsave: Bool
   }

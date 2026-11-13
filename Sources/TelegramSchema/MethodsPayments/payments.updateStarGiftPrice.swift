@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.updateStarGiftPrice#edbe6ccb stargift:InputSavedStarGift resell_amount:StarsAmount = Updates`
   @TLObject(id: 0xedbe6ccb, returning: TL.UpdatesType.self)
   public struct UpdateStarGiftPrice: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.updateStarGiftPrice"
+    }
     public var stargift: TL.InputSavedStarGiftType
     public var resellAmount: TL.StarsAmountType
   }

@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.toggleUsername#50f24105 channel:InputChannel username:string active:Bool = Bool`
   @TLObject(id: 0x50f24105, returning: Bool.self)
   public struct ToggleUsername: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.toggleUsername"
+    }
     public var channel: TL.InputChannelType
     public var username: String
     public var active: Bool

@@ -158,9 +158,14 @@ import Testing
   func wrappedMethodsAreObserved() async throws {
     let events = Events()
     let users = [Self.fullUser].tlSerialized()
-    let (api, _) = await Self.observed([users, users]) { events.append(.observed(Seen($0))) }
+    let invoked = Mutex<[ObjectIdentifier]>([])
+    let (api, _) = await Self.observed([users, users]) { peers in
+      events.append(.observed(Seen(peers)))
+      if let call = peers.call { invoked.withLock { $0.append(ObjectIdentifier(call.function)) } }
+    }
 
-    _ = try await api.invoke(TL.InvokeWithoutUpdates(query: Self.getSelf))
+    let returned = try await api.invoke(TL.InvokeWithoutUpdates(query: Self.getSelf))
+    #expect(returned == [Self.fullUser])
     // Every optional field of `initConnection` present, so each is stepped over.
     _ = try await api.invoke(
       TL.InvokeWithLayer(
@@ -174,6 +179,33 @@ import Testing
 
     let expected = Seen(users: [Self.fullUser], chats: [], from: "users.getUsers")
     #expect(events.all == [.observed(expected), .observed(expected)])
+    let getUsers = ObjectIdentifier(TL.Users.GetUsers.self)
+    #expect(invoked.withLock { $0 } == [getUsers, getUsers], "the call is the wrapped request type")
+  }
+
+  @Test("an observed result is decoded once, by the bottom transport, and handed on as observed")
+  func observedResultIsDecodedOnce() async throws {
+    let observedResults = Mutex<[CountedUsers]>([])
+    let (api, _) = await Self.observed([[Self.fullUser].tlSerialized()]) { peers in
+      if let result = peers.call?.result as? CountedUsers {
+        observedResults.withLock { $0.append(result) }
+      }
+    }
+
+    let result = try await api.invoke(GetCountedUsers())
+
+    #expect(result.users == [Self.fullUser])
+    #expect(CountedUsers.decodes.withLock { $0 } == 1, "decoded once, at the bottom")
+    // The observer saw that very decoding, not one of its own.
+    #expect(observedResults.withLock { $0 }.map(\.decoding) == [result.decoding])
+  }
+
+  @Test("a reply that does not decode fails its call, unobserved")
+  func undecodableReplyFails() async throws {
+    let events = Events()
+    let (api, _) = await Self.observed([Data([1, 2, 3])]) { events.append(.observed(Seen($0))) }
+    await #expect(throws: (any Error).self) { _ = try await api.invoke(Self.getSelf) }
+    #expect(events.all.isEmpty)
   }
 
   @Test("pushes are observed and handed on in order; a refused push is reported and still handed on")
@@ -457,6 +489,33 @@ import Testing
 }
 
 // MARK: - Doubles
+
+/// A function whose result counts every time it is decoded; used by one test only.
+private struct GetCountedUsers: TLFunction {
+  typealias ReturnType = CountedUsers
+  static var tlMethodName: String { "test.getCountedUsers" }
+  func tlEncode(to writer: inout TLWriter) { writer.writeUInt32(0x7e57_0001) }
+}
+
+/// A user vector that records which decoding produced it.
+private struct CountedUsers: TLDecodable, Sendable, ReceivedPeerCarrying {
+  static let decodes = Mutex(0)
+  var users: [TL.UserType]
+  /// The ordinal of the decoding that produced this value.
+  var decoding: Int
+
+  init(tlFrom reader: inout TLReader) throws {
+    users = try [TL.UserType](tlFrom: &reader)
+    decoding = Self.decodes.withLock {
+      $0 += 1
+      return $0
+    }
+  }
+
+  func collectReceivedPeers(into peers: inout ReceivedPeerList) {
+    users.collectReceivedPeers(into: &peers)
+  }
+}
 
 /// What an observation saw, comparably: the peers and the method, or `nil` for a push.
 struct Seen: Equatable, Sendable {

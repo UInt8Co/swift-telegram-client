@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.reportProfilePhoto#fa8cc6f5 peer:InputPeer photo_id:InputPhoto reason:ReportReason message:string = Bool`
   @TLObject(id: 0xfa8cc6f5, returning: Bool.self)
   public struct ReportProfilePhoto: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.reportProfilePhoto"
+    }
     public var peer: TL.InputPeerType
     public var photoId: TL.InputPhotoType
     public var reason: TL.ReportReasonType

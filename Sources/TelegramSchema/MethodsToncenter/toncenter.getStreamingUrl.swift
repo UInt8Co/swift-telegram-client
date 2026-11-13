@@ -15,5 +15,8 @@ extension TL.Toncenter {
   /// TL: `toncenter.getStreamingUrl#cdaf63c7 = toncenter.StreamingUrl`
   @TLObject(id: 0xcdaf63c7, returning: TL.Toncenter.StreamingUrl.self)
   public struct GetStreamingUrl: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "toncenter.getStreamingUrl"
+    }
   }
 }

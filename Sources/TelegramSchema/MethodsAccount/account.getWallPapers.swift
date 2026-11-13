@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.getWallPapers#07967d36 hash:long = account.WallPapers`
   @TLObject(id: 0x07967d36, returning: TL.Account.WallPapersType.self)
   public struct GetWallPapers: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getWallPapers"
+    }
     public var hash: Int64
   }
 }

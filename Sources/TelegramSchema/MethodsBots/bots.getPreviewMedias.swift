@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.getPreviewMedias#a2a5594d bot:InputUser = Vector<BotPreviewMedia>`
   @TLObject(id: 0xa2a5594d, returning: [TL.BotPreviewMedia].self)
   public struct GetPreviewMedias: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.getPreviewMedias"
+    }
     public var bot: TL.InputUserType
   }
 }

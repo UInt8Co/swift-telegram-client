@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.resetBotCommands#3d8de0f9 scope:BotCommandScope lang_code:string = Bool`
   @TLObject(id: 0x3d8de0f9, returning: Bool.self)
   public struct ResetBotCommands: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.resetBotCommands"
+    }
     public var scope: TL.BotCommandScopeType
     public var langCode: String
   }

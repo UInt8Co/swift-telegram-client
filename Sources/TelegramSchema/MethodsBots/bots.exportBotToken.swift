@@ -15,6 +15,9 @@ extension TL.Bots {
   /// TL: `bots.exportBotToken#bd0d99eb bot:InputUser revoke:Bool = bots.ExportedBotToken`
   @TLObject(id: 0xbd0d99eb, returning: TL.Bots.ExportedBotToken.self)
   public struct ExportBotToken: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "bots.exportBotToken"
+    }
     public var bot: TL.InputUserType
     public var revoke: Bool
   }

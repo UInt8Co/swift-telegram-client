@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0xb574b16b, returning: Bool.self)
   @TLFlagsEquatable
   public struct SetContentSettings: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.setContentSettings"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var sensitiveEnabled: Bool = false
   }

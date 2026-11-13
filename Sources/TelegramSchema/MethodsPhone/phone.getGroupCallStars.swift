@@ -15,6 +15,9 @@ extension TL.Phone {
   /// TL: `phone.getGroupCallStars#6f636302 call:InputGroupCall = phone.GroupCallStars`
   @TLObject(id: 0x6f636302, returning: TL.Phone.GroupCallStars.self)
   public struct GetGroupCallStars: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "phone.getGroupCallStars"
+    }
     public var call: TL.InputGroupCallType
   }
 }

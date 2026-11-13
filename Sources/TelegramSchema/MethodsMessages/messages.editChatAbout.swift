@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.editChatAbout#def60797 peer:InputPeer about:string = Bool`
   @TLObject(id: 0xdef60797, returning: Bool.self)
   public struct EditChatAbout: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.editChatAbout"
+    }
     public var peer: TL.InputPeerType
     public var about: String
   }

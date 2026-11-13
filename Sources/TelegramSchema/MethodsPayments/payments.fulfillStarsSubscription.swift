@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.fulfillStarsSubscription#cc5bebb3 peer:InputPeer subscription_id:string = Bool`
   @TLObject(id: 0xcc5bebb3, returning: Bool.self)
   public struct FulfillStarsSubscription: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.fulfillStarsSubscription"
+    }
     public var peer: TL.InputPeerType
     public var subscriptionId: String
   }

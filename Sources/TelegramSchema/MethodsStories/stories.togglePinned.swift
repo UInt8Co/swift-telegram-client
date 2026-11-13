@@ -15,6 +15,9 @@ extension TL.Stories {
   /// TL: `stories.togglePinned#9a75a1ef peer:InputPeer id:Vector<int> pinned:Bool = Vector<int>`
   @TLObject(id: 0x9a75a1ef, returning: [Int32].self)
   public struct TogglePinned: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.togglePinned"
+    }
     public var peer: TL.InputPeerType
     public var id: [Int32]
     public var pinned: Bool

@@ -16,6 +16,9 @@ extension TL.Wallet {
   @TLObject(id: 0x068509ac, returning: TL.Wallet.Card.self)
   @TLFlagsEquatable
   public struct SetCardStickers: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "wallet.setCardStickers"
+    }
     @TLFlags public var flags: UInt32 = 0
     public var stickers: [TL.InputWalletCardSticker]
     @TLConditional("flags", bit: 0) public var bgNftAddress: String? = nil

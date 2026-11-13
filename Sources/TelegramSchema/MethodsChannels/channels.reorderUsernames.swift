@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.reorderUsernames#b45ced1d channel:InputChannel order:Vector<string> = Bool`
   @TLObject(id: 0xb45ced1d, returning: Bool.self)
   public struct ReorderUsernames: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.reorderUsernames"
+    }
     public var channel: TL.InputChannelType
     public var order: [String]
   }

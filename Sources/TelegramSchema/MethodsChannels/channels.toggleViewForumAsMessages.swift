@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.toggleViewForumAsMessages#9738bb15 channel:InputChannel enabled:Bool = Updates`
   @TLObject(id: 0x9738bb15, returning: TL.UpdatesType.self)
   public struct ToggleViewForumAsMessages: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.toggleViewForumAsMessages"
+    }
     public var channel: TL.InputChannelType
     public var enabled: Bool
   }

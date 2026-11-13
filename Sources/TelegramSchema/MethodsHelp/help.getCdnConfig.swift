@@ -15,5 +15,8 @@ extension TL.Help {
   /// TL: `help.getCdnConfig#52029342 = CdnConfig`
   @TLObject(id: 0x52029342, returning: TL.CdnConfig.self)
   public struct GetCdnConfig: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "help.getCdnConfig"
+    }
   }
 }

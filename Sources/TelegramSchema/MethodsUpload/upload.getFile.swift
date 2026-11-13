@@ -16,6 +16,9 @@ extension TL.Upload {
   @TLObject(id: 0xbe5335be, returning: TL.Upload.FileType.self)
   @TLFlagsEquatable
   public struct GetFile: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "upload.getFile"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var precise: Bool = false
     @TLConditional("flags", bit: 1) public var cdnSupported: Bool = false

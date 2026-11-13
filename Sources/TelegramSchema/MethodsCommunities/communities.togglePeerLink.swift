@@ -16,6 +16,9 @@ extension TL.Communities {
   @TLObject(id: 0x736dcfea, returning: Bool.self)
   @TLFlagsEquatable
   public struct TogglePeerLink: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "communities.togglePeerLink"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var visible: Bool = false
     @TLConditional("flags", bit: 1) public var hidden: Bool = false

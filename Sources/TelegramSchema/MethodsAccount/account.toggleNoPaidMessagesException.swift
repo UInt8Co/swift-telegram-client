@@ -16,6 +16,9 @@ extension TL.Account {
   @TLObject(id: 0xfe2eda76, returning: Bool.self)
   @TLFlagsEquatable
   public struct ToggleNoPaidMessagesException: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.toggleNoPaidMessagesException"
+    }
     @TLFlags public var flags: UInt32 = 0
     @TLConditional("flags", bit: 0) public var refundCharged: Bool = false
     @TLConditional("flags", bit: 2) public var requirePayment: Bool = false

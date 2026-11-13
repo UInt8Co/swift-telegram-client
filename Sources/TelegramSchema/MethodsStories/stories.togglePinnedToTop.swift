@@ -15,6 +15,9 @@ extension TL.Stories {
   /// TL: `stories.togglePinnedToTop#0b297e9b peer:InputPeer id:Vector<int> = Bool`
   @TLObject(id: 0x0b297e9b, returning: Bool.self)
   public struct TogglePinnedToTop: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.togglePinnedToTop"
+    }
     public var peer: TL.InputPeerType
     public var id: [Int32]
   }

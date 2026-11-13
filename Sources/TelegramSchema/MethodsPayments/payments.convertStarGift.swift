@@ -15,6 +15,9 @@ extension TL.Payments {
   /// TL: `payments.convertStarGift#74bf076b stargift:InputSavedStarGift = Bool`
   @TLObject(id: 0x74bf076b, returning: Bool.self)
   public struct ConvertStarGift: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "payments.convertStarGift"
+    }
     public var stargift: TL.InputSavedStarGiftType
   }
 }

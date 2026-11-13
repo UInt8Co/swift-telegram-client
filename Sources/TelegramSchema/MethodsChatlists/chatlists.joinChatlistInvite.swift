@@ -15,6 +15,9 @@ extension TL.Chatlists {
   /// TL: `chatlists.joinChatlistInvite#a6b1e39a slug:string peers:Vector<InputPeer> = Updates`
   @TLObject(id: 0xa6b1e39a, returning: TL.UpdatesType.self)
   public struct JoinChatlistInvite: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "chatlists.joinChatlistInvite"
+    }
     public var slug: String
     public var peers: [TL.InputPeerType]
   }

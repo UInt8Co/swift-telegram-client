@@ -15,6 +15,9 @@ extension TL.Stories {
   /// TL: `stories.reorderAlbums#8535fbd9 peer:InputPeer order:Vector<int> = Bool`
   @TLObject(id: 0x8535fbd9, returning: Bool.self)
   public struct ReorderAlbums: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.reorderAlbums"
+    }
     public var peer: TL.InputPeerType
     public var order: [Int32]
   }

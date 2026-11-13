@@ -15,6 +15,9 @@ extension TL.Stories {
   /// TL: `stories.getAlbums#25b3eac7 peer:InputPeer hash:long = stories.Albums`
   @TLObject(id: 0x25b3eac7, returning: TL.Stories.AlbumsType.self)
   public struct GetAlbums: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "stories.getAlbums"
+    }
     public var peer: TL.InputPeerType
     public var hash: Int64
   }

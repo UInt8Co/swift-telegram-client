@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.getSavedRingtones#e1902288 hash:long = account.SavedRingtones`
   @TLObject(id: 0xe1902288, returning: TL.Account.SavedRingtonesType.self)
   public struct GetSavedRingtones: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.getSavedRingtones"
+    }
     public var hash: Int64
   }
 }

@@ -15,6 +15,9 @@ extension TL.Messages {
   /// TL: `messages.getCustomEmojiDocuments#d9ab0f54 document_id:Vector<long> = Vector<Document>`
   @TLObject(id: 0xd9ab0f54, returning: [TL.DocumentType].self)
   public struct GetCustomEmojiDocuments: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "messages.getCustomEmojiDocuments"
+    }
     public var documentId: [Int64]
   }
 }

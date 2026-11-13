@@ -15,6 +15,9 @@ extension TL.Channels {
   /// TL: `channels.setDiscussionGroup#40582bb2 broadcast:InputChannel group:InputChannel = Bool`
   @TLObject(id: 0x40582bb2, returning: Bool.self)
   public struct SetDiscussionGroup: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "channels.setDiscussionGroup"
+    }
     public var broadcast: TL.InputChannelType
     public var group: TL.InputChannelType
   }

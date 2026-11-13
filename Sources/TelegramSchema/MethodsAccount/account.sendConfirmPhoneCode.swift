@@ -15,6 +15,9 @@ extension TL.Account {
   /// TL: `account.sendConfirmPhoneCode#1b3faa88 hash:string settings:CodeSettings = auth.SentCode`
   @TLObject(id: 0x1b3faa88, returning: TL.Auth.SentCodeType.self)
   public struct SendConfirmPhoneCode: Equatable, Sendable {
+    public static var tlMethodName: String {
+      "account.sendConfirmPhoneCode"
+    }
     public var hash: String
     public var settings: TL.CodeSettings
   }
