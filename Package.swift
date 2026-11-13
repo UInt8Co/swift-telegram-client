@@ -15,8 +15,8 @@ let package = Package(
     .library(name: "TelegramWidget", targets: ["TelegramWidget"]),
   ],
   dependencies: [
-    .package(url: "https://github.com/UInt8Co/swift-mtproto.git", from: "2.0.0"),
-    .package(url: "https://github.com/UInt8Co/swift-nio-mtproto.git", from: "1.1.0"),
+    .package(url: "https://github.com/UInt8Co/swift-mtproto.git", from: "3.0.0"),
+    .package(url: "https://github.com/UInt8Co/swift-nio-mtproto.git", from: "2.0.0"),
     .package(url: "https://github.com/apple/swift-crypto.git", from: "5.0.0"),
   ],
   targets: [
