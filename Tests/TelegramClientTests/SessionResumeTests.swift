@@ -17,6 +17,56 @@ import Testing
 #endif
 
 @Suite struct SessionResumeTests {
+  /// Covers real encrypted TCP, framing, the session actor and inbound task
+  /// chaining. Native measurements are not a substitute for a production heap profile.
+  @Test(.enabled(if: ProcessInfo.processInfo.environment["TELEGRAM_RPC_MEMORY_BENCHMARK"] == "1"),
+        arguments: ProcessInfo.processInfo.environment["TELEGRAM_RPC_MEMORY_STEADY"] == "1" ? [true] : [false, true])
+  private func repeatedEncryptedRPCMemory(deadlines: Bool) async throws {
+    let steady = ProcessInfo.processInfo.environment["TELEGRAM_RPC_MEMORY_STEADY"] == "1"
+    let batchSize = steady ? 120 : 10_000
+    let server = try await ResumeServer.start(authKey: ResumeServer.freshSession.authKey, replies: [.emptyDifference])
+    let client = try await TelegramConnection.dialClient(server.endpoint, .init(
+      rsaPublicKey: TelegramService.production.rsaPublicKey,
+      resumeSession: ResumeServer.freshSession, pingInterval: nil,
+      requestTimeout: deadlines ? .seconds(steady ? 60 : 2) : nil, connectTimeout: .seconds(2)))
+    func sample(_ batch: Int, drained: Bool = false) {
+      #if os(Linux)
+      let status = (try? String(contentsOfFile: "/proc/self/status", encoding: .utf8)) ?? ""
+      let fields = status.split(separator: "\n").filter {
+        $0.hasPrefix("VmRSS:") || $0.hasPrefix("RssAnon:") || $0.hasPrefix("RssFile:")
+      }.joined(separator: "; ")
+      print("encrypted-rpc-memory deadlines=\(deadlines) steady=\(steady) drained=\(drained) calls=\(batch * batchSize) \(fields)")
+      #endif
+    }
+    let request = TL.Updates.GetChannelDifference(channel: .inputChannelEmpty(.init()),
+      filter: .channelMessagesFilterEmpty(.init()), pts: 123, limit: 1000)
+    let expected = TL.Updates.ChannelDifferenceType.channelDifferenceEmpty(.init(final: true, pts: 123, timeout: 10))
+    do {
+      sample(0)
+      for batch in 1...(steady ? 6 : 3) {
+        for _ in 0..<batchSize {
+          #expect(try await client.invoke(request) == expected)
+          if steady { try await Task.sleep(for: .milliseconds(250)) }
+        }
+        // Successful replies leave finite deadline tasks behind. Burst mode
+        // drains each batch; steady mode samples live, then drains at the end.
+        if !steady { try await Task.sleep(for: .seconds(3)) }
+        sample(batch, drained: !steady)
+      }
+      if steady {
+        try await Task.sleep(for: .seconds(65))
+        sample(6, drained: true)
+      }
+      #expect(server.observed.state.withLock { $0.requests.isEmpty })
+      try await client.disconnect()
+      try await server.channel.close()
+    } catch {
+      try? await client.disconnect()
+      try? await server.channel.close()
+      throw error
+    }
+  }
+
   @Test(arguments: [
     [ResumeReply.close, .close, .close],
     [.close, .silence, .silence], [.silence, .close, .silence], [.silence, .silence, .close],
@@ -356,6 +406,7 @@ private final class ResumeFixture: Sendable {
 }
 
 private enum ResumeReply: Equatable, Sendable {
+  case emptyDifference
   case silence
   case close
   case rpcError(String)
@@ -441,9 +492,15 @@ private struct ResumeDecoder: ByteToMessageDecoder {
       #expect((try? TL.Ping(tlData: request.body)) == nil, "resume must not send an explicit ping")
       return .continue
     }
-    observed.state.withLock { $0.requests.append(request) }
+    // The memory benchmark must not manufacture per-request retention in its peer.
+    if reply != .emptyDifference { observed.state.withLock { $0.requests.append(request) } }
     var body = TLWriter()
     switch reply {
+    case .emptyDifference:
+      body.writeUInt32(TL.RpcResult.tlConstructorID)
+      body.writeInt64(request.msgID)
+      body.writeRawData(TL.Updates.ChannelDifferenceType.channelDifferenceEmpty(
+        .init(final: true, pts: 123, timeout: 10)).tlSerialized())
     case .silence:
       return .continue
     case .close:
@@ -487,7 +544,8 @@ private struct ResumeDecoder: ByteToMessageDecoder {
     sequence += 1
     let payload = try MTProtoEncryptedMessage.encode(
       body: body.data, salt: ResumeServer.correctedSalt, sessionID: request.sessionID,
-      msgID: msgID, seqNo: 0, authKey: authKey, authKeyID: MTProtoMessageCrypto.authKeyID(authKey),
+      msgID: msgID, seqNo: reply == .emptyDifference ? Int32(sequence * 2 + 1) : 0,
+      authKey: authKey, authKeyID: MTProtoMessageCrypto.authKeyID(authKey),
       direction: .fromServer)
     write(payload, context: context)
     return .continue

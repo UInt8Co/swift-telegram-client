@@ -151,6 +151,20 @@ that, a consumer may rely on exactly this:
   is already attached. An observer that fails cannot fail a login the server
   already accepted, nor make the next attempt spend another.
 
+### Diagnosing a stalled lane
+
+Read ``ReceivedPeerObservation/metrics`` to snapshot the retained work count,
+oldest enqueue age, processing state and remaining attachment backlog under one
+lock. Counts include pushes, held results and `flush` barriers. The head stays
+counted through observation and handoff, so one blocked observer remains visible
+even when nothing waits behind it. Age uses a monotonic clock and is `nil` when
+the queue is empty. Inline RPC observations and callers waiting for the initial
+backlog are outside these queue metrics. The backlog count is zero before
+attachment and excludes items arriving after attachment.
+
+The queue remains unbounded; these diagnostics do not apply backpressure, retry
+observations, or discard pushes.
+
 ### Testing with the production path
 
 A test with a fake transport builds exactly what a connection does: a

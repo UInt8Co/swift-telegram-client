@@ -311,11 +311,134 @@ import Testing
     }
     try await Task.sleep(for: .milliseconds(50))
     #expect(events.all.isEmpty, "the new result overtook the held one")
+    let waitingMetrics = observation.metrics
+    #expect(waitingMetrics.queuedCount == 1 && waitingMetrics.backlogCount == 1)
+    #expect(waitingMetrics.isProcessing, "the waiting RPC is outside the serial queue")
     open.yield()
     await attached.value
     try await call.value
     let seen = Seen(users: [Self.fullUser], chats: [], from: "users.getUsers")
     #expect(events.all == [.observed(seen), .observed(seen), .returned])
+  }
+
+  @Test("blocked observation metrics include the head and attachment backlog, then drain in FIFO order")
+  func blockedQueueMetricsAndDrain() async throws {
+    let observation = ReceivedPeerObservation()
+    let handedOn = Mutex<[Int32]>([])
+    let handOn: @Sendable (TL.UpdatesType) -> Void = { updates in
+      if case .updates(let value) = updates { handedOn.withLock { $0.append(value.seq) } }
+      #expect(observation.metrics.isProcessing, "handoff is still in flight")
+    }
+    let empty = observation.metrics
+    #expect(empty.queuedCount == 0 && empty.oldestAge == nil && !empty.isProcessing)
+    for seq in 1...2 {
+      observation.push(Self.container(Self.fullUser, seq: Int32(seq)), handingOnTo: handOn)
+    }
+    let held = observation.metrics
+    #expect(held.queuedCount == 2 && held.backlogCount == 0 && !held.isProcessing)
+    let age = try #require(held.oldestAge)
+    let (entered, enter) = AsyncStream.makeStream(of: Void.self)
+    let (gate, open) = AsyncStream.makeStream(of: Void.self)
+    let calls = Mutex(0)
+    let attached = Task {
+      await observation.attach { _ in
+        if calls.withLock({ $0 += 1; return $0 }) == 1 {
+          enter.yield()
+          var iterator = gate.makeAsyncIterator()
+          await iterator.next()
+        }
+      }
+    }
+    try await within("blocked observer entry") {
+      var iterator = entered.makeAsyncIterator()
+      await iterator.next()
+    }
+    defer { open.finish() }
+    // Later arrivals must not extend the attachment backlog.
+    for seq in 3...2048 {
+      observation.push(Self.container(Self.fullUser, seq: Int32(seq)), handingOnTo: handOn)
+    }
+    let blocked = observation.metrics
+    #expect(blocked.queuedCount == 2048 && blocked.backlogCount == 2 && blocked.isProcessing)
+    #expect(try #require(blocked.oldestAge) >= age)
+    #expect(handedOn.withLock { $0.isEmpty })
+    open.yield()
+    try await within("blocked queue drain") {
+      await attached.value
+      await observation.flush()
+      // flush resumes before its own barrier is removed.
+      while observation.metrics.queuedCount != 0 { await Task.yield() }
+    }
+    #expect(handedOn.withLock { $0 } == (1...2048).map(Int32.init))
+    #expect(calls.withLock { $0 } == 2048)
+    let drained = observation.metrics
+    #expect(drained.queuedCount == 0 && drained.backlogCount == 0)
+    #expect(drained.oldestAge == nil && !drained.isProcessing)
+  }
+
+  @Test("repeated empty channel differences never enter observation, even before attachment")
+  func repeatedEmptyDifferences() async throws {
+    let reply = TL.Updates.ChannelDifferenceType.channelDifferenceEmpty(
+      TL.Updates.ChannelDifferenceEmpty(final: true, pts: 123, timeout: 10))
+    let bottom = CannedTransport { _ in reply.tlSerialized() }
+    let observation = ReceivedPeerObservation()
+    let api = TLClient(transport: PeerObservingTransport(base: bottom, observation: observation))
+    let request = TL.Updates.GetChannelDifference(
+      channel: .inputChannelEmpty(TL.InputChannelEmpty()),
+      filter: .channelMessagesFilterEmpty(TL.ChannelMessagesFilterEmpty()), pts: 123, limit: 100)
+    for _ in 0..<2000 { #expect(try await api.invoke(request) == reply) }
+    #expect(bottom.decodedReplies == 2000)
+    #expect(observation.metrics.queuedCount == 0)
+    await observation.attach { _ in Issue.record("empty difference was observed") }
+    await observation.flush()
+  }
+
+  @Test("typed RPC payloads release after empty/inline calls and after held observations drain")
+  func resultPayloadLifetimes() async throws {
+    #expect(TrackedUsers.live.withLock { $0 } == 0)
+    // An empty carrier and an inline observed carrier must both release at return.
+    for users in [[], [Self.fullUser]] {
+      let observation = ReceivedPeerObservation()
+      await observation.attach { _ in }
+      let api = TLClient(transport: PeerObservingTransport(
+        base: CannedTransport { _ in users.tlSerialized() }, observation: observation))
+      for _ in 0..<1000 { _ = try await api.invoke(GetTrackedUsers()) }
+      #expect(TrackedUsers.live.withLock { $0 } == 0)
+      #expect(observation.metrics.queuedCount == 0)
+    }
+    let observation = ReceivedPeerObservation()
+    let api = TLClient(transport: PeerObservingTransport(
+      base: CannedTransport { _ in [Self.fullUser].tlSerialized() }, observation: observation))
+    for _ in 0..<64 { _ = try await api.invoke(GetTrackedUsers()) }
+    #expect(TrackedUsers.live.withLock { $0 } == 64, "held calls intentionally retain decoded results")
+    let (entered, enter) = AsyncStream.makeStream(of: Void.self)
+    let (gate, open) = AsyncStream.makeStream(of: Void.self)
+    let calls = Mutex(0)
+    let attached = Task {
+      await observation.attach { _ in
+        if calls.withLock({ $0 += 1; return $0 }) == 1 {
+          enter.yield()
+          var iterator = gate.makeAsyncIterator()
+          await iterator.next()
+        }
+      }
+    }
+    try await within("held result observer entry") {
+      var iterator = entered.makeAsyncIterator()
+      await iterator.next()
+    }
+    defer { open.finish() }
+    #expect(TrackedUsers.live.withLock { $0 } == 64)
+    #expect(observation.metrics.queuedCount == 64 && observation.metrics.backlogCount == 64)
+    open.yield()
+    try await within("held payload release") {
+      await attached.value
+      await observation.flush()
+      while observation.metrics.queuedCount != 0 || TrackedUsers.live.withLock({ $0 }) != 0 {
+        await Task.yield()
+      }
+    }
+    #expect(calls.withLock { $0 } == 64)
   }
 
   // MARK: Re-entrancy and ordering
@@ -511,6 +634,30 @@ private struct CountedUsers: TLDecodable, Sendable, ReceivedPeerCarrying {
       return $0
     }
   }
+
+  func collectReceivedPeers(into peers: inout ReceivedPeerList) {
+    users.collectReceivedPeers(into: &peers)
+  }
+}
+
+private struct GetTrackedUsers: TLFunction {
+  typealias ReturnType = TrackedUsers
+  static var tlMethodName: String { "test.getTrackedUsers" }
+  func tlEncode(to writer: inout TLWriter) { writer.writeUInt32(0x7e57_0002) }
+}
+
+/// A decoded reference payload: live instances reveal retention without relying
+/// on RSS, allocator reuse, or weak references to value-type TL containers.
+private final class TrackedUsers: TLDecodable, Sendable, ReceivedPeerCarrying {
+  static let live = Mutex(0)
+  let users: [TL.UserType]
+
+  init(tlFrom reader: inout TLReader) throws {
+    users = try [TL.UserType](tlFrom: &reader)
+    Self.live.withLock { $0 += 1 }
+  }
+
+  deinit { Self.live.withLock { $0 -= 1 } }
 
   func collectReceivedPeers(into peers: inout ReceivedPeerList) {
     users.collectReceivedPeers(into: &peers)

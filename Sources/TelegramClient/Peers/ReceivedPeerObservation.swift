@@ -1,3 +1,4 @@
+import DequeModule
 import Synchronization
 import TLCoding
 import TelegramSchema
@@ -64,6 +65,40 @@ public final class ReceivedPeerObservation: Sendable {
     }
   }
 
+  /// A thread-safe snapshot of the serial observation lane. Counts include
+  /// pushes, held results and `flush` barriers, including the head until its
+  /// observation and handoff finish. Inline RPC observations and RPC callers
+  /// waiting for the attachment backlog are not in this queue.
+  public struct Metrics: Sendable {
+    /// Work items still retained by the lane, including the in-flight head.
+    public let queuedCount: Int
+    /// Age since the oldest retained item was enqueued, measured monotonically.
+    /// `nil` when the lane is empty; includes time spent processing the head.
+    public let oldestAge: Duration?
+    /// Whether the head is currently being processed (observation or handoff).
+    public let isProcessing: Bool
+    /// Items remaining from the attachment backlog, including its in-flight
+    /// head. Zero before attachment; later arrivals do not increase this count.
+    public let backlogCount: Int
+  }
+
+  /// Reads lane diagnostics under the same lock used to enqueue and drain.
+  public var metrics: Metrics {
+    shared.state.withLock { state in
+      Metrics(
+        queuedCount: state.queue.count,
+        oldestAge: state.queue.first.map { $0.enqueuedAt.duration(to: .now) },
+        isProcessing: state.isProcessing, backlogCount: state.backlog)
+    }
+  }
+
+  private struct Entry: Sendable {
+    let item: Item
+    let enqueuedAt = ContinuousClock.now
+
+    init(_ item: Item) { self.item = item }
+  }
+
   /// What the observation's own task works through, in order.
   private enum Item: Sendable {
     /// A push, handed on after its peers, if any, were observed.
@@ -85,7 +120,8 @@ public final class ReceivedPeerObservation: Sendable {
   private struct State {
     var observer: ReceivedPeersObserver?
     /// The head stays queued while it is processed.
-    var queue: [Item] = []
+    var queue: Deque<Entry> = []
+    var isProcessing = false
     /// How many items at the head of `queue` were received before attachment
     /// and are not yet observed. Results wait for this, never for the rest.
     var backlog = 0
@@ -127,13 +163,15 @@ public final class ReceivedPeerObservation: Sendable {
     Task {
       for await _ in wakes {
         while let (item, observer) = shared.state.withLock({ state -> (Item, ReceivedPeersObserver?)? in
-          guard let head = state.queue.first, state.observer != nil || !head.needsObserver
+          guard let head = state.queue.first, state.observer != nil || !head.item.needsObserver
           else { return nil }
-          return (head, state.observer)
+          state.isProcessing = true
+          return (head.item, state.observer)
         }) {
           await Self.process(item, observer: observer, in: shared, report: report)
           let drained = shared.state.withLock { state -> Drained? in
             state.queue.removeFirst()
+            state.isProcessing = false
             guard state.backlog > 0 else { return nil }
             state.backlog -= 1
             guard state.backlog == 0 else { return nil }
@@ -181,7 +219,7 @@ public final class ReceivedPeerObservation: Sendable {
   /// queued, so this does not wait for them.
   public func flush() async {
     await withCheckedContinuation { continuation in
-      shared.state.withLock { $0.queue.append(.flush(continuation)) }
+      shared.state.withLock { $0.queue.append(Entry(.flush(continuation))) }
       wake.yield()
     }
   }
@@ -192,7 +230,7 @@ public final class ReceivedPeerObservation: Sendable {
     _ updates: TL.UpdatesType, handingOnTo handOn: @escaping @Sendable (TL.UpdatesType) -> Void
   ) {
     let peers = ReceivedPeers(pushed: updates)
-    shared.state.withLock { $0.queue.append(.push(peers, handOn: handOn)) }
+    shared.state.withLock { $0.queue.append(Entry(.push(peers, handOn: handOn))) }
     wake.yield()
   }
 
@@ -212,7 +250,7 @@ public final class ReceivedPeerObservation: Sendable {
     enum Route { case held, inline(ReceivedPeersObserver), wait }
     let route = shared.state.withLock { state -> Route in
       guard callerWaits, let observer = state.observer else {
-        state.queue.append(.held(Self.held(peers)))
+        state.queue.append(Entry(.held(Self.held(peers))))
         return .held
       }
       return state.backlog == 0 ? .inline(observer) : .wait
@@ -226,7 +264,7 @@ public final class ReceivedPeerObservation: Sendable {
       do {
         try await waitForBacklog()
       } catch {
-        shared.state.withLock { $0.queue.append(.held(Self.held(peers))) }
+        shared.state.withLock { $0.queue.append(Entry(.held(Self.held(peers)))) }
         wake.yield()
         throw error
       }

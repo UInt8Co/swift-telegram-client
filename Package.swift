@@ -18,6 +18,7 @@ let package = Package(
     .package(url: "https://github.com/UInt8Co/swift-mtproto.git", from: "3.0.0"),
     .package(url: "https://github.com/UInt8Co/swift-nio-mtproto.git", from: "2.0.0"),
     .package(url: "https://github.com/apple/swift-crypto.git", from: "5.0.0"),
+    .package(url: "https://github.com/apple/swift-collections.git", from: "1.7.1"),
   ],
   targets: [
     // The client proper: everything between a connected MTProto session and the
@@ -29,6 +30,7 @@ let package = Package(
       name: "TelegramClient",
       dependencies: [
         "TelegramSchema",
+        .product(name: "DequeModule", package: "swift-collections"),
         .product(name: "MTProtoClientKit", package: "swift-nio-mtproto"),
         .product(name: "NIOMTProtoEncryption", package: "swift-nio-mtproto"),
         .product(name: "MTProtoCrypto", package: "swift-mtproto"),
