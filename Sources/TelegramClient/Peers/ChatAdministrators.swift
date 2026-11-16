@@ -4,6 +4,20 @@ import TelegramSchema
 public enum ParticipantLookupError: Error, Equatable {
   /// Participants are hidden, repeated, missing, inconsistent or unavailable.
   case incompleteMembership
+  /// The precise reason a participant fallback could not prove absence.
+  case incomplete(Reason)
+
+  public enum Reason: Sendable, Equatable {
+    case hiddenParticipants
+    case unavailableCount
+    case notModified(offset: Int32)
+    case countMismatch(expected: Int32, actual: Int32, offset: Int32)
+    case unexpectedParticipant(offset: Int32)
+    case duplicateParticipant(userID: Int64, offset: Int32)
+    case tooManyParticipants(expected: Int32, seen: Int)
+    case earlyEnd(expected: Int32, seen: Int)
+    case traversalLimit(seen: Int)
+  }
 }
 
 /// The user and rights from an administrator entry, without application policy.

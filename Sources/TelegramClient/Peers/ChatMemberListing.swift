@@ -29,6 +29,8 @@ public struct ChatMemberPage: Sendable, Equatable {
 /// Stateless projections for restartable member enumeration. Callers own RPCs,
 /// persistence, retries and scheduling. Channel RPCs must use hash zero and the
 /// recent-participants filter. Lists are live: insertions/removals can change offsets.
+/// Enumeration collects visible candidates; it never proves an unlisted user absent.
+/// An empty page ends enumeration even when Telegram advertises more members.
 public enum ChatMemberListing {
   public static func channel(_ response: TL.Channels.ChannelParticipantsType,
     offset: Int32, limit: Int32 = 200) throws -> ChatMemberPage {
@@ -36,7 +38,7 @@ public enum ChatMemberListing {
       page.count >= 0, page.participants.count <= Int(limit)
     else { throw ParticipantLookupError.incompleteMembership }
     let end = Int64(offset) + Int64(page.participants.count)
-    guard end <= Int64(Int32.max), !page.participants.isEmpty || offset >= page.count else {
+    guard end <= Int64(Int32.max) else {
       throw ParticipantLookupError.incompleteMembership
     }
     let deleted = deletedIDs(page.users)
@@ -52,7 +54,7 @@ public enum ChatMemberListing {
       }
       return .init(userID: id, role: role, isDeleted: deleted.contains(id))
     }
-    return .init(members: members, nextOffset: end < Int64(page.count) ? Int32(end) : nil)
+    return .init(members: members, nextOffset: !page.participants.isEmpty && end < Int64(page.count) ? Int32(end) : nil)
   }
 
   public static func basic(_ response: TL.Messages.ChatFull,

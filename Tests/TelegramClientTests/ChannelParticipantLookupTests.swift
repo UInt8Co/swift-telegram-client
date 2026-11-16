@@ -184,7 +184,7 @@ actor ParticipantLookupFixture {
         _ = try await lookup.contains(role: .member)
         Issue.record("An incomplete list produced a membership answer")
       } catch {
-        guard case .incompleteMembership = error as? ParticipantLookupError else { throw error }
+        guard error is ParticipantLookupError else { throw error }
       }
     }
     // An ordinary member returned by an admin-only query is not a complete admin list.

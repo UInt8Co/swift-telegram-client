@@ -4,7 +4,7 @@ import TelegramSchema
 /// Individual participant lookup with a complete-list fallback.
 public enum ChannelParticipantLookup {
   /// The participant role to query and validate.
-  public enum Role: Sendable {
+  public enum Role: Sendable, Hashable {
     /// Any current member, including a restricted user who can view messages.
     case member
     /// Only administrators and creators.
@@ -34,18 +34,18 @@ public enum ChannelParticipantLookup {
     /// Requires a nonnegative authoritative count and visible member lists.
     public func count(in info: TL.ChatFullType) throws -> Int32 {
       guard case .channelFull(let channel) = info else {
-        throw ParticipantLookupError.incompleteMembership
+        throw ParticipantLookupError.incomplete(.unavailableCount)
       }
       let count: Int32?
       switch self {
       case .member:
         // A recent-members query can expose only a subset when the
         // member list is hidden. Its own count cannot prove absence.
-        guard channel.canViewParticipants else { throw ParticipantLookupError.incompleteMembership }
+        guard channel.canViewParticipants else { throw ParticipantLookupError.incomplete(.hiddenParticipants) }
         count = channel.participantsCount
       case .admin: count = channel.adminsCount
       }
-      guard let count, count >= 0 else { throw ParticipantLookupError.incompleteMembership }
+      guard let count, count >= 0 else { throw ParticipantLookupError.incomplete(.unavailableCount) }
       return count
     }
   }
@@ -69,39 +69,88 @@ public enum ChannelParticipantLookup {
       @Sendable (TL.ChannelParticipantsFilterType, Int32, Int32) async throws ->
       TL.Channels.ChannelParticipantsType
   ) async throws -> Bool {
+    try await contains(userID: userID, role: role, participant: participant) {
+      try await fallback(userID: userID, role: role, count: count, page: page)
+    }
+  }
+
+  /// Supplies a shared fallback policy while keeping individual lookups fresh.
+  public static func contains(
+    userID: Int64, role: Role,
+    participant: @Sendable () async throws -> TL.ChannelParticipantType?,
+    fallback: @Sendable () async throws -> Bool
+  ) async throws -> Bool {
     do {
       guard let participant = try await participant() else { return false }
       return role.userID(participant) == userID
-    } catch  where PeerAccessFailure.userUnavailable(error) || isUnresolvableParticipant(error) {
+    } catch where PeerAccessFailure.userUnavailable(error) || isUnresolvableParticipant(error) {
       try Task.checkCancellation()
     }
+    return try await fallback()
+  }
 
-    // hash = 0 at the call site requests a full response. NotModified,
-    // early exhaustion, duplicate entries and changing counts all leave
-    // membership unknown.
-    // https://core.telegram.org/constructor/channels.channelParticipants
-    let expectedCount = try await count()
-    guard expectedCount >= 0 else { throw ParticipantLookupError.incompleteMembership }
+  /// A returned matching participant proves presence even in a partial list.
+  /// Absence requires a visible, complete traversal and a fresh authoritative
+  /// count supplied by the caller. No count, transport or cancellation error
+  /// is converted to absence. The count is fetched only when a page misses.
+  public static func fallback(
+    userID: Int64, role: Role,
+    count: @Sendable () async throws -> Int32,
+    page: @Sendable (TL.ChannelParticipantsFilterType, Int32, Int32) async throws -> TL.Channels.ChannelParticipantsType,
+    completed: @Sendable (Set<Int64>) async -> Void = { _ in }
+  ) async throws -> Bool {
+    var expectedCount: Int32?
+    var countRead = false
+    var incomplete: ParticipantLookupError?
     var seen: Set<Int64> = []
-    while true {
+    // Telegram may never expose every member. Bound work even if it keeps
+    // returning distinct pages without reaching the advertised count.
+    for _ in 0..<5 {
       try Task.checkCancellation()
-      let response = try await page(role.filter, Int32(seen.count), 200)
+      let offset = Int32(seen.count)
+      let response = try await page(role.filter, offset, 200)
       try Task.checkCancellation()
-      guard case .channelParticipants(let result) = response, result.count == expectedCount else {
-        throw ParticipantLookupError.incompleteMembership
+      guard case .channelParticipants(let result) = response else {
+        throw ParticipantLookupError.incomplete(.notModified(offset: offset))
       }
-      for participant in result.participants {
-        guard let id = role.userID(participant), seen.insert(id).inserted else {
-          throw ParticipantLookupError.incompleteMembership
+      // Check positive evidence before completeness: a count mismatch, duplicate
+      // or unrelated entry cannot erase the target's explicit participant record.
+      if result.participants.contains(where: { role.userID($0) == userID }) { return true }
+      if !countRead {
+        countRead = true
+        do { expectedCount = try await count() }
+        catch let error as ParticipantLookupError { incomplete = error }
+      }
+      try Task.checkCancellation()
+      if let expectedCount, expectedCount >= 0 {
+        if result.count != expectedCount, incomplete == nil {
+          incomplete = .incomplete(.countMismatch(expected: expectedCount, actual: result.count, offset: offset))
         }
-        if id == userID { return true }
+      } else if incomplete == nil { incomplete = .incomplete(.unavailableCount) }
+      // Keep looking for positive evidence in accessible later pages, even
+      // when visibility/counts already rule out proving absence.
+      guard result.count >= 0 else { throw incomplete ?? .incomplete(.unavailableCount) }
+      for participant in result.participants {
+        guard let id = role.userID(participant) else {
+          throw ParticipantLookupError.incomplete(.unexpectedParticipant(offset: offset))
+        }
+        guard seen.insert(id).inserted else {
+          throw ParticipantLookupError.incomplete(.duplicateParticipant(userID: id, offset: offset))
+        }
       }
       guard seen.count <= Int(result.count) else {
-        throw ParticipantLookupError.incompleteMembership
+        throw ParticipantLookupError.incomplete(.tooManyParticipants(expected: result.count, seen: seen.count))
       }
-      if seen.count == Int(result.count) { return false }
-      guard !result.participants.isEmpty else { throw ParticipantLookupError.incompleteMembership }
+      if seen.count == Int(result.count) {
+        if let incomplete { throw incomplete }
+        await completed(seen)
+        return false
+      }
+      guard !result.participants.isEmpty else {
+        throw incomplete ?? .incomplete(.earlyEnd(expected: result.count, seen: seen.count))
+      }
     }
+    throw incomplete ?? .incomplete(.traversalLimit(seen: seen.count))
   }
 
   /// Current user members, including restricted users who have not left and can view messages.

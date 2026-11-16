@@ -34,7 +34,7 @@ import TelegramSchema
 
   @Test func incompleteAndInvalidPagesThrow() {
     let invalid: [(TL.Channels.ChannelParticipantsType, Int32)] = [
-      (.channelParticipantsNotModified(.init()), 0), (page([], count: 3), 0),
+      (.channelParticipantsNotModified(.init()), 0),
       (page([], count: 0), -1), (page([], count: -1), 0),
       (page([.channelParticipant(.init(userId: 1, date: 0)),
         .channelParticipant(.init(userId: 1, date: 0))], count: 2), 0),
@@ -44,6 +44,15 @@ import TelegramSchema
       #expect(throws: ParticipantLookupError.self) { try ChatMemberListing.channel(response, offset: offset) }
     }
     #expect(throws: ParticipantLookupError.self) { try ChatMemberListing.channel(page([], count: 0), offset: 0, limit: 0) }
+  }
+
+  @Test func permanentlyPartialListsFinishVisibleEnumeration() throws {
+    let first = try ChatMemberListing.channel(page([.channelParticipant(.init(userId: 7, date: 0))], count: 1000), offset: 0)
+    #expect(first.members.map(\.userID) == [7])
+    #expect(first.nextOffset == 1)
+    let last = try ChatMemberListing.channel(page([], count: 1000), offset: 1)
+    #expect(last.members.isEmpty)
+    #expect(last.nextOffset == nil)
   }
 
   @Test func basicGroupsPageByRawListAndRequireVisibleParticipants() throws {
