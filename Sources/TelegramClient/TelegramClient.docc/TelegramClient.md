@@ -244,17 +244,11 @@ filenames; ``SessionInspection`` reports stored-session status without credentia
 ### Peer observations and link destinations
 
 `PeerSightings` provides partial reactive observations and message access contexts.
-`ChannelParticipantLookup` accepts explicit presence in a partial page, but proves
-absence only after a complete traversal checked against a fresh authoritative count.
-Its fallback stops after five pages; Telegram may never expose a complete list.
-`ParticipantLookupError` describes count mismatches, hidden lists, early exhaustion
-and other completeness failures. `ParticipantLookupCache` shares only these failures
-by channel and role, with a one-minute cooldown doubling to one hour by default;
-individual lookups still run. Complete lists may also be reused for 60 seconds by
-protection checks that already permit caching, and must be invalidated on participant
-changes. Fresh authorization and enforcement checks must bypass cached lists.
-`ChatMemberListing` collects visible candidates and ends on an empty page, even below
-the advertised count. Completing enumeration does not prove any unlisted user absent.
+`ChannelParticipantLookup` can find users in partial lists, but needs a complete
+list and a fresh count to prove absence. `ParticipantLookupCache` reuses complete
+lists and backs off incomplete lookups. Invalidate cached lists when participants
+change, and bypass them for fresh checks. `ChatMemberListing` enumerates visible
+members without claiming the list is complete.
 `ForumTopics.TopicIDPolicy` distinguishes raw headers from validated reply targets.
 Link parsing separates destination recognition from application URL canonicalization.
 
