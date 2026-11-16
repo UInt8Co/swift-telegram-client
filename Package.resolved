@@ -1,5 +1,5 @@
 {
-  "originHash" : "134ebdb723a1dff7efeae0ed53b47f47b30c34fbebbb8420ff9027d9f1a3327c",
+  "originHash" : "c31c85d695a49aa98271fcde30f992338f266d6e1e8948207a4b3fc22ad18edf",
   "pins" : [
     {
       "identity" : "swift-argument-parser",
@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/UInt8Co/swift-mtproto.git",
       "state" : {
-        "revision" : "2be6bd35223d1c77fee50ba21f662495c1753aa8",
-        "version" : "3.0.0"
+        "revision" : "d96f421147a376ff1ca52683ecc0b0ee3de49f69",
+        "version" : "3.1.0"
       }
     },
     {
