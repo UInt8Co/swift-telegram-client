@@ -1,5 +1,5 @@
 {
-  "originHash" : "3b672eeee756ec2cbd79e410b006d4969bb748299729954abfe6b9ca41db32eb",
+  "originHash" : "134ebdb723a1dff7efeae0ed53b47f47b30c34fbebbb8420ff9027d9f1a3327c",
   "pins" : [
     {
       "identity" : "swift-argument-parser",
@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/UInt8Co/swift-mtproto.git",
       "state" : {
-        "revision" : "34c160d3aaf0551aea24d22c966b9acb267bcc78",
-        "version" : "2.1.0"
+        "revision" : "2be6bd35223d1c77fee50ba21f662495c1753aa8",
+        "version" : "3.0.0"
       }
     },
     {
@@ -69,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/UInt8Co/swift-nio-mtproto.git",
       "state" : {
-        "revision" : "68b00f4848bfd0a67ea9a4b0dec33690e6285f78",
-        "version" : "1.2.0"
+        "revision" : "e30b6e76ad7772f972ab6507317cfe5845930bcb",
+        "version" : "2.0.0"
       }
     },
     {
