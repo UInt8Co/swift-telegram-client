@@ -44,6 +44,20 @@ public protocol TelegramSessionStore: Sendable {
 
   func datacenterList(for scope: String) async throws -> StoredDatacenterList?
   func saveDatacenterList(_ list: StoredDatacenterList, for scope: String) async throws
+
+  /// The datacenter the scope's account was last connected to as its own home.
+  ///
+  /// Only a hint for which seed to dial first: the scope also holds sessions on
+  /// the datacenters its media connections imported authorizations to, and a
+  /// login resumed there is only redirected home again. A store that keeps no
+  /// hint (the default) costs that redirect on every connect, nothing more.
+  func homeDatacenter(for scope: String) async throws -> Int32?
+  func saveHomeDatacenter(_ dcID: Int32, for scope: String) async throws
+}
+
+extension TelegramSessionStore {
+  public func homeDatacenter(for scope: String) async throws -> Int32? { nil }
+  public func saveHomeDatacenter(_ dcID: Int32, for scope: String) async throws {}
 }
 
 /// A store that lives and dies with the process. Every session it holds is
@@ -51,6 +65,7 @@ public protocol TelegramSessionStore: Sendable {
 public actor InMemoryTelegramSessionStore: TelegramSessionStore {
   private var sessions: [String: CachedTelegramSession] = [:]
   private var datacenterLists: [String: StoredDatacenterList] = [:]
+  private var homeDatacenters: [String: Int32] = [:]
 
   public init() {}
 
@@ -76,5 +91,13 @@ public actor InMemoryTelegramSessionStore: TelegramSessionStore {
     _ list: StoredDatacenterList, for scope: String
   ) async throws {
     datacenterLists[scope] = list
+  }
+
+  public func homeDatacenter(for scope: String) async throws -> Int32? {
+    homeDatacenters[scope]
+  }
+
+  public func saveHomeDatacenter(_ dcID: Int32, for scope: String) async throws {
+    homeDatacenters[scope] = dcID
   }
 }

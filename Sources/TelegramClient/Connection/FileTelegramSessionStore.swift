@@ -77,6 +77,21 @@ public actor FileTelegramSessionStore: TelegramSessionStore {
     try write(list, namespace: "datacenters", key: scope)
   }
 
+  private struct HomeDatacenter: Codable {
+    var dcID: Int32
+  }
+
+  // `async`, unlike the methods above: these requirements have default
+  // implementations, and a synchronous isolated method loses to them when the
+  // store is called as `any TelegramSessionStore`.
+  public func homeDatacenter(for scope: String) async throws -> Int32? {
+    try read(HomeDatacenter.self, namespace: "home", key: scope)?.dcID
+  }
+
+  public func saveHomeDatacenter(_ dcID: Int32, for scope: String) async throws {
+    try write(HomeDatacenter(dcID: dcID), namespace: "home", key: scope)
+  }
+
   private func read<T: Decodable>(_ type: T.Type, namespace: String, key: String) throws -> T? {
     let data: Data
     do {

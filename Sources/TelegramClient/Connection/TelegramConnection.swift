@@ -291,6 +291,15 @@ public final class TelegramConnection: Sendable {
       } catch {
         try? await connectedClient?.disconnect()
         guard cached != nil else { throw error }
+        // The scope's session on a datacenter its media connections imported an
+        // authorization to is alive, just not home: identify there answers
+        // `*_MIGRATE_<home>`. That is a redirect `connect` follows and logs, not
+        // a failed resume, and the session stays for the media connection.
+        if phase == "identify", authorization.followsMigration,
+          case .migrate(let home)? = MTProtoDirective(error), home != endpoint.dcID
+        {
+          throw error
+        }
         log.warning(
           "cached session \(sessionKey ?? "") resume \(phase) failed "
             + "(attempt \(attempt)/\(maximumResumeAttempts)): \(error)")

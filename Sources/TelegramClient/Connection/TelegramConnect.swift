@@ -40,15 +40,30 @@ extension TelegramConnection {
       .first { $0.id == dcID }?.target
     }
 
+    // The scope also holds sessions on datacenters its media connections
+    // imported authorizations to; resuming one of those only earns a redirect
+    // home. Dial the home last connected to first. An unreadable hint is no
+    // hint: it costs at most that one redirect.
+    let home = try? await sessionStore.homeDatacenter(for: sessionScope)
     var failure: any Error = DatacenterListError.empty(sessionScope)
-    for seed in service.seeds {
+    for seed in seeds(of: service, homeFirst: home) {
       do {
-        return try await connect(
+        let connection = try await connect(
           endpoint: seed, rsaPublicKey: service.rsaPublicKey, app: app,
           layer: service.layer, authorization: authorization,
           sessionStore: sessionStore, sessionScope: sessionScope, locateDC: locateDC,
           onPushedUpdates: onPushedUpdates, receivedPeers: receivedPeers,
           timeouts: timeouts, log: log)
+        // An exported login may rest on a datacenter that is not its home.
+        let exported = if case .exported = authorization { true } else { false }
+        if !exported, connection.endpoint.dcID != home {
+          do {
+            try await sessionStore.saveHomeDatacenter(connection.endpoint.dcID, for: sessionScope)
+          } catch {
+            log.warning("could not remember DC \(connection.endpoint.dcID) as home: \(error)")
+          }
+        }
+        return connection
       } catch is CancellationError {
         throw CancellationError()
       } catch {
@@ -60,6 +75,12 @@ extension TelegramConnection {
       }
     }
     throw failure
+  }
+
+  /// The service's seeds with `home`'s moved to the front, otherwise in order.
+  static func seeds(of service: TelegramService, homeFirst home: Int32?) -> [TelegramEndpoint] {
+    guard let home else { return service.seeds }
+    return service.seeds.filter { $0.dcID == home } + service.seeds.filter { $0.dcID != home }
   }
 
   /// The service's datacenter list, asked of whichever seed answers first.

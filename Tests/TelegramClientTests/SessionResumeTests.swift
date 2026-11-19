@@ -298,6 +298,59 @@ import Testing
     try await fixture.server.channel.close()
   }
 
+  /// A media connection's session on a foreign datacenter, resumed by a login
+  /// that starts there: the redirect is handed on for `connect` to follow, the
+  /// session stays for the media connection, and nothing is called a failure.
+  @Test func loginResumedOffHomeHandsOnRedirectQuietly() async throws {
+    let fixture = try await ResumeFixture.make(replies: [.rpcError("USER_MIGRATE_5")])
+    defer { fixture.removeDirectory() }
+    await #expect(throws: MTProtoRPCError(code: 401, message: "USER_MIGRATE_5")) {
+      try await fixture.establish(authorization: .botToken("42:test-secret"))
+    }
+    #expect(try await fixture.reopenedSession() == fixture.cached)
+    #expect(fixture.dials.withLock { $0 } == [fixture.cached.session])
+    #expect(fixture.warnings.withLock { $0 }.isEmpty)
+    try await fixture.server.channel.close()
+  }
+
+  @Test(arguments: [false, true])
+  func connectingRemembersTheHomeOfLoginsOnly(exported: Bool) async throws {
+    let fixture = try await ResumeFixture.make(replies: [.identify(42)])
+    defer { fixture.removeDirectory() }
+    let service = TelegramService(
+      seeds: [fixture.server.endpoint], rsaPublicKey: TelegramService.production.rsaPublicKey,
+      layer: TelegramSchemaLayer.current)
+    let connection = try await TelegramConnection.connect(
+      to: service, app: TelegramApp(apiID: 12345, apiHash: "test"),
+      authorization: exported
+        ? .exported { throw TelegramClientError.noStoredSession } : .botToken("42:test-secret"),
+      sessionStore: fixture.store, sessionScope: "resume-test",
+      timeouts: .init(connect: .seconds(1), request: .milliseconds(150)))
+    #expect(connection.resumedSession)
+    let reopened = try FileTelegramSessionStore(directory: fixture.directory)
+    let home = try await reopened.homeDatacenter(for: "resume-test")
+    #expect(home == (exported ? nil : 2))
+    await connection.disconnect()
+    try await fixture.server.channel.close()
+  }
+
+  @Test func rememberedHomeSeedsAreDialedFirst() {
+    let seeds = [(2, 1), (2, 2), (1, 3), (5, 4), (4, 5)].map {
+      TelegramEndpoint(dcID: Int32($0.0), host: "10.0.0.\($0.1)", port: 443)
+    }
+    let service = TelegramService(
+      seeds: seeds, rsaPublicKey: TelegramService.production.rsaPublicKey,
+      layer: TelegramSchemaLayer.current)
+    #expect(TelegramConnection.seeds(of: service, homeFirst: nil) == seeds)
+    #expect(TelegramConnection.seeds(of: service, homeFirst: 3) == seeds)
+    #expect(
+      TelegramConnection.seeds(of: service, homeFirst: 5).map(\.host)
+        == ["10.0.0.4", "10.0.0.1", "10.0.0.2", "10.0.0.3", "10.0.0.5"])
+    #expect(
+      TelegramConnection.seeds(of: service, homeFirst: 2).map(\.host)
+        == ["10.0.0.1", "10.0.0.2", "10.0.0.3", "10.0.0.4", "10.0.0.5"])
+  }
+
   @Test func exportedSessionAcceptsHomeDCRedirect() async throws {
     let fixture = try await ResumeFixture.make(replies: [.rpcError("USER_MIGRATE_4")])
     defer { fixture.removeDirectory() }

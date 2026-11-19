@@ -56,6 +56,30 @@ import Testing
     #expect(try await reopened.session(for: "same-key")?.session == session)
   }
 
+  @Test("the home datacenter survives reopening per scope, apart from same-named keys")
+  func homeDatacenterSurvivesReopening() async throws {
+    let directory = directory()
+    defer { try? FileManager.default.removeItem(at: directory) }
+    let store = try FileTelegramSessionStore(directory: directory)
+    let list = StoredDatacenterList(datacenters: [], expiresAt: Date(timeIntervalSince1970: 1))
+    try await store.saveDatacenterList(list, for: "scope")
+    #expect(try await store.homeDatacenter(for: "scope") == nil)
+    try await store.saveHomeDatacenter(2, for: "scope")
+    try await store.saveHomeDatacenter(5, for: "scope")
+    // Connections reach the store as `any TelegramSessionStore`, where the
+    // protocol's do-nothing default must not win over the store's own method.
+    let erased: any TelegramSessionStore = store
+    try await erased.saveHomeDatacenter(7, for: "erased")
+    let erasedHome = try await erased.homeDatacenter(for: "erased")
+    #expect(erasedHome == 7)
+    let reopened = try FileTelegramSessionStore(directory: directory)
+    let home = try await reopened.homeDatacenter(for: "scope")
+    let other = try await reopened.homeDatacenter(for: "other")
+    #expect(home == 5)
+    #expect(other == nil)
+    #expect(try await reopened.datacenterList(for: "scope") == list)
+  }
+
   @Test("opaque long keys remain contained and credential files have private permissions")
   func keysCannotEscapeDirectory() async throws {
     let directory = directory()
