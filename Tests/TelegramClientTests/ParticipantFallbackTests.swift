@@ -37,6 +37,20 @@ import Testing
     }
   }
 
+  @Test func aCompleteListLargerThanTheFullInfoCountProvesAbsence() async throws {
+    let members = (1...3).map { TL.ChannelParticipantType.channelParticipant(.init(userId: Int64($0), date: 0)) }
+    let completed = Mutex<[Set<Int64>]>([])
+    #expect(try await ChannelParticipantLookup.fallback(userID: 7, role: .member,
+      count: { 2 }, page: { _, _, _ in ParticipantLookupFixture.page(members, count: 3) },
+      completed: { members in completed.withLock { $0.append(members) } }) == false)
+    #expect(completed.withLock { $0 } == [Set([1, 2, 3])])
+    // A list that falls short of the full-info count may be a subset.
+    await #expect(throws: ParticipantLookupError.incomplete(.countMismatch(expected: 4, actual: 3, offset: 0))) {
+      try await ChannelParticipantLookup.fallback(userID: 7, role: .member,
+        count: { 4 }, page: { _, _, _ in ParticipantLookupFixture.page(members, count: 3) })
+    }
+  }
+
   @Test func traversalIsBoundedWhenTelegramNeverCompletesTheList() async throws {
     let calls = Mutex(0)
     await #expect(throws: ParticipantLookupError.incomplete(.traversalLimit(seen: 1000))) {

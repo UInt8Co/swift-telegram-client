@@ -90,8 +90,11 @@ public enum ChannelParticipantLookup {
   }
 
   /// A returned matching participant proves presence even in a partial list.
-  /// Absence requires a visible, complete traversal and a fresh authoritative
-  /// count supplied by the caller. No count, transport or cancellation error
+  /// Absence requires a visible, complete traversal of the list's own count,
+  /// and that count must cover a fresh authoritative count supplied by the
+  /// caller. Telegram's full-info count routinely trails the list by a few
+  /// members, so a larger list count still proves absence; a smaller one may
+  /// be a subset and never does. No count, transport or cancellation error
   /// is converted to absence. The count is fetched only when a page misses.
   public static func fallback(
     userID: Int64, role: Role,
@@ -123,7 +126,7 @@ public enum ChannelParticipantLookup {
       }
       try Task.checkCancellation()
       if let expectedCount, expectedCount >= 0 {
-        if result.count != expectedCount, incomplete == nil {
+        if result.count < expectedCount, incomplete == nil {
           incomplete = .incomplete(.countMismatch(expected: expectedCount, actual: result.count, offset: offset))
         }
       } else if incomplete == nil { incomplete = .incomplete(.unavailableCount) }
