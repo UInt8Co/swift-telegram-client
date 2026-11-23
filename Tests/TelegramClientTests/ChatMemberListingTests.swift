@@ -20,6 +20,30 @@ import TelegramSchema
     #expect(result.nextOffset == 4)
   }
 
+  @Test func membershipDatesAndBotsSurviveProjection() throws {
+    let result = try ChatMemberListing.channel(page([
+      .channelParticipantCreator(.init(userId: 1, adminRights: .init())),
+      .channelParticipantAdmin(.init(userId: 2, promotedBy: 1, date: 200, adminRights: .init())),
+      .channelParticipant(.init(userId: 3, date: 300)),
+      .channelParticipantSelf(.init(userId: 4, inviterId: 1, date: 400)),
+      .channelParticipantBanned(.init(peer: .peerUser(.init(userId: 5)), kickedBy: 1, date: 500,
+        bannedRights: .init(sendMessages: true, untilDate: 0))),
+      .channelParticipant(.init(userId: 6, date: 0)),
+    ], count: 6, users: [.user(.init(bot: true, id: 4)), .user(.init(id: 3)), .userEmpty(.init(id: 6))]), offset: 0)
+    #expect(result.members.map(\.memberSince) == [nil, 200, 300, 400, 500, nil])
+    #expect(result.members.map(\.isBot) == [false, false, false, true, false, false])
+
+    let full = TL.Messages.ChatFull(fullChat: .chatFull(.init(id: 10, about: "",
+      participants: .chatParticipants(.init(chatId: 10, participants: [
+        .chatParticipantCreator(.init(userId: 1)),
+        .chatParticipantAdmin(.init(userId: 2, inviterId: 1, date: 20)),
+        .chatParticipant(.init(userId: 3, inviterId: 1, date: 30)),
+      ], version: 1)), notifySettings: .init())), chats: [], users: [.user(.init(bot: true, id: 3))])
+    let basic = try ChatMemberListing.basic(full, offset: 0)
+    #expect(basic.members.map(\.memberSince) == [nil, 20, 30])
+    #expect(basic.members.map(\.isBot) == [false, false, true])
+  }
+
   @Test func cursorCountsExcludedParticipantsAndKeepsRestrictedMembers() throws {
     let result = try ChatMemberListing.channel(page([
       .channelParticipantLeft(.init(peer: .peerUser(.init(userId: 1)))),
