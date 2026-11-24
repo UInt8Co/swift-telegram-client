@@ -70,6 +70,18 @@ These helpers decode events without granting access or asserting current members
 - ``BotGroupAdditionEvent``
 - ``RequestedPeerPicker``
 
+### Business connections
+
+Chat automation: a user account connects the bot to some of its private chats.
+Decoding performs no I/O; callers own gating, persistence and the connection's
+datacenter connection (for example a `TelegramClientPool`).
+
+- ``BusinessConnection``
+- ``BusinessMessage``
+- ``BusinessUpdate``
+- ``BusinessConnectionClient``
+- ``BusinessConnectionFailure``
+
 ### Reusing message content and context
 
 - ``EphemeralReplies``

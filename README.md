@@ -38,7 +38,7 @@ rendering, received widgets, bot-account conveniences and TL archival:
 | `TelegramRichText` | Compose outgoing rich messages with a result builder |
 | `TelegramMarkup` | Render received messages as compact HTML-style markup |
 | `TelegramWidget` | Decode received HTML widgets and read what they show without running them |
-| `TelegramBot` | Bot links, commands, menus, peer pickers, group additions, Stars subscriptions, private topics, buttons and draft streams |
+| `TelegramBot` | Bot links, commands, menus, peer pickers, group additions, Stars subscriptions, private topics, business connections, buttons and draft streams |
 | `TelegramArchive` | Retain boxed TL bytes, compact JSON views, and binary sidecars |
 
 `TelegramBot` builds on `TelegramClient`, `TelegramSchema` and `TelegramRichText`.
